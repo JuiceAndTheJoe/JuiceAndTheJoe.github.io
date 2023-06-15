@@ -1,0 +1,99 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background-color: rgb(122, 35, 146);
+  background-image: url('wao.gif');
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: difference;
+}
+
+.container {
+  display: flex;
+  min-height: 100%;
+}
+
+.left {
+  flex: 1;
+  max-width: 33.33%;
+  background-image: url('TG.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+}
+
+.content {
+  padding: 20px;
+  color: white;
+  font-family: Tahoma, sans-serif;
+}
+
+.right {
+  margin-left: 20px;
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.right a {
+  color: rgb(0, 255, 17);
+  transition: color 0.3s ease-in-out;
+  background-color: rgb(58, 16, 16);
+  font-size: 34px;
+}
+
+.right a:hover {
+  color: hotpink;
+}
+
+.right ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.right li {
+  margin-bottom: 10px;
+}
+
+.container h1,
+.container h2,
+.container p,
+.container li {
+  color: white;
+}
+
+.progress-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.bar {
+  background-color: #e5e5e5;
+  height: 20px;
+  width: 100%;
+}
+
+.progress {
+  background-color: #a600ff;
+  height: 100%;
+  width: 50%;
+}
+
+.progress-description {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.current-status {
+  font-size: 15px;
+  margin-top: 5px;
+}
