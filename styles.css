@@ -3,7 +3,7 @@ body {
   height: 100%;
   margin: 0;
   background-color: rgb(82, 78, 83);
-  background-image: url('wao.gif');
+  background-image: url('media/wao.gif');
   background-size: cover;
   background-position: center;
   background-blend-mode: difference;
@@ -17,7 +17,7 @@ body {
 .left {
   flex: 1;
   max-width: 33.33%;
-  background-image: url('TG.jpg');
+  background-image: url('media/TG.jpg');
   background-size: cover;
   background-position: center;
   display: flex;
