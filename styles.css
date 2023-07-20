@@ -63,6 +63,17 @@ body {
   color: rgb(16, 241, 249);
   background-color: transparent;
   font-size: 50px;
+  padding: 5px;
+  padding-bottom: 1px;
+  border-radius: 10px;
+}
+
+.links{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-end;
+  height: 100%;
 }
 
 .right a:hover {
