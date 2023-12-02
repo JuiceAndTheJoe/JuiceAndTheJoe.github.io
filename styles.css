@@ -86,7 +86,13 @@ body {
   box-shadow: inset 500px 0 0 0 #0e0043;
 }
 
-
+.left a {
+  color: #a600ff;
+}
+.left a:hover {
+  color: #f0a9fc;
+  transition: color .3s ease-in-out;
+}
 
 .progress-container {
   width: 600px;
