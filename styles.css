@@ -3,20 +3,15 @@ body {
   height: 100%;
   margin: 0;
   background-color: rgba(81,163,203,255);
-  background-image: url('https://images.squarespace-cdn.com/content/v1/551a19f8e4b0e8322a93850a/1573861378175-CUPY0J566KA5A117IIEE/Intro_Parallax.gif?format=1500w');
-  background-size: 40%;
-  background-repeat: repeat-x;
-  background-position: 0% 0%;
-  animation: scrollBackground 70s linear infinite; /* Use 'animation' property to apply the animation */
 }
 
 /* Define the keyframes for the scroll animation */
 @keyframes scrollBackground {
   from {
-    background-position: 0%; /* Start from the left side */
+    background-position: 0% bottom; /* Start from the left side */
   }
   to {
-    background-position: -100%; /* End at the right side */
+    background-position: -100% bottom; /* End at the right side */
   }
 }
 
@@ -35,20 +30,30 @@ body {
   align-items: flex-end;
 }
 
-.content {
-  padding: 20px;
+.content,
+.text {
+  padding: 15px;
+  color: white;
+  font-family: Tahoma, sans-serif;
+}
+
+.progress-bar{
   color: white;
   font-family: Tahoma, sans-serif;
 }
 
 .right {
-  margin-left: 20px;
   flex: 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+  background-image: url('https://images.squarespace-cdn.com/content/v1/551a19f8e4b0e8322a93850a/1573861378175-CUPY0J566KA5A117IIEE/Intro_Parallax.gif?format=1500w');
+  background-size: 70%;
+  background-repeat: repeat-x;
+  background-position: bottom;
+  animation: scrollBackground 40s linear infinite; /* Use 'animation' property to apply the animation */
 }
 
 .right a {
@@ -81,13 +86,7 @@ body {
   box-shadow: inset 500px 0 0 0 #0e0043;
 }
 
-.container h1,
-.container h2,
-.container p,
-.container li {
-  color: white;
-  font-family: Tahoma, sans-serif;
-}
+
 
 .progress-container {
   width: 600px;
