@@ -1,0 +1,41 @@
+body {
+    background-image: url(media/bio.gif);
+    background-size: cover;
+}
+
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.left {
+    flex: 1;
+    max-width: 50%;
+}
+  
+.right {
+    flex: 1;
+    max-width: 50%;
+}
+
+a {
+    color: rgb(254, 36, 116);
+    font-family: Tahoma, Verdana, sans-serif;
+    background-color: transparent;
+    font-size: 50px;
+    padding: 5px;
+    padding-bottom: 1px;
+    border-radius: 10px;
+}
+
+a:hover {
+    color: rgb(121, 251, 255);
+    box-shadow: inset 500px 0 0 0 #0e0043;
+    transition: color .3s ease-in-out;
+}
+
+h3 {
+    color: rgb(198, 42, 215);
+    font-family: Tahoma, Verdana, sans-serif;
+}
