@@ -4,10 +4,14 @@
     gap: 20px;
     margin-top: 50px;
 }
+
 body {
-    background-image: url('https://i.fbcd.co/products/resized/resized-1500-1000/2105-m10-i015-n016-mainpreview-92da39e156fd85d3479b53385d6a003fa0f5f1c66665a847ffd51e2fed5754cd.webp');
+    /*background-image: url('cardbg.jpeg');*/
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    height: 80vh;
+    margin: 0;
 }
 
 .card {
@@ -15,6 +19,7 @@ body {
     height: 210px; 
     perspective: 1000px;
     cursor: pointer;
+    padding: 5px;
 }
 
 .card-front {
@@ -67,4 +72,17 @@ body {
     color: white;
     text-decoration: underline;
     margin-top: 10px;
+}
+
+.animated-text {
+    font-size: 24px;
+    text-align: center;
+    margin-top: 20px;
+    animation: fadeIn 3s infinite;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
 }
