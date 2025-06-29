@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Showcase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .showcase-container {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .video-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 16px;
+            width: 360px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .video-title {
+            margin: 12px 0 8px 0;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+        }
+        @media (max-width: 1200px) {
+            .showcase-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>I've got a bike!</h1>
+    <div class="showcase-container">
+        <div class="video-card">
+            <div class="video-title">Storyboard</div>
+            <iframe width="320" height="180" src="https://youtu.be/9scQYSF13AY" 
+                title="Storyboard" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        <div class="video-card">
+            <div class="video-title">Black and White</div>
+            <iframe width="320" height="180" src="https://youtu.be/FT3VMcTd0Ck" 
+                title="Black and White" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        <div class="video-card">
+            <div class="video-title">''''Final'''' version (hopefully we'll redo this, not happy tbh)</div>
+            <iframe width="320" height="180" src="https://youtu.be/CvW_bPZ44jY" 
+                title="Final (not done)" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+    </div>
+</body>
+</html>
