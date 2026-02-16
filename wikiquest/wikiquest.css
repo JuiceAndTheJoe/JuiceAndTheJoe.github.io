@@ -65,13 +65,32 @@ body {
     margin-bottom: 60px;
 }
 
-.hero h1 {
+/* Sticky floating title */
+.sticky-title {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     font-size: 3.5rem;
+    text-align: center;
     margin-bottom: 10px;
+    padding: 20px 0;
     background: linear-gradient(90deg, #4fc3f7, #81d4fa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+.sticky-title::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(5, 5, 7, 1) 0%, rgba(5, 5, 7, 0.95) 70%, rgba(5, 5, 7, 0) 100%);
+    z-index: -1;
+    pointer-events: none;
 }
 
 .hero .tagline {
@@ -285,8 +304,9 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .hero h1 {
+    .sticky-title {
         font-size: 2.5rem;
+        padding: 15px 0;
     }
 
     .container {
