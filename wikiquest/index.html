@@ -23,11 +23,9 @@
     </div>
 
     <div class="container">
-      <!-- Sticky Title -->
-      <h1 class="sticky-title">WikiQuest</h1>
-
       <!-- Hero Section -->
       <section class="hero">
+        <h1>WikiQuest</h1>
         <p class="tagline">A Wikipedia trivia game</p>
         <p class="role">UX Design & Interface Development</p>
         <a
@@ -243,5 +241,33 @@
         </div>
       </section>
     </div>
+
+    <!-- Floating Play Button -->
+    <a
+      href="https://iprog-project-c443f.web.app"
+      target="_blank"
+      class="floating-play-button"
+      id="floatingPlayBtn"
+    >
+      <i class="fas fa-gamepad"></i>
+    </a>
+
+    <script>
+      const floatingBtn = document.getElementById('floatingPlayBtn');
+
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+        const scrolledFromTop = scrollTop > 300;
+        const nearBottom = scrollTop + windowHeight >= docHeight - 100;
+
+        if (scrolledFromTop && !nearBottom) {
+          floatingBtn.classList.add('visible');
+        } else {
+          floatingBtn.classList.remove('visible');
+        }
+      });
+    </script>
   </body>
 </html>
