@@ -1,619 +1,331 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Grand Theater of Links</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>~*~ThEaTeR LiNkS~*~</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=UnifrakturMaguntia&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            min-height: 100vh;
-            background: radial-gradient(ellipse at center, #1a0a0a 0%, #000 100%);
-            overflow-x: hidden;
-            font-family: 'Playfair Display', serif;
-        }
-
-        /* Floating dust particles */
-        .dust {
-            position: fixed;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 215, 0, 0.6);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: float 8s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* Stage curtains */
-        .curtain-left, .curtain-right {
-            position: fixed;
-            top: 0;
-            width: 50%;
-            height: 100vh;
-            background: linear-gradient(90deg, #8B0000 0%, #DC143C 50%, #8B0000 100%);
-            z-index: 1000;
-            transition: transform 2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .curtain-left {
-            left: 0;
-            transform-origin: left;
-            box-shadow: inset -30px 0 60px rgba(0,0,0,0.5);
-        }
-
-        .curtain-right {
-            right: 0;
-            transform-origin: right;
-            box-shadow: inset 30px 0 60px rgba(0,0,0,0.5);
-        }
-
-        .curtain-left::before, .curtain-right::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                180deg,
-                transparent,
-                transparent 40px,
-                rgba(0,0,0,0.1) 40px,
-                rgba(0,0,0,0.1) 80px
-            );
-        }
-
-        .curtains-open .curtain-left {
-            transform: translateX(-100%);
-        }
-
-        .curtains-open .curtain-right {
-            transform: translateX(100%);
-        }
-
-        /* Curtain rope */
-        .rope {
-            position: fixed;
-            right: 30px;
-            top: 20px;
-            width: 40px;
-            height: 150px;
-            z-index: 1001;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .rope:hover {
-            transform: translateY(20px);
-        }
-
-        .rope-cord {
-            width: 8px;
-            height: 120px;
-            background: linear-gradient(90deg, #8B4513, #D2691E, #8B4513);
-            margin: 0 auto;
-            border-radius: 4px;
-        }
-
-        .rope-tassel {
-            width: 30px;
-            height: 40px;
-            background: linear-gradient(180deg, #FFD700, #B8860B);
-            margin: 0 auto;
-            border-radius: 0 0 15px 15px;
-            position: relative;
-        }
-
-        .rope-tassel::after {
-            content: '';
-            position: absolute;
-            bottom: 5px;
-            left: 5px;
-            right: 5px;
-            height: 20px;
-            background: repeating-linear-gradient(
-                90deg,
-                #FFD700,
-                #FFD700 2px,
-                transparent 2px,
-                transparent 4px
-            );
-        }
-
-        .curtains-open .rope {
-            display: none;
-        }
-
-        /* Main stage */
-        .stage {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            position: relative;
-        }
-
-        /* Spotlight effect */
-        .spotlight {
-            position: fixed;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255,255,200,0.3) 0%, transparent 70%);
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            mix-blend-mode: screen;
-        }
-
-        /* Main title marquee */
-        .marquee {
+            background-color: #000000;
+            background-image: url('https://web.archive.org/web/20091027065aborede/http://geocities.com/js_source/stars.gif');
+            color: #00FF00;
+            font-family: "Comic Sans MS", "Papyrus", cursive;
             text-align: center;
-            margin-bottom: 60px;
-            position: relative;
+            cursor: url('https://cur.cursors-4u.net/cursors/cur-2/cur116.cur'), auto;
         }
 
-        .marquee h1 {
-            font-family: 'UnifrakturMaguntia', cursive;
-            font-size: clamp(2rem, 8vw, 5rem);
-            color: #FFD700;
-            text-shadow:
-                0 0 10px #FFD700,
-                0 0 20px #FFA500,
-                0 0 30px #FF4500,
-                4px 4px 0 #8B0000;
-            letter-spacing: 0.1em;
-            animation: flicker 3s infinite;
+        a {
+            color: #FF00FF;
         }
 
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            92% { opacity: 1; }
-            93% { opacity: 0.8; }
-            94% { opacity: 1; }
-            96% { opacity: 0.9; }
-            97% { opacity: 1; }
+        a:hover {
+            color: #FFFF00;
         }
 
-        .marquee-border {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120%;
-            height: calc(100% + 40px);
-            border: 8px solid #8B4513;
-            border-radius: 10px;
-            box-shadow:
-                inset 0 0 20px rgba(139, 69, 19, 0.5),
-                0 0 30px rgba(255, 215, 0, 0.3);
-            pointer-events: none;
+        .main-table {
+            width: 800px;
+            margin: 0 auto;
+            border: 5px ridge #FF0000;
+            background-color: #000033;
+            padding: 10px;
         }
 
-        /* Playbill cards */
-        .productions {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 40px;
-            perspective: 1000px;
-        }
-
-        .playbill {
-            width: 280px;
-            height: 400px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-        }
-
-        .playbill:hover {
-            transform: rotateY(15deg) rotateX(-5deg) scale(1.05);
-        }
-
-        .playbill-inner {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #FFF8DC 0%, #F5DEB3 50%, #DEB887 100%);
-            border-radius: 5px;
+        .title-cell {
+            background: linear-gradient(to right, #FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF, #FF00FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 36px;
+            font-weight: bold;
             padding: 20px;
-            box-shadow:
-                0 20px 60px rgba(0,0,0,0.5),
-                inset 0 0 100px rgba(139, 69, 19, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
         }
 
-        .playbill-inner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E");
-            pointer-events: none;
+        .blink {
+            animation: blink 1s steps(1) infinite;
         }
 
-        .theater-name {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            color: #8B4513;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #8B4513;
-            padding-bottom: 5px;
+        @keyframes blink {
+            50% { opacity: 0; }
         }
 
-        .production-icon {
-            font-size: 4rem;
-            margin: 20px 0;
-            animation: bounce 2s infinite ease-in-out;
+        .link-table {
+            border: 3px inset #808080;
+            background-color: #000066;
+            margin: 10px auto;
+            width: 90%;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .link-table td {
+            padding: 15px;
+            border: 2px outset #C0C0C0;
         }
 
-        .playbill:nth-child(2) .production-icon {
-            animation-delay: 0.3s;
+        .link-title {
+            font-size: 24px;
+            color: #FFFF00;
+            text-shadow: 2px 2px #FF0000;
         }
 
-        .playbill:nth-child(3) .production-icon {
-            animation-delay: 0.6s;
+        .link-desc {
+            color: #00FFFF;
+            font-size: 14px;
         }
 
-        .production-title {
-            font-family: 'UnifrakturMaguntia', cursive;
-            font-size: 1.8rem;
-            color: #2F1810;
-            text-align: center;
-            margin: 10px 0;
-            text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
-        }
-
-        .production-subtitle {
-            font-size: 0.9rem;
-            color: #5D4037;
-            text-align: center;
-            font-style: italic;
-            margin-bottom: 20px;
-        }
-
-        .production-link {
-            position: absolute;
-            bottom: 20px;
-            background: linear-gradient(135deg, #8B0000, #DC143C);
-            color: #FFD700;
-            text-decoration: none;
-            padding: 12px 30px;
-            border-radius: 30px;
+        .enter-btn {
+            background: linear-gradient(to bottom, #FFD700, #FF8C00);
+            border: 3px outset #FFD700;
+            color: #000000;
+            font-family: "Comic Sans MS", cursive;
+            font-size: 16px;
             font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            box-shadow: 0 5px 20px rgba(139, 0, 0, 0.5);
-            transition: all 0.3s;
-            border: 2px solid #FFD700;
-        }
-
-        .production-link:hover {
-            transform: scale(1.1);
-            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.5);
-            background: linear-gradient(135deg, #DC143C, #FF4500);
-        }
-
-        /* Decorative drama masks */
-        .masks {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 3rem;
-            opacity: 0.3;
-            animation: sway 4s infinite ease-in-out;
-        }
-
-        @keyframes sway {
-            0%, 100% { transform: translateX(-50%) rotate(-5deg); }
-            50% { transform: translateX(-50%) rotate(5deg); }
-        }
-
-        /* Stage lights at top */
-        .stage-lights {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            display: flex;
-            justify-content: space-around;
-            z-index: 5;
-        }
-
-        .light {
-            width: 40px;
-            height: 50px;
-            background: #333;
-            border-radius: 0 0 20px 20px;
-            position: relative;
-        }
-
-        .light::after {
-            content: '';
-            position: absolute;
-            bottom: -200px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(ellipse at top, rgba(255,200,100,0.2) 0%, transparent 70%);
-            animation: pulse 2s infinite;
-        }
-
-        .light:nth-child(2)::after {
-            animation-delay: 0.5s;
-            background: radial-gradient(ellipse at top, rgba(255,100,100,0.2) 0%, transparent 70%);
-        }
-
-        .light:nth-child(3)::after {
-            animation-delay: 1s;
-            background: radial-gradient(ellipse at top, rgba(100,100,255,0.2) 0%, transparent 70%);
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        /* Click instruction */
-        .instruction {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #FFD700;
-            font-size: 1.2rem;
-            opacity: 0.8;
-            animation: fadeInOut 2s infinite;
-            z-index: 1002;
-        }
-
-        .curtains-open .instruction {
-            display: none;
-        }
-
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
-        }
-
-        /* Applause button */
-        .applause-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #FFD700;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 50px;
+            padding: 8px 20px;
             cursor: pointer;
-            font-family: 'Playfair Display', serif;
-            font-size: 1rem;
-            font-weight: bold;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            transition: all 0.3s;
-            z-index: 100;
+            text-decoration: none;
         }
 
-        .applause-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.5);
+        .enter-btn:hover {
+            border-style: inset;
+            background: linear-gradient(to bottom, #FF8C00, #FFD700);
         }
 
-        /* Confetti */
-        .confetti {
-            position: fixed;
-            width: 10px;
+        hr {
             height: 10px;
+            border: none;
+            background: url('https://web.archive.org/web/20091027065347im_/http://www.geocities.com/SoHo/7373/dimline.gif') repeat-x;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #808080;
+            margin-top: 20px;
+        }
+
+        .glow {
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #FF0000, 0 0 10px #FF0000; }
+            to { text-shadow: 0 0 20px #FFFF00, 0 0 30px #FF8C00; }
+        }
+
+        .sparkle {
+            position: fixed;
             pointer-events: none;
-            z-index: 1000;
+            width: 15px;
+            height: 15px;
+        }
+
+        .webring {
+            border: 2px dashed #FF00FF;
+            padding: 10px;
+            margin: 20px auto;
+            width: 400px;
+            background-color: #330033;
         }
     </style>
 </head>
 <body>
-    <!-- Curtains -->
-    <div class="curtain-left"></div>
-    <div class="curtain-right"></div>
 
-    <!-- Rope to pull -->
-    <div class="rope" onclick="openCurtains()">
-        <div class="rope-cord"></div>
-        <div class="rope-tassel"></div>
-    </div>
-
-    <p class="instruction">Pull the rope!</p>
-
-    <!-- Stage lights -->
-    <div class="stage-lights">
-        <div class="light"></div>
-        <div class="light"></div>
-        <div class="light"></div>
-        <div class="light"></div>
-        <div class="light"></div>
-    </div>
-
-    <!-- Spotlight that follows mouse -->
-    <div class="spotlight" id="spotlight"></div>
-
-    <!-- Main stage content -->
-    <div class="stage">
-        <div class="marquee">
-            <div class="marquee-border"></div>
-            <h1>The Grand Theatre</h1>
-        </div>
-
-        <div class="productions">
-            <!-- Djungelboken -->
-            <div class="playbill">
-                <div class="playbill-inner">
-                    <div class="theater-name">Mittiprickteatern</div>
-                    <div class="production-icon">🐯🌴🐻</div>
-                    <h2 class="production-title">Djungelboken</h2>
-                    <p class="production-subtitle">A Wild Adventure in the Heart of the Jungle</p>
-                    <a href="http://www.mittiprickteatern.se/gallery/djungelboken-2/" class="production-link" target="_blank">Enter the Jungle</a>
-                </div>
-            </div>
-
-            <!-- Gumman Gra -->
-            <div class="playbill">
-                <div class="playbill-inner">
-                    <div class="theater-name">Mittiprickteatern</div>
-                    <div class="production-icon">👵🏠🌙</div>
-                    <h2 class="production-title">Gumman Gra</h2>
-                    <p class="production-subtitle">Tales of Mystery and Wonder</p>
-                    <a href="http://www.mittiprickteatern.se/arkiv/gumman-gra/" class="production-link" target="_blank">Meet the Lady</a>
-                </div>
-            </div>
-
-            <!-- Alkohol -->
-            <div class="playbill">
-                <div class="playbill-inner">
-                    <div class="theater-name">SVT Dokumentar</div>
-                    <div class="production-icon">🍷🔬📺</div>
-                    <h2 class="production-title">Alkohol&shy;experimenten</h2>
-                    <p class="production-subtitle">10,000 Years of Intoxication</p>
-                    <a href="https://www.svtplay.se/video/jQrB2G3/alkoholexperimenten/1-full-i-10-000-ar?position=1043&id=jQrB2G3" class="production-link" target="_blank">Watch Now</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Drama masks decoration -->
-    <div class="masks">🎭</div>
-
-    <!-- Applause button -->
-    <button class="applause-btn" onclick="applause()">👏 Applause!</button>
-
-    <script>
-        // Spotlight follows mouse
-        const spotlight = document.getElementById('spotlight');
-        document.addEventListener('mousemove', (e) => {
-            spotlight.style.left = e.clientX + 'px';
-            spotlight.style.top = e.clientY + 'px';
-        });
-
-        // Open curtains
-        function openCurtains() {
-            document.body.classList.add('curtains-open');
-            // Play dramatic sound if available
-            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2Onp+fm5eMfm9iWVddZ3B9iZSdoZ2XjYN3bGNfYGducHd9g4mOkpOTkI2Jg3x1cG1rbW5wc3Z5fH+Bg4SFhYWEg4F/fXt5eHd3d3d3d3h5ent8fX5/gIGBgYGBgH9+fXx7');
+<!-- Falling stars effect -->
+<script>
+    document.addEventListener('mousemove', function(e) {
+        if (Math.random() > 0.85) {
+            const sparkle = document.createElement('img');
+            sparkle.src = 'https://web.archive.org/web/20091026234839im_/http://geocities.com/Tokyo/Towers/3857/stardust.gif';
+            sparkle.className = 'sparkle';
+            sparkle.style.left = e.pageX + 'px';
+            sparkle.style.top = e.pageY + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 1000);
         }
+    });
+</script>
 
-        // Create floating dust particles
-        function createDust() {
-            const dust = document.createElement('div');
-            dust.className = 'dust';
-            dust.style.left = Math.random() * 100 + 'vw';
-            dust.style.animationDuration = (5 + Math.random() * 5) + 's';
-            dust.style.animationDelay = Math.random() * 5 + 's';
-            document.body.appendChild(dust);
+<br>
 
-            setTimeout(() => dust.remove(), 10000);
-        }
+<!-- Construction GIF -->
+<img src="https://web.archive.org/web/20091026223946im_/http://www.geocities.com/Hollywood/Hills/7829/under_construction_guy.gif" alt="Under Construction" width="100">
 
-        // Create dust periodically
-        setInterval(createDust, 300);
+<br><br>
 
-        // Applause confetti
-        function applause() {
-            const colors = ['#FFD700', '#FF4500', '#DC143C', '#8B0000', '#FFF8DC'];
+<!-- Main content table -->
+<table class="main-table" cellpadding="10" cellspacing="5">
+    <tr>
+        <td colspan="3">
+            <marquee behavior="alternate" scrollamount="3">
+                <span class="title-cell">~*~ WELCOME TO MY THEATER PAGE ~*~</span>
+            </marquee>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Hollywood/Land/2635/mask.gif" alt="Theater Masks" width="80">
+            <img src="https://web.archive.org/web/20091026192026im_/http://geocities.com/SunsetStrip/Palms/5765/stage.gif" alt="Stage" width="150">
+            <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Hollywood/Land/2635/mask.gif" alt="Theater Masks" width="80">
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <font color="#FF69B4" size="4"><i>++ Here are some AWESOME theater links!! ++</i></font>
+            <br>
+            <span class="blink" style="color: #FF0000;">*** CLICK TO ENTER ***</span>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3"><hr></td>
+    </tr>
 
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + 'vw';
-                    confetti.style.top = '-20px';
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+    <!-- LINK 1: Djungelboken -->
+    <tr>
+        <td colspan="3">
+            <table class="link-table" cellpadding="5">
+                <tr>
+                    <td width="120" valign="middle">
+                        <img src="https://web.archive.org/web/20091026231656im_/http://geocities.com/RainForest/Canopy/4385/tiger.gif" alt="Tiger" width="90">
+                    </td>
+                    <td valign="middle" align="left">
+                        <span class="link-title glow">DJUNGELBOKEN</span>
+                        <br><br>
+                        <span class="link-desc">
+                            ~*~ The Jungle Book ~*~<br>
+                            A WILD adventure in the heart of the jungle!!!<br>
+                            <font color="#00FF00">Mittiprickteatern production</font>
+                        </span>
+                        <br><br>
+                        <a href="http://www.mittiprickteatern.se/gallery/djungelboken-2/" target="_blank" class="enter-btn">
+                            >>> ENTER THE JUNGLE <<<
+                        </a>
+                    </td>
+                    <td width="100" valign="middle">
+                        <img src="https://web.archive.org/web/20091026193853im_/http://geocities.com/RainForest/2631/bear01.gif" alt="Bear" width="70">
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
 
-                    const size = 5 + Math.random() * 10;
-                    confetti.style.width = size + 'px';
-                    confetti.style.height = size + 'px';
-                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    <!-- LINK 2: Gumman Gra -->
+    <tr>
+        <td colspan="3">
+            <table class="link-table" cellpadding="5">
+                <tr>
+                    <td width="120" valign="middle">
+                        <img src="https://web.archive.org/web/20091026225136im_/http://geocities.com/EnchantedForest/Dell/4216/hauntedhouse.gif" alt="House" width="90">
+                    </td>
+                    <td valign="middle" align="left">
+                        <span class="link-title glow">GUMMAN GRA</span>
+                        <br><br>
+                        <span class="link-desc">
+                            ~*~ The Grey Lady ~*~<br>
+                            Tales of mystery and wonder...<br>
+                            <font color="#00FF00">Mittiprickteatern production</font>
+                        </span>
+                        <br><br>
+                        <a href="http://www.mittiprickteatern.se/arkiv/gumman-gra/" target="_blank" class="enter-btn">
+                            >>> MEET THE LADY <<<
+                        </a>
+                    </td>
+                    <td width="100" valign="middle">
+                        <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Heartland/Pointe/7129/candle.gif" alt="Candle" width="50">
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
 
-                    document.body.appendChild(confetti);
+    <!-- LINK 3: Alkoholexperimenten -->
+    <tr>
+        <td colspan="3">
+            <table class="link-table" cellpadding="5">
+                <tr>
+                    <td width="120" valign="middle">
+                        <img src="https://web.archive.org/web/20091026212809im_/http://geocities.com/TimesSquare/Alley/4376/tv.gif" alt="TV" width="80">
+                    </td>
+                    <td valign="middle" align="left">
+                        <span class="link-title glow">ALKOHOLEXPERIMENTEN</span>
+                        <br><br>
+                        <span class="link-desc">
+                            ~*~ The Alcohol Experiments ~*~<br>
+                            10,000 years of human history!!!<br>
+                            <font color="#00FF00">SVT Documentary</font>
+                        </span>
+                        <br><br>
+                        <a href="https://www.svtplay.se/video/jQrB2G3/alkoholexperimenten/1-full-i-10-000-ar?position=1043&id=jQrB2G3" target="_blank" class="enter-btn">
+                            >>> WATCH NOW <<<
+                        </a>
+                    </td>
+                    <td width="100" valign="middle">
+                        <img src="https://web.archive.org/web/20090820132429im_/http://geocities.com/CapeCanaveral/Lab/1832/testtu~1.gif" alt="Science" width="50">
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
 
-                    // Animate falling
-                    let posY = -20;
-                    let posX = parseFloat(confetti.style.left);
-                    let rotation = 0;
-                    let speedY = 2 + Math.random() * 3;
-                    let speedX = (Math.random() - 0.5) * 4;
+    <tr>
+        <td colspan="3"><hr></td>
+    </tr>
 
-                    const fall = setInterval(() => {
-                        posY += speedY;
-                        posX += speedX;
-                        rotation += 5;
-                        confetti.style.top = posY + 'px';
-                        confetti.style.left = posX + 'vw';
-                        confetti.style.transform = `rotate(${rotation}deg)`;
+    <!-- Guestbook & counter -->
+    <tr>
+        <td colspan="3">
+            <img src="https://web.archive.org/web/20091027065442im_/http://www.geocities.com/Heartland/Meadows/4625/gbsign.gif" alt="Sign Guestbook" width="100">
+            <br><br>
+            <font color="#FFFF00" size="2">You are visitor #</font>
+            <img src="https://web.archive.org/web/20090821043012im_/http://geocities.com/Heartland/Woods/5convite/counter.gif" alt="Counter" height="20">
+            <font color="#FFFF00" size="2"> since 1999!</font>
+        </td>
+    </tr>
 
-                        if (posY > window.innerHeight) {
-                            clearInterval(fall);
-                            confetti.remove();
-                        }
-                    }, 20);
-                }, i * 30);
-            }
-        }
+    <!-- Webring -->
+    <tr>
+        <td colspan="3">
+            <div class="webring">
+                <font color="#FF00FF" size="3"><b>*** THEATER WEBRING ***</b></font>
+                <br>
+                <img src="https://web.archive.org/web/20091027065218im_/http://geocities.com/SunsetStrip/Stadium/4320/arrow_left.gif" width="30">
+                [ <a href="#">Prev</a> |
+                <a href="#">Random</a> |
+                <a href="#">Next</a> ]
+                <img src="https://web.archive.org/web/20091027065218im_/http://geocities.com/SunsetStrip/Stadium/4320/arrow_right.gif" width="30">
+            </div>
+        </td>
+    </tr>
 
-        // Add dramatic entrance for playbills after curtains open
-        document.body.addEventListener('transitionend', (e) => {
-            if (e.target.classList.contains('curtain-left')) {
-                const playbills = document.querySelectorAll('.playbill');
-                playbills.forEach((p, i) => {
-                    p.style.animation = `rise 0.8s ${i * 0.2}s forwards ease-out`;
-                    p.style.opacity = '0';
-                    p.style.transform = 'translateY(100px)';
-                });
-            }
-        });
+</table>
 
-        // Add the rise animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes rise {
-                from {
-                    opacity: 0;
-                    transform: translateY(100px) rotateX(20deg);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0) rotateX(0);
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
+<br>
+
+<!-- Footer badges -->
+<div class="footer">
+    <img src="https://web.archive.org/web/20091027065509im_/http://geocities.com/SiliconValley/Vista/4545/ieani.gif" alt="Best viewed in IE" width="88" height="31">
+    <img src="https://web.archive.org/web/20091026192455im_/http://geocities.com/SiliconValley/Port/4279/notepad.gif" alt="Made with Notepad" width="88" height="31">
+    <img src="https://web.archive.org/web/20091027081702im_/http://geocities.com/Area51/Zone/5765/nowscape.gif" alt="Netscape Now" width="88" height="31">
+    <br><br>
+    <font color="#808080" size="2">
+        (c) 2003 ~*~ Last updated: March 15, 2003 ~*~<br>
+        This page is best viewed at 800x600 resolution<br>
+        <a href="mailto:webmaster@example.com">Email the Webmaster</a>
+    </font>
+    <br><br>
+    <img src="https://web.archive.org/web/20091026221911im_/http://geocities.com/SunsetStrip/Mezzanine/4078/fire_lin.gif" alt="Fire line" width="400">
+</div>
+
+<br><br>
+
+<!-- Marquee at bottom -->
+<marquee bgcolor="#330033" style="border: 2px solid #FF00FF; padding: 5px;">
+    <font color="#00FF00" size="3">
+        <img src="https://web.archive.org/web/20091026200652im_/http://geocities.com/Heartland/Ranch/8498/note.gif" width="20">
+        Thanks for visiting my page!!!
+        <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Hollywood/Land/2635/mask.gif" width="30">
+        Don't forget to sign my guestbook!!!
+        <img src="https://web.archive.org/web/20091026200652im_/http://geocities.com/Heartland/Ranch/8498/note.gif" width="20">
+        Come back soon!!!
+        <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Hollywood/Land/2635/mask.gif" width="30">
+    </font>
+</marquee>
+
 </body>
 </html>
