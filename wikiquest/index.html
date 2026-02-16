@@ -1,142 +1,193 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WikiQuest - UX Case Study | Jose Velasquez</title>
-    <link rel="stylesheet" href="wikiquest.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" href="wikiquest.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="home-button-container">
-        <a href="/" class="home-link">
-            <img src="../web/knas_liten.png" alt="Return to Homepage" class="spin-on-hover">
-            <span class="hover-text">Take me back!</span>
-        </a>
+      <a href="/" class="home-link">
+        <img
+          src="../web/knas_liten.png"
+          alt="Return to Homepage"
+          class="spin-on-hover"
+        />
+        <span class="hover-text">Take me back!</span>
+      </a>
     </div>
 
     <div class="container">
-        <!-- Hero Section -->
-        <section class="hero">
-            <h1>WikiQuest</h1>
-            <p class="tagline">A Wikipedia trivia game</p>
-            <p class="role">UX Design & Interface Development</p>
-            <a href="https://iprog-project-c443f.web.app" target="_blank" class="play-button">
-                <i class="fas fa-play"></i> Play Now
-            </a>
-        </section>
+      <!-- Hero Section -->
+      <section class="hero">
+        <h1>WikiQuest</h1>
+        <p class="tagline">A Wikipedia trivia game</p>
+        <p class="role">UX Design & Interface Development</p>
+        <a
+          href="https://iprog-project-c443f.web.app"
+          target="_blank"
+          class="play-button"
+        >
+          <i class="fas fa-play"></i> Play Now
+        </a>
+      </section>
 
-        <!-- Overview -->
-        <section class="section">
-            <h2>Overview</h2>
-            <p>
-                WikiQuest is a celebrity guessing game that challenges players to identify famous people
-                based on Wikipedia clues. Built with React and Material UI, with Redux for state management
-                and Firebase for authentication and data persistence, the game pulls real-time data from the
-                Wikipedia API. As the UX lead, I focused on creating an engaging, intuitive
-                experience that keeps players informed and motivated throughout their gameplay session.
-            </p>
-        </section>
+      <!-- Overview -->
+      <section class="section">
+        <h2>Overview</h2>
+        <p>
+          WikiQuest is a celebrity guessing game that challenges players to
+          identify famous people based on Wikipedia clues. Built with React and
+          Material UI, with Redux for state management and Firebase for
+          authentication and data persistence, the game pulls data from the
+          Wikipedia API. As the UX lead for this project, I focused on creating
+          an engaging, intuitive experience that keeps players informed and
+          motivated throughout their gameplay session.
+        </p>
+      </section>
 
-        <!-- UX Features -->
-        <section class="section">
-            <h2>UX Design Principles</h2>
-            <p>
-                The interface was designed following established Human-Computer Interaction principles
-                to ensure users always feel in control and informed about their progress.
-            </p>
-        </section>
+      <!-- UX Features -->
+      <section class="section">
+        <h2>UX Design Principles</h2>
+        <p>
+          The interface was designed following established Human-Computer
+          Interaction principles to ensure users always feel in control and
+          informed about their progress.
+        </p>
+      </section>
 
-        <!-- Lives & Hints -->
-        <div class="ux-feature">
-            <span class="hci-principle">Visibility of System Status</span>
-            <h3>Lives & Hints System</h3>
-            <p>
-                Heart icons and hint clovers provide immediate visual feedback of available resources.
-                The "USE HINT" button displays the remaining count, ensuring users always know their current state
-                before making decisions. The sidebar keeps score, question count, and accuracy visible at all times,
-                so players never have to wonder how they're doing.
-            </p>
-            <img src="screenshots/lives-hints.png" alt="Lives and hints interface showing hearts, score, and hint button">
+      <!-- Lives & Hints -->
+      <div class="ux-feature">
+        <span class="hci-principle">Visibility & Affordance</span>
+        <h3>Lives & Hints System</h3>
+        <p>
+          Heart and hint icons provide immediate visual feedback of available
+          resources. The "USE HINT" button displays the remaining count,
+          ensuring users always know their current state before making
+          decisions. The sidebar keeps score, question count, and accuracy
+          visible at all times, so players never have to wonder how they're
+          doing.
+        </p>
+        <img
+          src="screenshots/lives-hints.png"
+          alt="Lives and hints interface showing hearts, score, and hint button"
+        />
+      </div>
+
+      <!-- Feedback -->
+      <div class="ux-feature">
+        <span class="hci-principle">Immediate Feedback</span>
+        <h3>Dynamic Response System</h3>
+        <p>
+          Every guess triggers instant visual feedback: green for correct, red
+          for incorrect and gray for skipped guesses. The modal reveals the
+          answer, points earned, and the celebrity's photo, closing the feedback
+          loop and reinforcing learning. Users immediately understand the
+          consequence of their action without ambiguity.
+        </p>
+        <img
+          src="screenshots/feedback.png"
+          alt="Correct answer feedback showing celebrity name and points earned"
+        />
+      </div>
+
+      <!-- Streak -->
+      <div class="ux-feature ux-feature--image-right">
+        <div class="ux-feature__content">
+          <span class="hci-principle">Visual Rewards</span>
+          <h3>Streak Animation</h3>
+          <p>
+            Animated electric effects and higher multiplierscelebrate
+            consecutive correct answers, creating an engaging feedback loop that
+            motivates players to maintain their momentum. The visual reward
+            reinforces positive behavior patterns and adds an element of
+            excitement that makes players want to keep their streak alive.
+          </p>
         </div>
-
-        <!-- Feedback -->
-        <div class="ux-feature">
-            <span class="hci-principle">Immediate Feedback</span>
-            <h3>Dynamic Response System</h3>
-            <p>
-                Every guess triggers instant visual feedback: green for correct, red for incorrect.
-                The modal reveals the answer, points earned, and the celebrity's photo,
-                closing the feedback loop and reinforcing learning. Users immediately understand
-                the consequence of their action without ambiguity.
-            </p>
-            <img src="screenshots/feedback.png" alt="Correct answer feedback showing celebrity name and points earned">
+        <div class="ux-feature__media">
+          <img
+            src="screenshots/streak.gif"
+            alt="Animated streak counter with electric effects"
+          />
         </div>
+      </div>
 
-        <!-- Streak -->
-        <div class="ux-feature">
-            <span class="hci-principle">Recognition & Reward</span>
-            <h3>Streak Animation</h3>
-            <p>
-                Animated fire effects celebrate consecutive correct answers,
-                creating an engaging feedback loop that motivates players to maintain their momentum.
-                The visual reward reinforces positive behavior patterns and adds an element of excitement
-                that makes players want to keep their streak alive.
-            </p>
-            <img src="screenshots/streak.gif" alt="Animated streak counter with fire effects">
+      <!-- Stats -->
+      <div class="ux-feature">
+        <span class="hci-principle">Help Users Recognize & Recover</span>
+        <h3>Performance Analytics</h3>
+        <p>
+          End-game statistics display accuracy, best streak, time metrics, and
+          historical performance. This data empowers players to identify
+          improvement areas and track progress over multiple sessions. By
+          showing both current game stats and overall statistics side by side,
+          users can contextualize their performance and set personal goals.
+        </p>
+        <img
+          src="screenshots/stats.png"
+          alt="Game statistics screen showing detailed performance metrics"
+        />
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="ux-feature">
+        <span class="hci-principle">Social Proof & Motivation</span>
+        <h3>Global Leaderboard</h3>
+        <p>
+          Community statistics and player rankings create social motivation.
+          Users can see their position relative to others, with highlighted
+          personal stats providing context for their performance within the
+          community. The leaderboard transforms individual play into a shared
+          experience.
+        </p>
+        <img
+          src="screenshots/leaderboard.png"
+          alt="Leaderboard showing player rankings and community statistics"
+        />
+      </div>
+
+      <!-- Wikipedia Link -->
+      <div class="ux-feature">
+        <span class="hci-principle">User Control & Freedom</span>
+        <h3>Source Attribution</h3>
+        <p>
+          Direct links to Wikipedia articles let curious players explore
+          further. This transforms incorrect answers into learning
+          opportunities, supporting the educational aspect of the game
+          experience. Users maintain control over their learning journey and can
+          dive deeper when they choose.
+        </p>
+        <img
+          src="screenshots/wikipedia-link.png"
+          alt="Question breakdown with Wikipedia link for learning more"
+        />
+      </div>
+
+      <!-- Links -->
+      <section class="section">
+        <h2>Project Links</h2>
+        <div class="links-section">
+          <a
+            href="https://iprog-project-c443f.web.app"
+            target="_blank"
+            class="link-button primary"
+          >
+            <i class="fas fa-gamepad"></i> Play WikiQuest
+          </a>
+          <a
+            href="https://github.com/JuiceAndTheJoe/WikiQuest"
+            target="_blank"
+            class="link-button secondary"
+          >
+            <i class="fab fa-github"></i> View Source Code
+          </a>
         </div>
-
-        <!-- Stats -->
-        <div class="ux-feature">
-            <span class="hci-principle">Help Users Recognize & Recover</span>
-            <h3>Performance Analytics</h3>
-            <p>
-                End-game statistics display accuracy, best streak, time metrics, and historical performance.
-                This data empowers players to identify improvement areas and track progress over multiple sessions.
-                By showing both current game stats and overall statistics side by side, users can contextualize
-                their performance and set personal goals.
-            </p>
-            <img src="screenshots/stats.png" alt="Game statistics screen showing detailed performance metrics">
-        </div>
-
-        <!-- Leaderboard -->
-        <div class="ux-feature">
-            <span class="hci-principle">Social Proof & Motivation</span>
-            <h3>Global Leaderboard</h3>
-            <p>
-                Community statistics and player rankings create social motivation.
-                Users can see their position relative to others, with highlighted personal stats
-                providing context for their performance within the community. The leaderboard
-                transforms individual play into a shared experience.
-            </p>
-            <img src="screenshots/leaderboard.png" alt="Leaderboard showing player rankings and community statistics">
-        </div>
-
-        <!-- Wikipedia Link -->
-        <div class="ux-feature">
-            <span class="hci-principle">User Control & Freedom</span>
-            <h3>Source Attribution</h3>
-            <p>
-                Direct links to Wikipedia articles let curious players explore further.
-                This transforms incorrect answers into learning opportunities,
-                supporting the educational aspect of the game experience. Users maintain
-                control over their learning journey and can dive deeper when they choose.
-            </p>
-            <img src="screenshots/wikipedia-link.png" alt="Question breakdown with Wikipedia link for learning more">
-        </div>
-
-        <!-- Links -->
-        <section class="section">
-            <h2>Project Links</h2>
-            <div class="links-section">
-                <a href="https://iprog-project-c443f.web.app" target="_blank" class="link-button primary">
-                    <i class="fas fa-gamepad"></i> Play WikiQuest
-                </a>
-                <a href="https://github.com/JuiceAndTheJoe/WikiQuest" target="_blank" class="link-button secondary">
-                    <i class="fab fa-github"></i> View Source Code
-                </a>
-            </div>
-        </section>
+      </section>
     </div>
-</body>
+  </body>
 </html>

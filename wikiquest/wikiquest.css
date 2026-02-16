@@ -5,7 +5,7 @@
 }
 
 body {
-    background: #0a0a0f;
+    background: #050507;
     min-height: 100vh;
     font-family: Tahoma, sans-serif;
     color: white;
@@ -128,21 +128,25 @@ body {
 
 /* UX Feature sections */
 .ux-feature {
-    margin-bottom: 50px;
-    padding-bottom: 50px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.ux-feature:last-child {
-    border-bottom: none;
+    margin-bottom: 40px;
+    padding: 35px;
+    background: linear-gradient(145deg, rgba(15, 15, 20, 0.8), rgba(10, 10, 15, 0.6));
+    border-radius: 16px;
+    border: 1px solid rgba(79, 195, 247, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
 .ux-feature .hci-principle {
-    font-size: 0.85rem;
+    display: inline-block;
+    font-size: 0.75rem;
     color: #80cbc4;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    padding: 6px 14px;
+    background: rgba(128, 203, 196, 0.1);
+    border-radius: 20px;
+    border: 1px solid rgba(128, 203, 196, 0.25);
 }
 
 .ux-feature h3 {
@@ -161,11 +165,55 @@ body {
 
 .ux-feature img,
 .ux-feature video {
-    max-width: 100%;
+    max-width: 85%;
     height: auto;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(79, 195, 247, 0.2);
     display: block;
+    margin: 30px auto 0;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(79, 195, 247, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ux-feature img:hover,
+.ux-feature video:hover {
+    transform: scale(1.02);
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.6),
+        0 0 50px rgba(79, 195, 247, 0.15);
+}
+
+/* Side-by-side layout variant */
+.ux-feature--image-right {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.ux-feature--image-right .ux-feature__content {
+    flex: 1;
+}
+
+.ux-feature--image-right .ux-feature__media {
+    flex: 0 0 auto;
+}
+
+.ux-feature--image-right .ux-feature__media img {
+    max-width: 320px;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .ux-feature--image-right {
+        flex-direction: column;
+    }
+
+    .ux-feature--image-right .ux-feature__media img {
+        max-width: 85%;
+        margin: 20px auto 0;
+    }
 }
 
 /* Links section */
