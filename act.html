@@ -7,11 +7,10 @@
     <style>
         body {
             background-color: #000000;
-            background-image: url('https://web.archive.org/web/20091027065aborede/http://geocities.com/js_source/stars.gif');
+            background-image: url('https://gifcity.carrd.co/assets/images/gallery01/426c7a7e.gif');
             color: #00FF00;
             font-family: "Comic Sans MS", "Papyrus", cursive;
             text-align: center;
-            cursor: url('https://cur.cursors-4u.net/cursors/cur-2/cur116.cur'), auto;
         }
 
         a {
@@ -81,6 +80,7 @@
             padding: 8px 20px;
             cursor: pointer;
             text-decoration: none;
+            display: inline-block;
         }
 
         .enter-btn:hover {
@@ -88,10 +88,9 @@
             background: linear-gradient(to bottom, #FF8C00, #FFD700);
         }
 
-        hr {
-            height: 10px;
-            border: none;
-            background: url('https://web.archive.org/web/20091027065347im_/http://www.geocities.com/SoHo/7373/dimline.gif') repeat-x;
+        .divider {
+            height: 15px;
+            background: url('https://cyber.dabamos.de/88x31/fire.gif') repeat-x center;
         }
 
         .footer {
@@ -123,21 +122,25 @@
             width: 400px;
             background-color: #330033;
         }
+
+        .badge {
+            image-rendering: pixelated;
+        }
     </style>
 </head>
 <body>
 
-<!-- Falling stars effect -->
+<!-- Mouse sparkle trail -->
 <script>
     document.addEventListener('mousemove', function(e) {
         if (Math.random() > 0.85) {
             const sparkle = document.createElement('img');
-            sparkle.src = 'https://web.archive.org/web/20091026234839im_/http://geocities.com/Tokyo/Towers/3857/stardust.gif';
+            sparkle.src = 'https://www.cursors-4u.net/cursor/cur-13/cur1054.gif';
             sparkle.className = 'sparkle';
             sparkle.style.left = e.pageX + 'px';
             sparkle.style.top = e.pageY + 'px';
             document.body.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 1000);
+            setTimeout(() => sparkle.remove(), 700);
         }
     });
 </script>
@@ -145,7 +148,7 @@
 <br>
 
 <!-- Construction GIF -->
-<img src="https://web.archive.org/web/20091026223946im_/http://www.geocities.com/Hollywood/Hills/7829/under_construction_guy.gif" alt="Under Construction" width="100">
+<img src="https://anlucas.neocities.org/graphics/gifs/construction/const8.gif" alt="Under Construction" width="100">
 
 <br><br>
 
@@ -160,9 +163,9 @@
     </tr>
     <tr>
         <td colspan="3">
-            <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Hollywood/Land/2635/mask.gif" alt="Theater Masks" width="80">
-            <img src="https://web.archive.org/web/20091026192026im_/http://geocities.com/SunsetStrip/Palms/5765/stage.gif" alt="Stage" width="150">
-            <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Hollywood/Land/2635/mask.gif" alt="Theater Masks" width="80">
+            <img src="https://files.catbox.moe/kdt03h.gif" alt="Theater Masks" width="60">
+            <img src="https://anlucas.neocities.org/graphics/gifs/other/spotlight.gif" alt="Spotlight" width="80">
+            <img src="https://files.catbox.moe/kdt03h.gif" alt="Theater Masks" width="60">
         </td>
     </tr>
     <tr>
@@ -173,7 +176,7 @@
         </td>
     </tr>
     <tr>
-        <td colspan="3"><hr></td>
+        <td colspan="3"><div class="divider"></div></td>
     </tr>
 
     <!-- LINK 1: Djungelboken -->
@@ -182,7 +185,7 @@
             <table class="link-table" cellpadding="5">
                 <tr>
                     <td width="120" valign="middle">
-                        <img src="https://web.archive.org/web/20091026231656im_/http://geocities.com/RainForest/Canopy/4385/tiger.gif" alt="Tiger" width="90">
+                        <img src="https://gifcity.carrd.co/assets/images/gallery03/a02da498.gif" alt="Tiger" width="90">
                     </td>
                     <td valign="middle" align="left">
                         <span class="link-title glow">DJUNGELBOKEN</span>
@@ -198,7 +201,7 @@
                         </a>
                     </td>
                     <td width="100" valign="middle">
-                        <img src="https://web.archive.org/web/20091026193853im_/http://geocities.com/RainForest/2631/bear01.gif" alt="Bear" width="70">
+                        <img src="https://64.media.tumblr.com/b8e67a3db92178e21e194f6d57e2392c/tumblr_pqgzs4BKDU1y46blco1_250.gif" alt="Jungle" width="80">
                     </td>
                 </tr>
             </table>
@@ -211,7 +214,7 @@
             <table class="link-table" cellpadding="5">
                 <tr>
                     <td width="120" valign="middle">
-                        <img src="https://web.archive.org/web/20091026225136im_/http://geocities.com/EnchantedForest/Dell/4216/hauntedhouse.gif" alt="House" width="90">
+                        <img src="https://anlucas.neocities.org/graphics/gifs/halloween/hauntedhouse1.gif" alt="Haunted House" width="90">
                     </td>
                     <td valign="middle" align="left">
                         <span class="link-title glow">GUMMAN GRA</span>
@@ -227,7 +230,7 @@
                         </a>
                     </td>
                     <td width="100" valign="middle">
-                        <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Heartland/Pointe/7129/candle.gif" alt="Candle" width="50">
+                        <img src="https://anlucas.neocities.org/graphics/gifs/halloween/candle.gif" alt="Candle" width="50">
                     </td>
                 </tr>
             </table>
@@ -240,7 +243,7 @@
             <table class="link-table" cellpadding="5">
                 <tr>
                     <td width="120" valign="middle">
-                        <img src="https://web.archive.org/web/20091026212809im_/http://geocities.com/TimesSquare/Alley/4376/tv.gif" alt="TV" width="80">
+                        <img src="https://anlucas.neocities.org/graphics/gifs/electronics/tv7.gif" alt="TV" width="80">
                     </td>
                     <td valign="middle" align="left">
                         <span class="link-title glow">ALKOHOLEXPERIMENTEN</span>
@@ -256,7 +259,7 @@
                         </a>
                     </td>
                     <td width="100" valign="middle">
-                        <img src="https://web.archive.org/web/20090820132429im_/http://geocities.com/CapeCanaveral/Lab/1832/testtu~1.gif" alt="Science" width="50">
+                        <img src="https://anlucas.neocities.org/graphics/gifs/science/testtubes.gif" alt="Science" width="60">
                     </td>
                 </tr>
             </table>
@@ -264,16 +267,16 @@
     </tr>
 
     <tr>
-        <td colspan="3"><hr></td>
+        <td colspan="3"><div class="divider"></div></td>
     </tr>
 
     <!-- Guestbook & counter -->
     <tr>
         <td colspan="3">
-            <img src="https://web.archive.org/web/20091027065442im_/http://www.geocities.com/Heartland/Meadows/4625/gbsign.gif" alt="Sign Guestbook" width="100">
+            <img src="https://anlucas.neocities.org/graphics/gifs/guestbook/signbook.gif" alt="Sign Guestbook" width="100">
             <br><br>
             <font color="#FFFF00" size="2">You are visitor #</font>
-            <img src="https://web.archive.org/web/20090821043012im_/http://geocities.com/Heartland/Woods/5convite/counter.gif" alt="Counter" height="20">
+            <img src="https://count.cab/hit/cah2sphe3pjeg/count.svg" alt="Counter" height="16">
             <font color="#FFFF00" size="2"> since 1999!</font>
         </td>
     </tr>
@@ -284,11 +287,11 @@
             <div class="webring">
                 <font color="#FF00FF" size="3"><b>*** THEATER WEBRING ***</b></font>
                 <br>
-                <img src="https://web.archive.org/web/20091027065218im_/http://geocities.com/SunsetStrip/Stadium/4320/arrow_left.gif" width="30">
+                <img src="https://anlucas.neocities.org/graphics/gifs/arrows/arrowleft1.gif" width="30">
                 [ <a href="#">Prev</a> |
                 <a href="#">Random</a> |
                 <a href="#">Next</a> ]
-                <img src="https://web.archive.org/web/20091027065218im_/http://geocities.com/SunsetStrip/Stadium/4320/arrow_right.gif" width="30">
+                <img src="https://anlucas.neocities.org/graphics/gifs/arrows/arrowright1.gif" width="30">
             </div>
         </td>
     </tr>
@@ -297,19 +300,25 @@
 
 <br>
 
-<!-- Footer badges -->
+<!-- Footer badges - from 88x31 collections -->
 <div class="footer">
-    <img src="https://web.archive.org/web/20091027065509im_/http://geocities.com/SiliconValley/Vista/4545/ieani.gif" alt="Best viewed in IE" width="88" height="31">
-    <img src="https://web.archive.org/web/20091026192455im_/http://geocities.com/SiliconValley/Port/4279/notepad.gif" alt="Made with Notepad" width="88" height="31">
-    <img src="https://web.archive.org/web/20091027081702im_/http://geocities.com/Area51/Zone/5765/nowscape.gif" alt="Netscape Now" width="88" height="31">
+    <a href="#"><img src="https://cyber.dabamos.de/88x31/ie5.gif" alt="Best viewed in IE" class="badge" width="88" height="31"></a>
+    <a href="#"><img src="https://cyber.dabamos.de/88x31/notepad2.gif" alt="Made with Notepad" class="badge" width="88" height="31"></a>
+    <a href="#"><img src="https://cyber.dabamos.de/88x31/netscape.gif" alt="Netscape Now" class="badge" width="88" height="31"></a>
     <br><br>
+    <a href="#"><img src="https://cyber.dabamos.de/88x31/geocities_area51.gif" alt="GeoCities" class="badge" width="88" height="31"></a>
+    <a href="#"><img src="https://cyber.dabamos.de/88x31/anybrowser3.gif" alt="Any Browser" class="badge" width="88" height="31"></a>
+    <a href="#"><img src="https://cyber.dabamos.de/88x31/vim.vialle.gif" alt="Vim" class="badge" width="88" height="31"></a>
+    <br><br>
+    <img src="https://anlucas.neocities.org/graphics/gifs/new/newb5.gif" alt="New" width="40">
     <font color="#808080" size="2">
         (c) 2003 ~*~ Last updated: March 15, 2003 ~*~<br>
         This page is best viewed at 800x600 resolution<br>
         <a href="mailto:webmaster@example.com">Email the Webmaster</a>
     </font>
+    <img src="https://anlucas.neocities.org/graphics/gifs/new/newb5.gif" alt="New" width="40">
     <br><br>
-    <img src="https://web.archive.org/web/20091026221911im_/http://geocities.com/SunsetStrip/Mezzanine/4078/fire_lin.gif" alt="Fire line" width="400">
+    <img src="https://cyber.dabamos.de/88x31/fire.gif" alt="Fire line" width="400">
 </div>
 
 <br><br>
@@ -317,15 +326,22 @@
 <!-- Marquee at bottom -->
 <marquee bgcolor="#330033" style="border: 2px solid #FF00FF; padding: 5px;">
     <font color="#00FF00" size="3">
-        <img src="https://web.archive.org/web/20091026200652im_/http://geocities.com/Heartland/Ranch/8498/note.gif" width="20">
+        <img src="https://anlucas.neocities.org/graphics/gifs/music/music3.gif" width="30">
         Thanks for visiting my page!!!
-        <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Hollywood/Land/2635/mask.gif" width="30">
+        <img src="https://files.catbox.moe/kdt03h.gif" width="30">
         Don't forget to sign my guestbook!!!
-        <img src="https://web.archive.org/web/20091026200652im_/http://geocities.com/Heartland/Ranch/8498/note.gif" width="20">
+        <img src="https://anlucas.neocities.org/graphics/gifs/music/music3.gif" width="30">
         Come back soon!!!
-        <img src="https://web.archive.org/web/20091027065347im_/http://www.geocities.com/Hollywood/Land/2635/mask.gif" width="30">
+        <img src="https://files.catbox.moe/kdt03h.gif" width="30">
     </font>
 </marquee>
+
+<br><br>
+
+<!-- Spinning email -->
+<a href="mailto:webmaster@example.com">
+    <img src="https://anlucas.neocities.org/graphics/gifs/email/email2.gif" alt="Email me!" width="80">
+</a>
 
 </body>
 </html>
