@@ -126,6 +126,17 @@ body {
     max-width: 900px;
 }
 
+.section > p a {
+    color: #4fc3f7;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(79, 195, 247, 0.4);
+    transition: border-color 0.2s;
+}
+
+.section > p a:hover {
+    border-color: #4fc3f7;
+}
+
 /* UX Feature sections */
 .ux-feature {
     margin-bottom: 40px;
