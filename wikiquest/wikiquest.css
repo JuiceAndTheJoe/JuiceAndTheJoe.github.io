@@ -221,6 +221,15 @@ body {
     }
 }
 
+/* Text-only variant (no image) */
+.ux-feature--text-only {
+    padding: 30px 35px;
+}
+
+.ux-feature--text-only p {
+    margin-bottom: 0;
+}
+
 /* Links section */
 .links-section {
     display: flex;
