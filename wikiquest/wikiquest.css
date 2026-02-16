@@ -5,7 +5,7 @@
 }
 
 body {
-    background: #050507;
+    background: linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 50%, #1b263b 100%);
     min-height: 100vh;
     font-family: Tahoma, sans-serif;
     color: white;
@@ -66,7 +66,7 @@ body {
 }
 
 .hero h1 {
-    font-size: 3.5rem;
+    font-size: 5rem;
     margin-bottom: 10px;
     background: linear-gradient(90deg, #4fc3f7, #81d4fa);
     -webkit-background-clip: text;
@@ -288,15 +288,17 @@ body {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    width: 60px;
-    height: 60px;
+    padding: 14px 24px;
     background: linear-gradient(135deg, #1976d2, #2196f3);
-    border-radius: 50%;
+    border-radius: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 10px;
     color: white;
-    font-size: 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: Tahoma, sans-serif;
     text-decoration: none;
     box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4);
     opacity: 0;
@@ -330,8 +332,11 @@ body {
     .floating-play-button {
         bottom: 20px;
         right: 20px;
-        width: 50px;
-        height: 50px;
-        font-size: 1.3rem;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
     }
 }
