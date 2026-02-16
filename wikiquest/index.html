@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WikiQuest - UX Case Study | Jose Velasquez</title>
+    <link rel="stylesheet" href="wikiquest.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="home-button-container">
+        <a href="/" class="home-link">
+            <img src="../web/knas_liten.png" alt="Return to Homepage" class="spin-on-hover">
+            <span class="hover-text">Take me back!</span>
+        </a>
+    </div>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>WikiQuest</h1>
+            <p class="tagline">A Wikipedia trivia game</p>
+            <p class="role">UX Design & Interface Development</p>
+            <a href="https://iprog-project-c443f.web.app" target="_blank" class="play-button">
+                <i class="fas fa-play"></i> Play Now
+            </a>
+        </section>
+
+        <!-- Overview -->
+        <section class="section">
+            <h2>Overview</h2>
+            <p>
+                WikiQuest is a celebrity guessing game that challenges players to identify famous people
+                based on Wikipedia clues. As the UX lead, I focused on creating an engaging, intuitive
+                experience that keeps players informed and motivated throughout their gameplay session.
+            </p>
+            <div class="tech-list">
+                <span class="tech-tag">React</span>
+                <span class="tech-tag">Material UI</span>
+                <span class="tech-tag">Redux</span>
+                <span class="tech-tag">Firebase</span>
+                <span class="tech-tag">Wikipedia API</span>
+            </div>
+        </section>
+
+        <!-- UX Features -->
+        <section class="section">
+            <h2>UX Design Principles</h2>
+            <p>
+                The interface was designed following established Human-Computer Interaction principles
+                to ensure users always feel in control and informed about their progress.
+            </p>
+
+            <div class="ux-grid">
+                <!-- Lives & Hints -->
+                <div class="ux-card">
+                    <img src="screenshots/lives-hints.png" alt="Lives and hints interface">
+                    <div class="ux-card-content">
+                        <span class="hci-principle">Visibility of System Status</span>
+                        <h3>Lives & Hints System</h3>
+                        <p>
+                            Heart icons and hint clovers provide immediate visual feedback of available resources.
+                            The "USE HINT" button displays remaining count, ensuring users always know their current state
+                            before making decisions.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feedback -->
+                <div class="ux-card">
+                    <img src="screenshots/feedback.png" alt="Correct answer feedback">
+                    <div class="ux-card-content">
+                        <span class="hci-principle">Immediate Feedback</span>
+                        <h3>Dynamic Response System</h3>
+                        <p>
+                            Every guess triggers instant visual feedback: green for correct, red for incorrect.
+                            The modal reveals the answer, points earned, and the celebrity's photo,
+                            closing the feedback loop and reinforcing learning.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Streak -->
+                <div class="ux-card">
+                    <img src="screenshots/streak.gif" alt="Streak animation">
+                    <div class="ux-card-content">
+                        <span class="hci-principle">Recognition & Reward</span>
+                        <h3>Streak Animation</h3>
+                        <p>
+                            Animated fire effects celebrate consecutive correct answers,
+                            creating an engaging feedback loop that motivates players to maintain their momentum.
+                            The visual reward reinforces positive behavior patterns.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="ux-card">
+                    <img src="screenshots/stats.png" alt="Game statistics screen">
+                    <div class="ux-card-content">
+                        <span class="hci-principle">Help Users Recognize & Recover</span>
+                        <h3>Performance Analytics</h3>
+                        <p>
+                            End-game statistics display accuracy, best streak, time metrics, and historical performance.
+                            This data empowers players to identify improvement areas and track progress over multiple sessions.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="ux-card">
+                    <img src="screenshots/leaderboard.png" alt="Leaderboard screen">
+                    <div class="ux-card-content">
+                        <span class="hci-principle">Social Proof & Motivation</span>
+                        <h3>Global Leaderboard</h3>
+                        <p>
+                            Community statistics and player rankings create social motivation.
+                            Users can see their position relative to others, with highlighted personal stats
+                            providing context for their performance within the community.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Wikipedia Link -->
+                <div class="ux-card">
+                    <img src="screenshots/wikipedia-link.png" alt="Wikipedia link feature">
+                    <div class="ux-card-content">
+                        <span class="hci-principle">User Control & Freedom</span>
+                        <h3>Source Attribution</h3>
+                        <p>
+                            Direct links to Wikipedia articles let curious players explore further.
+                            This transforms incorrect answers into learning opportunities,
+                            supporting the educational aspect of the game experience.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Links -->
+        <section class="section">
+            <h2>Project Links</h2>
+            <div class="links-section">
+                <a href="https://iprog-project-c443f.web.app" target="_blank" class="link-button primary">
+                    <i class="fas fa-gamepad"></i> Play WikiQuest
+                </a>
+                <a href="https://github.com/JuiceAndTheJoe/WikiQuest" target="_blank" class="link-button secondary">
+                    <i class="fab fa-github"></i> View Source Code
+                </a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
