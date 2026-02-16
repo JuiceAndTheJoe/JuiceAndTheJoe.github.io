@@ -186,14 +186,17 @@ body {
 }
 
 /* Side-by-side layout variant */
-.ux-feature--image-right {
+.ux-feature.ux-feature--image-right {
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 40px;
 }
 
 .ux-feature--image-right .ux-feature__content {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .ux-feature--image-right .ux-feature__media {
@@ -201,17 +204,19 @@ body {
 }
 
 .ux-feature--image-right .ux-feature__media img {
-    max-width: 320px;
+    max-width: 300px;
+    width: 300px;
     margin: 0;
 }
 
 @media (max-width: 768px) {
-    .ux-feature--image-right {
+    .ux-feature.ux-feature--image-right {
         flex-direction: column;
     }
 
     .ux-feature--image-right .ux-feature__media img {
         max-width: 85%;
+        width: auto;
         margin: 20px auto 0;
     }
 }
