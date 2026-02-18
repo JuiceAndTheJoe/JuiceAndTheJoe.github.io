@@ -105,6 +105,142 @@ body {
     box-shadow: 0 10px 30px rgba(33, 150, 243, 0.4);
 }
 
+/* Terminal/Code Window */
+.terminal-window {
+    background: #1a1b26;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(79, 195, 247, 0.1);
+    margin-top: 25px;
+}
+
+.terminal-header {
+    background: linear-gradient(180deg, #2d2f3d 0%, #252734 100%);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.terminal-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.terminal-btn.red { background: #ff5f56; }
+.terminal-btn.yellow { background: #ffbd2e; }
+.terminal-btn.green { background: #27ca40; }
+
+.terminal-title {
+    color: #7a7f93;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.terminal-body {
+    padding: 24px 28px;
+    overflow-x: auto;
+}
+
+.markdown-content {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #a9b1d6;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+/* Markdown syntax highlighting */
+.md-h2 {
+    color: #7aa2f7;
+    font-weight: bold;
+}
+
+.md-bold {
+    color: #bb9af7;
+    font-weight: bold;
+}
+
+.md-italic {
+    color: #9ece6a;
+    font-style: italic;
+}
+
+.md-code {
+    background: rgba(122, 162, 247, 0.15);
+    color: #7dcfff;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.md-link {
+    color: #73daca;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.md-link:hover {
+    color: #9ece6a;
+    text-decoration-style: solid;
+}
+
+.md-bullet {
+    color: #f7768e;
+}
+
+.md-comment {
+    color: #565f89;
+    font-style: italic;
+}
+
+.md-blockquote {
+    color: #9aa5ce;
+    border-left: 3px solid #565f89;
+    padding-left: 12px;
+    display: block;
+}
+
+.md-divider {
+    color: #3b4261;
+    display: block;
+    margin: 8px 0;
+}
+
+.md-code-block {
+    display: block;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 12px;
+    margin: 4px 0;
+    border-radius: 4px;
+    border-left: 3px solid #3d59a1;
+}
+
+.md-error {
+    color: #f7768e;
+}
+
+.md-success {
+    color: #9ece6a;
+}
+
+.md-checkbox {
+    color: #9ece6a;
+}
+
 /* Section styling */
 .section {
     margin-bottom: 60px;

@@ -46,7 +46,11 @@
           Material UI, with Redux for state management and Firebase for
           authentication and data persistence, the game pulls data from the
           Wikipedia API. This project was developed as part of
-          <a href="https://www.kth.se/student/kurser/kurs/DH2642?l=en" target="_blank">DH2642 Interaction Programming and the Dynamic Web</a>
+          <a
+            href="https://www.kth.se/student/kurser/kurs/DH2642?l=en"
+            target="_blank"
+            >DH2642 Interaction Programming and the Dynamic Web</a
+          >
           at KTH Royal Institute of Technology. As the UX lead for this project,
           I focused on creating an engaging, intuitive experience that keeps
           players informed and motivated throughout their gameplay session.
@@ -57,51 +61,62 @@
       <section class="section">
         <h2>Personal Reflections</h2>
 
-        <div class="reflection">
-          <h3>GitHub Attribution</h3>
-          <p>
-            My contributions appear under two GitHub usernames: <strong>jwevc</strong> (my KTH Git username)
-            for issues, comments, and PRs, while commits are attributed to <strong>JuiceAndTheJoe</strong>.
-          </p>
-        </div>
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-buttons">
+              <span class="terminal-btn red"></span>
+              <span class="terminal-btn yellow"></span>
+              <span class="terminal-btn green"></span>
+            </div>
+            <span class="terminal-title">reflections.md</span>
+          </div>
+          <div class="terminal-body">
+            <pre
+              class="markdown-content"
+            ><span class="md-h2">## My Role: UI/UX Lead</span>
 
-        <div class="reflection">
-          <h3>My Role: UI/UX Lead</h3>
-          <p>
-            We divided the workload in a way that meant I was the main responsible for UI/UX—which resulted
-            in me finding and implementing 3rd party components from ReactBits: Color Bends for the backgrounds,
-            Split Text for some titles, Electric Border for the streak animations and True Focus for the main
-            'WikiQuest' title animation. I created the JSX files and implemented them in our project, crediting
-            the original source I found them from.
-          </p>
-          <p>
-            Apart from these components, I mainly worked with tweaking and adding to the MaterialUI components
-            we decided to use, making them transparent, colorful and more visually pleasing, but also making
-            use of the usability heuristics we have experience with, which lead to a very good, intuitive and
-            interesting user interface, that makes the app experience not only usable, but also rewarding and
-            interesting (if you ask me, the very impartial designer).
-          </p>
-        </div>
+This project was created within the scope of a university course where we were divided into teams.
+I was the main responsible for <span class="md-bold">UI/UX</span> in my team, which made me responsible of finding and implementing
+3rd party components from <a href="https://www.reactbits.dev/" target="_blank" class="md-link">ReactBits</a>:
 
-        <div class="reflection">
-          <h3>Working with Git</h3>
-          <p>
-            This is not my first time using Git for a group project, but it is definitely the biggest project
-            I have worked with. This was manageable and we had very few problems because all the members of the
-            group were pretty experienced with developing by themselves and using GitHub privately, so very few
-            frictions arose from this integration. We did have some small hiccups, merge conflicts and
-            troubleshooting—but we always managed to fix it after a couple hours.
-          </p>
-        </div>
+  <span class="md-bullet">-</span> <span class="md-code">ColorBends</span>     <span class="md-comment">// dynamic gradient backgrounds that shift based on game state</span>
+  <span class="md-bullet">-</span> <span class="md-code">SplitText</span>      <span class="md-comment">// animated letter-by-letter title reveals</span>
+  <span class="md-bullet">-</span> <span class="md-code">ElectricBorder</span> <span class="md-comment">// glowing animated borders for streak multipliers</span>
+  <span class="md-bullet">-</span> <span class="md-code">TrueFocus</span>      <span class="md-comment">// attention-grabbing 'WikiQuest' title with blur effects</span>
 
-        <div class="reflection">
-          <h3>Overall Experience</h3>
-          <p>
-            I liked this process! This is the biggest, most 'palpable' project we have done up until now and
-            I believe this course and its corresponding tasks have showed me the ropes in terms of industry
-            standards and best practices in order to develop interactive, responsive web apps. This course
-            fits my interests well and I'm glad I had a project group that shared my vision and goals.
-          </p>
+I created the JSX files and implemented them in our project, crediting the original source I found them from.
+
+Apart from these components, I mainly worked with tweaking and adding to the <span class="md-code">MaterialUI</span> components
+we decided to use, making them transparent, colorful and more visually pleasing, while making use of the
+usability heuristics we have gotten familiar with in our Human-Computer Interaction course (<a href="https://www.kth.se/student/kurser/kurs/DH1622" target="_blank" class="md-link">DH1622</a>).
+
+<span class="md-blockquote">&gt; The result: a very good, intuitive and interesting user interface, that makes the app experience
+not only usable, but also rewarding and interesting. <span class="md-italic">— if you ask me, the very impartial designer</span></span>
+
+<span class="md-divider">---</span>
+
+<span class="md-h2">## Working with Git</span>
+
+This is not my first time using Git for a group project, but it is definitely the <span class="md-bold">biggest project</span>
+I have worked with up until my third year of university. For our particular team, this was manageable
+because all members were pretty experienced with developing and using GitHub privately.
+
+<span class="md-code-block">$ git merge feature-branch</span>
+<span class="md-code-block"><span class="md-error">CONFLICT (content): Merge conflict in src/components/Game.jsx</span></span>
+<span class="md-code-block"><span class="md-success">// We always managed to fix it after a couple hours of collaborative troubleshooting</span></span>
+
+A valuable lesson in teamwork and version control — I feel like I have a much better understanding
+of how to use Git in a team setting after this project.
+
+<span class="md-divider">---</span>
+
+<span class="md-h2">## Overall Experience</span>
+
+I liked this process! This is the biggest, most 'palpable' project we have done up until now.
+This course showed me the ropes in terms of <span class="md-bold">industry standards</span> and <span class="md-bold">best practices</span> for developing
+interactive, responsive web apps. It fits my interests well and I'm glad I had a project group that
+shared my vision and goals.
+          </div>
         </div>
       </section>
 
@@ -305,9 +320,9 @@
     </a>
 
     <script>
-      const floatingBtn = document.getElementById('floatingPlayBtn');
+      const floatingBtn = document.getElementById("floatingPlayBtn");
 
-      window.addEventListener('scroll', () => {
+      window.addEventListener("scroll", () => {
         const scrollTop = window.scrollY;
         const windowHeight = window.innerHeight;
         const docHeight = document.documentElement.scrollHeight;
@@ -315,9 +330,9 @@
         const nearBottom = scrollTop + windowHeight >= docHeight - 100;
 
         if (scrolledFromTop && !nearBottom) {
-          floatingBtn.classList.add('visible');
+          floatingBtn.classList.add("visible");
         } else {
-          floatingBtn.classList.remove('visible');
+          floatingBtn.classList.remove("visible");
         }
       });
     </script>
