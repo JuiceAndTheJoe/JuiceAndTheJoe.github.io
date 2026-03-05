@@ -3,180 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>~*~ThEaTeR LiNkS~*~</title>
+    <title>~*~ ENTER IF YOU DARE... ~*~</title>
     <style>
         body {
-            background-color: #000000;
-            background-image: url('https://gifcity.carrd.co/assets/images/gallery01/426c7a7e.gif');
-            color: #00FF00;
-            font-family: "Comic Sans MS", "Papyrus", cursive;
+            background-color: #0a0a0a;
+            background-image: url('https://i.imgur.com/JyqQQ8G.gif');
+            color: #8B0000;
+            font-family: "Times New Roman", serif;
             text-align: center;
+            cursor: url('https://cur.cursors-4u.net/cursors/cur-9/cur817.cur'), auto;
         }
 
         a {
-            color: #FF00FF;
+            color: #FF0000;
+            text-decoration: none;
         }
 
         a:hover {
-            color: #FFFF00;
+            color: #00FF00;
+            text-shadow: 0 0 10px #00FF00;
         }
 
         .main-table {
-            width: 800px;
+            width: 850px;
             margin: 0 auto;
-            border: 5px ridge #FF0000;
-            background-color: #000033;
+            border: 5px ridge #4a0000;
+            background-color: rgba(0, 0, 0, 0.85);
             padding: 10px;
+            box-shadow: 0 0 30px #8B0000;
         }
 
         .title-cell {
-            background: linear-gradient(to right, #FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF, #FF00FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 36px;
+            color: #8B0000;
+            font-size: 42px;
             font-weight: bold;
+            font-family: "Papyrus", fantasy;
+            text-shadow: 3px 3px 6px #000, 0 0 20px #FF0000;
             padding: 20px;
+            letter-spacing: 4px;
         }
 
         .blink {
-            animation: blink 1s steps(1) infinite;
+            animation: blink 0.8s steps(1) infinite;
         }
 
         @keyframes blink {
             50% { opacity: 0; }
         }
 
+        .flicker {
+            animation: flicker 3s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.4; }
+        }
+
         .link-table {
-            border: 3px inset #808080;
-            background-color: #000066;
-            margin: 10px auto;
-            width: 90%;
+            border: 3px ridge #4a0000;
+            background: linear-gradient(180deg, #1a0000 0%, #0a0000 100%);
+            margin: 15px auto;
+            width: 95%;
+            box-shadow: inset 0 0 20px #8B0000;
         }
 
         .link-table td {
             padding: 15px;
-            border: 2px outset #C0C0C0;
+            border: 1px solid #4a0000;
         }
 
         .link-title {
-            font-size: 24px;
-            color: #FFFF00;
-            text-shadow: 2px 2px #FF0000;
+            font-size: 26px;
+            color: #FF0000;
+            font-family: "Papyrus", fantasy;
+            text-shadow: 2px 2px 4px #000, 0 0 15px #8B0000;
+            letter-spacing: 2px;
         }
 
         .link-desc {
-            color: #00FFFF;
+            color: #cc0000;
             font-size: 14px;
+            font-style: italic;
         }
 
         .enter-btn {
-            background: linear-gradient(to bottom, #FFD700, #FF8C00);
-            border: 3px outset #FFD700;
-            color: #000000;
-            font-family: "Comic Sans MS", cursive;
-            font-size: 16px;
+            background: linear-gradient(to bottom, #4a0000, #2a0000);
+            border: 3px outset #8B0000;
+            color: #FF0000;
+            font-family: "Times New Roman", serif;
+            font-size: 14px;
             font-weight: bold;
             padding: 8px 20px;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
+            text-shadow: 1px 1px 2px #000;
         }
 
         .enter-btn:hover {
             border-style: inset;
-            background: linear-gradient(to bottom, #FF8C00, #FFD700);
+            background: linear-gradient(to bottom, #8B0000, #4a0000);
+            box-shadow: 0 0 15px #FF0000;
+        }
+
+        .blood-drip {
+            height: 30px;
+            background: url('https://i.imgur.com/q4NvRQq.gif') repeat-x top;
         }
 
         .divider {
-            height: 15px;
-            background: url('https://cyber.dabamos.de/88x31/fire.gif') repeat-x center;
+            height: 40px;
+            background: url('https://i.gifer.com/origin/67/67f459c8e27a04dc6108c32ed59e9c5b.gif') repeat-x center;
+            background-size: auto 40px;
         }
 
         .footer {
             font-size: 12px;
-            color: #808080;
+            color: #4a0000;
             margin-top: 20px;
         }
 
-        .glow {
-            animation: glow 1.5s ease-in-out infinite alternate;
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 5px #FF0000, 0 0 10px #FF0000; }
-            to { text-shadow: 0 0 20px #FFFF00, 0 0 30px #FF8C00; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
         }
 
-        .sparkle {
-            position: fixed;
-            pointer-events: none;
-            width: 15px;
-            height: 15px;
+        .shake {
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        .featured-image {
+            border: 5px ridge #4a0000;
+            box-shadow: 0 0 30px #8B0000, inset 0 0 20px rgba(0,0,0,0.8);
+            max-width: 90%;
+            margin: 20px auto;
+            display: block;
         }
 
         .webring {
-            border: 2px dashed #FF00FF;
-            padding: 10px;
+            border: 3px ridge #4a0000;
+            padding: 15px;
             margin: 20px auto;
-            width: 400px;
-            background-color: #330033;
+            width: 450px;
+            background: linear-gradient(180deg, #1a0000 0%, #0a0000 100%);
+            box-shadow: 0 0 20px #8B0000;
         }
 
         .badge {
             image-rendering: pixelated;
+            filter: sepia(30%) saturate(150%);
+        }
+
+        .skull-border {
+            background: url('https://i.gifer.com/2h6k.gif') repeat-x;
+            height: 50px;
+        }
+
+        .warning-text {
+            color: #FF0000;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #FF0000;
+        }
+
+        .ghost {
+            position: fixed;
+            opacity: 0.3;
+            pointer-events: none;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        .spooky-text {
+            font-family: "Papyrus", fantasy;
+            color: #00FF00;
+            text-shadow: 0 0 10px #00FF00, 0 0 20px #008800;
+        }
+
+        marquee {
+            color: #8B0000;
+        }
+
+        .new-badge {
+            color: #FF0000;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
 
-<!-- Mouse sparkle trail -->
-<script>
-    document.addEventListener('mousemove', function(e) {
-        if (Math.random() > 0.85) {
-            const sparkle = document.createElement('img');
-            sparkle.src = 'https://www.cursors-4u.net/cursor/cur-13/cur1054.gif';
-            sparkle.className = 'sparkle';
-            sparkle.style.left = e.pageX + 'px';
-            sparkle.style.top = e.pageY + 'px';
-            document.body.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 700);
-        }
-    });
-</script>
+<!-- Floating ghosts -->
+<img src="https://i.gifer.com/6ob.gif" class="ghost" style="left: 5%; top: 20%; width: 80px;">
+<img src="https://i.gifer.com/6ob.gif" class="ghost" style="right: 5%; top: 40%; width: 60px; animation-delay: 2s;">
 
 <br>
 
-<!-- Construction GIF -->
-<img src="https://anlucas.neocities.org/graphics/gifs/construction/const8.gif" alt="Under Construction" width="100">
+<!-- Warning entrance -->
+<img src="https://i.gifer.com/VxN.gif" alt="Skull" width="80" class="pulse">
+<br>
+<span class="warning-text blink">!! WARNING: ENTER AT YOUR OWN RISK !!</span>
+<br>
+<img src="https://i.gifer.com/VxN.gif" alt="Skull" width="80" class="pulse">
 
 <br><br>
+
+<!-- Blood drip top -->
+<div class="blood-drip"></div>
 
 <!-- Main content table -->
 <table class="main-table" cellpadding="10" cellspacing="5">
     <tr>
         <td colspan="3">
-            <marquee behavior="alternate" scrollamount="3">
-                <span class="title-cell">~*~ WELCOME TO MY THEATER PAGE ~*~</span>
+            <marquee behavior="alternate" scrollamount="2">
+                <span class="title-cell flicker">~ THE DARK THEATER ~</span>
             </marquee>
         </td>
     </tr>
     <tr>
         <td colspan="3">
-            <img src="https://files.catbox.moe/kdt03h.gif" alt="Theater Masks" width="60">
-            <img src="https://anlucas.neocities.org/graphics/gifs/other/spotlight.gif" alt="Spotlight" width="80">
-            <img src="https://files.catbox.moe/kdt03h.gif" alt="Theater Masks" width="60">
+            <img src="https://i.gifer.com/6lO6.gif" alt="Bat" width="60">
+            <img src="https://i.gifer.com/5z4.gif" alt="Candles" width="80">
+            <img src="https://i.gifer.com/6lO6.gif" alt="Bat" width="60" style="transform: scaleX(-1);">
         </td>
     </tr>
     <tr>
         <td colspan="3">
-            <font color="#FF69B4" size="4"><i>++ Here are some AWESOME theater links!! ++</i></font>
-            <br>
-            <span class="blink" style="color: #FF0000;">*** CLICK TO ENTER ***</span>
+            <font color="#8B0000" size="4"><i>...where nightmares come to life on stage...</i></font>
+            <br><br>
+            <span class="blink" style="color: #FF0000;">*** DARE TO CLICK ***</span>
         </td>
     </tr>
     <tr>
         <td colspan="3"><div class="divider"></div></td>
+    </tr>
+
+    <!-- NEW: METAspexet 2025 -->
+    <tr>
+        <td colspan="3">
+            <table class="link-table" cellpadding="5">
+                <tr>
+                    <td colspan="3" style="background: linear-gradient(90deg, transparent, #1a3300, transparent);">
+                        <span class="new-badge blink">[NEW!]</span>
+                        <span class="spooky-text" style="font-size: 28px;">METAspexet 2025</span>
+                        <span class="new-badge blink">[NEW!]</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="120" valign="middle">
+                        <img src="https://i.gifer.com/7gW.gif" alt="Witch" width="90">
+                    </td>
+                    <td valign="middle" align="center">
+                        <span class="link-title" style="color: #00FF00;">SVARDET I STENEN</span>
+                        <br>
+                        <font color="#006600" size="3"><i>eller</i></font>
+                        <br>
+                        <span class="spooky-text" style="font-size: 20px;">Tre Haxor i ett Haxspex</span>
+                        <br><br>
+                        <span class="link-desc" style="color: #00aa00;">
+                            ~*~ The Sword in the Stone ~*~<br>
+                            Three Witches in a Witch-Spex!!!<br>
+                            <font color="#00FF00"><b>CHOIR MEMBER</b></font>
+                        </span>
+                        <br><br>
+                        <!-- Featured choir image -->
+                        <img src="media/koren.webp" alt="METAspexet Choir 2025" class="featured-image" style="max-width: 500px;">
+                        <br>
+                        <font color="#008800" size="2"><i>The choir rises from the shadows...</i></font>
+                    </td>
+                    <td width="120" valign="middle">
+                        <img src="https://i.gifer.com/7gW.gif" alt="Witch" width="90" style="transform: scaleX(-1);">
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="3">
+            <img src="https://i.gifer.com/2h6k.gif" alt="Skull divider" width="50">
+            <img src="https://i.gifer.com/2h6k.gif" alt="Skull divider" width="50">
+            <img src="https://i.gifer.com/2h6k.gif" alt="Skull divider" width="50">
+        </td>
     </tr>
 
     <!-- LINK 1: Djungelboken -->
@@ -185,23 +310,23 @@
             <table class="link-table" cellpadding="5">
                 <tr>
                     <td width="120" valign="middle">
-                        <img src="https://gifcity.carrd.co/assets/images/gallery03/a02da498.gif" alt="Tiger" width="90">
+                        <img src="https://i.gifer.com/Te1.gif" alt="Tiger Eyes" width="90">
                     </td>
                     <td valign="middle" align="left">
-                        <span class="link-title glow">DJUNGELBOKEN</span>
+                        <span class="link-title">DJUNGELBOKEN</span>
                         <br><br>
                         <span class="link-desc">
                             ~*~ The Jungle Book ~*~<br>
-                            A WILD adventure in the heart of the jungle!!!<br>
-                            <font color="#00FF00">Mittiprickteatern production</font>
+                            Where predators lurk in every shadow...<br>
+                            <font color="#FF0000">Mittiprickteatern production</font>
                         </span>
                         <br><br>
                         <a href="http://www.mittiprickteatern.se/gallery/djungelboken-2/" target="_blank" class="enter-btn">
-                            >>> ENTER THE JUNGLE <<<
+                            >>> ENTER THE DARKNESS <<<
                         </a>
                     </td>
                     <td width="100" valign="middle">
-                        <img src="https://64.media.tumblr.com/b8e67a3db92178e21e194f6d57e2392c/tumblr_pqgzs4BKDU1y46blco1_250.gif" alt="Jungle" width="80">
+                        <img src="https://i.gifer.com/1VQ.gif" alt="Eyes in dark" width="80">
                     </td>
                 </tr>
             </table>
@@ -214,23 +339,23 @@
             <table class="link-table" cellpadding="5">
                 <tr>
                     <td width="120" valign="middle">
-                        <img src="https://anlucas.neocities.org/graphics/gifs/halloween/hauntedhouse1.gif" alt="Haunted House" width="90">
+                        <img src="https://i.gifer.com/4cJ.gif" alt="Haunted House" width="90">
                     </td>
                     <td valign="middle" align="left">
-                        <span class="link-title glow">GUMMAN GRA</span>
+                        <span class="link-title">GUMMAN GRA</span>
                         <br><br>
                         <span class="link-desc">
                             ~*~ The Grey Lady ~*~<br>
-                            Tales of mystery and wonder...<br>
-                            <font color="#00FF00">Mittiprickteatern production</font>
+                            She waits in the mist for visitors...<br>
+                            <font color="#FF0000">Mittiprickteatern production</font>
                         </span>
                         <br><br>
                         <a href="http://www.mittiprickteatern.se/arkiv/gumman-gra/" target="_blank" class="enter-btn">
-                            >>> MEET THE LADY <<<
+                            >>> MEET YOUR FATE <<<
                         </a>
                     </td>
                     <td width="100" valign="middle">
-                        <img src="https://anlucas.neocities.org/graphics/gifs/halloween/candle.gif" alt="Candle" width="50">
+                        <img src="https://i.gifer.com/5z4.gif" alt="Candles" width="60">
                     </td>
                 </tr>
             </table>
@@ -243,23 +368,23 @@
             <table class="link-table" cellpadding="5">
                 <tr>
                     <td width="120" valign="middle">
-                        <img src="https://anlucas.neocities.org/graphics/gifs/electronics/tv7.gif" alt="TV" width="80">
+                        <img src="https://i.gifer.com/5C2.gif" alt="Potion" width="80">
                     </td>
                     <td valign="middle" align="left">
-                        <span class="link-title glow">ALKOHOLEXPERIMENTEN</span>
+                        <span class="link-title">ALKOHOLEXPERIMENTEN</span>
                         <br><br>
                         <span class="link-desc">
                             ~*~ The Alcohol Experiments ~*~<br>
-                            10,000 years of human history!!!<br>
-                            <font color="#00FF00">SVT Documentary</font>
+                            10,000 years of dark elixirs...<br>
+                            <font color="#FF0000">SVT Documentary</font>
                         </span>
                         <br><br>
                         <a href="https://www.svtplay.se/video/jQrB2G3/alkoholexperimenten/1-full-i-10-000-ar?position=1043&id=jQrB2G3" target="_blank" class="enter-btn">
-                            >>> WATCH NOW <<<
+                            >>> DRINK THE POISON <<<
                         </a>
                     </td>
                     <td width="100" valign="middle">
-                        <img src="https://anlucas.neocities.org/graphics/gifs/science/testtubes.gif" alt="Science" width="60">
+                        <img src="https://i.gifer.com/4Gy.gif" alt="Bubbling" width="70">
                     </td>
                 </tr>
             </table>
@@ -273,11 +398,11 @@
     <!-- Guestbook & counter -->
     <tr>
         <td colspan="3">
-            <img src="https://anlucas.neocities.org/graphics/gifs/guestbook/signbook.gif" alt="Sign Guestbook" width="100">
+            <img src="https://i.gifer.com/ZKZo.gif" alt="Coffin" width="60">
             <br><br>
-            <font color="#FFFF00" size="2">You are visitor #</font>
+            <font color="#8B0000" size="2">Lost souls who have visited: #</font>
             <img src="https://count.cab/hit/cah2sphe3pjeg/count.svg" alt="Counter" height="16">
-            <font color="#FFFF00" size="2"> since 1999!</font>
+            <font color="#8B0000" size="2"> since the curse began...</font>
         </td>
     </tr>
 
@@ -285,63 +410,68 @@
     <tr>
         <td colspan="3">
             <div class="webring">
-                <font color="#FF00FF" size="3"><b>*** THEATER WEBRING ***</b></font>
-                <br>
-                <img src="https://anlucas.neocities.org/graphics/gifs/arrows/arrowleft1.gif" width="30">
-                [ <a href="#">Prev</a> |
-                <a href="#">Random</a> |
-                <a href="#">Next</a> ]
-                <img src="https://anlucas.neocities.org/graphics/gifs/arrows/arrowright1.gif" width="30">
+                <font color="#FF0000" size="3"><b>*** HAUNTED WEBRING ***</b></font>
+                <br><br>
+                <img src="https://i.gifer.com/VxN.gif" width="25">
+                [ <a href="#">< Prev</a> |
+                <a href="#">Summon Random</a> |
+                <a href="#">Next ></a> ]
+                <img src="https://i.gifer.com/VxN.gif" width="25">
             </div>
         </td>
     </tr>
 
 </table>
 
+<!-- Blood drip bottom -->
+<div class="blood-drip" style="transform: rotate(180deg);"></div>
+
 <br>
 
-<!-- Footer badges - from 88x31 collections -->
+<!-- Footer badges -->
 <div class="footer">
+    <img src="https://i.gifer.com/6lO6.gif" alt="Bat" width="40">
+    <img src="https://i.gifer.com/6lO6.gif" alt="Bat" width="40">
+    <img src="https://i.gifer.com/6lO6.gif" alt="Bat" width="40">
+    <br><br>
     <a href="#"><img src="https://cyber.dabamos.de/88x31/ie5.gif" alt="Best viewed in IE" class="badge" width="88" height="31"></a>
     <a href="#"><img src="https://cyber.dabamos.de/88x31/notepad2.gif" alt="Made with Notepad" class="badge" width="88" height="31"></a>
     <a href="#"><img src="https://cyber.dabamos.de/88x31/netscape.gif" alt="Netscape Now" class="badge" width="88" height="31"></a>
     <br><br>
-    <a href="#"><img src="https://cyber.dabamos.de/88x31/geocities_area51.gif" alt="GeoCities" class="badge" width="88" height="31"></a>
-    <a href="#"><img src="https://cyber.dabamos.de/88x31/anybrowser3.gif" alt="Any Browser" class="badge" width="88" height="31"></a>
-    <a href="#"><img src="https://cyber.dabamos.de/88x31/vim.vialle.gif" alt="Vim" class="badge" width="88" height="31"></a>
-    <br><br>
-    <img src="https://anlucas.neocities.org/graphics/gifs/new/newb5.gif" alt="New" width="40">
-    <font color="#808080" size="2">
-        (c) 2003 ~*~ Last updated: March 15, 2003 ~*~<br>
-        This page is best viewed at 800x600 resolution<br>
-        <a href="mailto:webmaster@example.com">Email the Webmaster</a>
+    <font color="#4a0000" size="2">
+        (c) 2003 ~*~ Last updated from beyond the grave ~*~<br>
+        Best viewed at midnight, 666x666 resolution<br>
+        <a href="mailto:webmaster@thedarkside.com" style="color: #8B0000;">Contact the Spirits</a>
     </font>
-    <img src="https://anlucas.neocities.org/graphics/gifs/new/newb5.gif" alt="New" width="40">
     <br><br>
-    <img src="https://cyber.dabamos.de/88x31/fire.gif" alt="Fire line" width="400">
+    <img src="https://i.gifer.com/2h6k.gif" alt="Skull" width="40">
+    <img src="https://i.gifer.com/2h6k.gif" alt="Skull" width="40">
+    <img src="https://i.gifer.com/2h6k.gif" alt="Skull" width="40">
 </div>
 
-<br><br>
+<br>
 
 <!-- Marquee at bottom -->
-<marquee bgcolor="#330033" style="border: 2px solid #FF00FF; padding: 5px;">
-    <font color="#00FF00" size="3">
-        <img src="https://anlucas.neocities.org/graphics/gifs/music/music3.gif" width="30">
-        Thanks for visiting my page!!!
-        <img src="https://files.catbox.moe/kdt03h.gif" width="30">
-        Don't forget to sign my guestbook!!!
-        <img src="https://anlucas.neocities.org/graphics/gifs/music/music3.gif" width="30">
-        Come back soon!!!
-        <img src="https://files.catbox.moe/kdt03h.gif" width="30">
+<marquee bgcolor="#1a0000" style="border: 2px ridge #4a0000; padding: 5px;">
+    <font color="#8B0000" size="3">
+        <img src="https://i.gifer.com/VxN.gif" width="25">
+        The dead do not rest...
+        <img src="https://i.gifer.com/6lO6.gif" width="30">
+        Sign the book of the damned...
+        <img src="https://i.gifer.com/VxN.gif" width="25">
+        Return... if you dare...
+        <img src="https://i.gifer.com/6lO6.gif" width="30">
     </font>
 </marquee>
 
 <br><br>
 
-<!-- Spinning email -->
-<a href="mailto:webmaster@example.com">
-    <img src="https://anlucas.neocities.org/graphics/gifs/email/email2.gif" alt="Email me!" width="80">
+<!-- Spooky email icon -->
+<a href="mailto:webmaster@thedarkside.com">
+    <img src="https://i.gifer.com/2h6k.gif" alt="Contact the Dead" width="60" class="shake">
 </a>
+
+<br><br><br>
 
 </body>
 </html>
