@@ -8,100 +8,225 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Home Button -->
-    <div class="home-button-container">
-        <a href="/" class="home-link">
-            <img src="../web/knas_liten.png" alt="Return to Homepage" class="spin-on-hover">
-            <span class="hover-text">Take me back!</span>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="../web/knas_liten.png" alt="Logo">
+            <span>DS Music</span>
+        </div>
+
+        <nav>
+            <ul class="sidebar-nav">
+                <li><a href="/" class=""><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#" class="active"><i class="fas fa-music"></i> Music</a></li>
+                <li><a href="#released"><i class="fas fa-compact-disc"></i> Released</a></li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-title">Your Library</div>
+
+        <div class="sidebar-playlists">
+            <div class="playlist-item active">
+                <div class="playlist-cover"><i class="fas fa-heart"></i></div>
+                <div class="playlist-info">
+                    <div class="playlist-name">Liked Songs</div>
+                    <div class="playlist-meta">Playlist</div>
+                </div>
+            </div>
+            <div class="playlist-item">
+                <div class="playlist-cover"><i class="fas fa-bolt"></i></div>
+                <div class="playlist-info">
+                    <div class="playlist-name">Electronic</div>
+                    <div class="playlist-meta">Genre</div>
+                </div>
+            </div>
+            <div class="playlist-item">
+                <div class="playlist-cover"><i class="fas fa-cloud"></i></div>
+                <div class="playlist-info">
+                    <div class="playlist-name">Ambient</div>
+                    <div class="playlist-meta">Genre</div>
+                </div>
+            </div>
+            <div class="playlist-item">
+                <div class="playlist-cover"><i class="fas fa-flask"></i></div>
+                <div class="playlist-info">
+                    <div class="playlist-name">Experimental</div>
+                    <div class="playlist-meta">Genre</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Home Button (Mobile & Desktop FAB) -->
+    <div class="home-fab">
+        <a href="/">
+            <img src="../web/knas_liten.png" alt="Home">
+            <span>Home</span>
         </a>
     </div>
 
-    <div class="container">
-        <!-- Hero Section -->
-        <section class="hero">
-            <h1>MUSIC</h1>
-            <p class="tagline">Sounds from the void</p>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header with gradient -->
+        <header class="header-gradient">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-headphones"></i>
+                </div>
+                <div class="header-info">
+                    <div class="header-type">Collection</div>
+                    <h1 class="header-title">MUSIC</h1>
+                    <div class="header-meta">
+                        <span>Jose Velasquez</span>
+                        <span class="dot">•</span>
+                        Sounds from the void
+                        <span class="dot">•</span>
+                        <span id="track-count">0 tracks</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Action bar -->
+        <div class="action-bar">
+            <button class="play-button-large" id="main-play-btn" title="Play">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="shuffle-btn" id="shuffle-btn" title="Shuffle">
+                <i class="fas fa-random"></i>
+            </button>
+        </div>
+
+        <!-- Demos & Experiments Section -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Demos & Experiments</h2>
+            </div>
+
+            <!-- Filter pills -->
+            <div class="filter-pills">
+                <button class="filter-pill active" data-genre="all">All</button>
+                <button class="filter-pill" data-genre="electronic">Electronic</button>
+                <button class="filter-pill" data-genre="ambient">Ambient</button>
+                <button class="filter-pill" data-genre="experimental">Experimental</button>
+            </div>
+
+            <!-- Album grid view -->
+            <div id="album-grid" class="album-grid">
+                <!-- Tracks rendered by JavaScript -->
+            </div>
+
+            <!-- Track list view (initially hidden) -->
+            <div id="track-list" class="track-list" style="display: none;">
+                <div class="track-list-header">
+                    <span>#</span>
+                    <span>Title</span>
+                    <span>Album</span>
+                    <span><i class="far fa-clock"></i></span>
+                </div>
+                <div id="track-list-body">
+                    <!-- Track rows rendered by JavaScript -->
+                </div>
+            </div>
         </section>
 
         <!-- Released Section - SoundCloud -->
-        <section class="section">
-            <h2>Released</h2>
+        <section id="released" class="content-section soundcloud-section">
+            <div class="section-header">
+                <h2 class="section-title">Released</h2>
+                <a href="https://soundcloud.com" target="_blank" class="section-link">See all on SoundCloud</a>
+            </div>
+
             <div class="soundcloud-grid">
                 <div class="soundcloud-card">
                     <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
-                        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1680362358&color=%234fc3f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false">
+                        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1680362358&color=%231DB954&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false">
                     </iframe>
                 </div>
                 <div class="soundcloud-card">
                     <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
-                        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1680371169&color=%234fc3f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false">
+                        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1680371169&color=%231DB954&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false">
                     </iframe>
                 </div>
                 <div class="soundcloud-card">
                     <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
-                        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1680366543&color=%234fc3f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false">
+                        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1680366543&color=%231DB954&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false">
                     </iframe>
                 </div>
             </div>
         </section>
+    </main>
 
-        <!-- Demos & Experiments Section - Local Tracks -->
-        <section class="section">
-            <h2>Demos & Experiments</h2>
-
-            <!-- Filter Buttons -->
-            <div class="filter-container">
-                <button class="filter-btn active" data-genre="all">All</button>
-                <button class="filter-btn" data-genre="electronic">Electronic</button>
-                <button class="filter-btn" data-genre="ambient">Ambient</button>
-                <button class="filter-btn" data-genre="experimental">Experimental</button>
+    <!-- Bottom Player -->
+    <footer class="bottom-player">
+        <!-- Now playing info -->
+        <div class="now-playing">
+            <div id="player-cover">
+                <div class="now-playing-placeholder">
+                    <i class="fas fa-music"></i>
+                </div>
             </div>
-
-            <!-- Track Grid -->
-            <div id="track-grid" class="track-grid">
-                <!-- Tracks rendered by JavaScript -->
+            <div class="now-playing-info">
+                <div id="player-title" class="now-playing-title">Select a track</div>
+                <div id="player-artist" class="now-playing-artist">—</div>
             </div>
-        </section>
-    </div>
-
-    <!-- Fixed Bottom Player -->
-    <div class="bottom-player">
-        <div id="player-cover">
-            <div class="player-cover-placeholder">
-                <i class="fas fa-music"></i>
+            <div class="now-playing-actions">
+                <button class="like-btn" title="Save to your Liked Songs">
+                    <i class="far fa-heart"></i>
+                </button>
             </div>
         </div>
 
-        <div class="player-track-info">
-            <div id="player-title" class="player-track-title">Select a track</div>
-            <div id="player-artist" class="player-track-artist">—</div>
+        <!-- Player controls -->
+        <div class="player-controls-section">
+            <div class="player-buttons">
+                <button class="player-btn" id="shuffle-toggle" title="Shuffle">
+                    <i class="fas fa-random"></i>
+                </button>
+                <button class="player-btn" id="prev-btn" title="Previous">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button class="player-btn play-pause" id="play-pause-btn" title="Play">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="player-btn" id="next-btn" title="Next">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+                <button class="player-btn" id="repeat-btn" title="Repeat">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+            <div class="progress-section">
+                <span id="current-time" class="progress-time">0:00</span>
+                <div class="waveform-wrapper">
+                    <div id="waveform"></div>
+                </div>
+                <span id="total-time" class="progress-time">0:00</span>
+            </div>
         </div>
 
-        <div class="player-controls">
-            <button id="prev-btn" class="control-btn" title="Previous">
-                <i class="fas fa-step-backward"></i>
+        <!-- Extra controls -->
+        <div class="player-extra">
+            <button class="extra-btn" title="Now Playing View">
+                <i class="fas fa-list"></i>
             </button>
-            <button id="play-pause-btn" class="control-btn play-pause" title="Play/Pause">
-                <i class="fas fa-play"></i>
+            <button class="extra-btn" title="Connect to a device">
+                <i class="fas fa-desktop"></i>
             </button>
-            <button id="next-btn" class="control-btn" title="Next">
-                <i class="fas fa-step-forward"></i>
-            </button>
-        </div>
-
-        <div class="waveform-container">
-            <div id="waveform"></div>
-            <div class="player-time">
-                <span id="current-time">0:00</span>
-                <span id="total-time">0:00</span>
+            <div class="volume-section">
+                <button class="extra-btn" id="volume-btn" title="Mute">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <div class="volume-slider-wrapper">
+                    <div class="volume-bar" id="volume-bar">
+                        <div class="volume-bar-handle"></div>
+                    </div>
+                    <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="80">
+                </div>
             </div>
         </div>
-
-        <div class="volume-control">
-            <i class="fas fa-volume-up"></i>
-            <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="80">
-        </div>
-    </div>
+    </footer>
 
     <!-- WaveSurfer.js -->
     <script src="https://unpkg.com/wavesurfer.js@7"></script>
