@@ -28,31 +28,38 @@
 
         <div class="sidebar-playlists">
             <div class="playlist-item active">
-                <div class="playlist-cover"><i class="fas fa-heart"></i></div>
+                <div class="playlist-cover"><i class="fas fa-music"></i></div>
                 <div class="playlist-info">
-                    <div class="playlist-name">Liked Songs</div>
-                    <div class="playlist-meta">Playlist</div>
+                    <div class="playlist-name">All Songs</div>
+                    <div class="playlist-meta">20 tracks</div>
                 </div>
             </div>
             <div class="playlist-item">
-                <div class="playlist-cover"><i class="fas fa-bolt"></i></div>
+                <div class="playlist-cover" style="background: linear-gradient(135deg, #f59e0b33, #f59e0b11);"><i class="fas fa-guitar" style="color: #f59e0b;"></i></div>
                 <div class="playlist-info">
-                    <div class="playlist-name">Electronic</div>
-                    <div class="playlist-meta">Genre</div>
+                    <div class="playlist-name">Latin</div>
+                    <div class="playlist-meta">5 tracks</div>
                 </div>
             </div>
             <div class="playlist-item">
-                <div class="playlist-cover"><i class="fas fa-cloud"></i></div>
+                <div class="playlist-cover" style="background: linear-gradient(135deg, #3b82f633, #3b82f611);"><i class="fas fa-snowflake" style="color: #3b82f6;"></i></div>
                 <div class="playlist-info">
-                    <div class="playlist-name">Ambient</div>
-                    <div class="playlist-meta">Genre</div>
+                    <div class="playlist-name">Swedish</div>
+                    <div class="playlist-meta">4 tracks</div>
                 </div>
             </div>
             <div class="playlist-item">
-                <div class="playlist-cover"><i class="fas fa-flask"></i></div>
+                <div class="playlist-cover" style="background: linear-gradient(135deg, #8b5cf633, #8b5cf611);"><i class="fas fa-microphone" style="color: #8b5cf6;"></i></div>
                 <div class="playlist-info">
-                    <div class="playlist-name">Experimental</div>
-                    <div class="playlist-meta">Genre</div>
+                    <div class="playlist-name">English</div>
+                    <div class="playlist-meta">7 tracks</div>
+                </div>
+            </div>
+            <div class="playlist-item">
+                <div class="playlist-cover" style="background: linear-gradient(135deg, #6b728033, #6b728011);"><i class="fas fa-flask" style="color: #6b7280;"></i></div>
+                <div class="playlist-info">
+                    <div class="playlist-name">Fragments</div>
+                    <div class="playlist-meta">4 tracks</div>
                 </div>
             </div>
         </div>
@@ -76,13 +83,13 @@
                 </div>
                 <div class="header-info">
                     <div class="header-type">Collection</div>
-                    <h1 class="header-title">MUSIC</h1>
+                    <h1 class="header-title">COVERS</h1>
                     <div class="header-meta">
                         <span>Jose Velasquez</span>
                         <span class="dot">•</span>
-                        Sounds from the void
+                        Guitar covers & recordings
                         <span class="dot">•</span>
-                        <span id="track-count">0 tracks</span>
+                        <span id="track-count">20 tracks</span>
                     </div>
                 </div>
             </div>
@@ -101,15 +108,16 @@
         <!-- Demos & Experiments Section -->
         <section class="content-section">
             <div class="section-header">
-                <h2 class="section-title">Demos & Experiments</h2>
+                <h2 class="section-title">All Covers</h2>
             </div>
 
             <!-- Filter pills -->
             <div class="filter-pills">
                 <button class="filter-pill active" data-genre="all">All</button>
-                <button class="filter-pill" data-genre="electronic">Electronic</button>
-                <button class="filter-pill" data-genre="ambient">Ambient</button>
-                <button class="filter-pill" data-genre="experimental">Experimental</button>
+                <button class="filter-pill" data-genre="latin">Latin</button>
+                <button class="filter-pill" data-genre="swedish">Swedish</button>
+                <button class="filter-pill" data-genre="english">English</button>
+                <button class="filter-pill" data-genre="fragment">Fragments</button>
             </div>
 
             <!-- Album grid view -->
