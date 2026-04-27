@@ -464,7 +464,7 @@
                 </span>
                 <br /><br />
                 <a
-                  href="http://www.mittiprickteatern.se/"
+                  href="https://www.mittiprickteatern.se/djungelboken/"
                   target="_blank"
                   class="enter-btn"
                 >
@@ -505,7 +505,7 @@
                 </span>
                 <br /><br />
                 <a
-                  href="http://www.mittiprickteatern.se/arkiv/gumman-gra/"
+                  href="https://www.mittiprickteatern.se/arkiv/gumman-gra/"
                   target="_blank"
                   class="enter-btn"
                 >
@@ -591,10 +591,27 @@
             <font color="#FF0000" size="3"><b>*** HAUNTED WEBRING ***</b></font>
             <br /><br />
             <img src="https://i.gifer.com/VxN.gif" width="25" />
-            [ <a href="#">< Prev</a> | <a href="#">Summon Random</a> |
-            <a href="#">Next ></a> ]
+            [ <a href="#" onclick="goToRandomPage(); return false;">< Prev</a> | <a href="#" onclick="goToRandomPage(); return false;">Summon Random</a> |
+            <a href="#" onclick="goToRandomPage(); return false;">Next ></a> ]
             <img src="https://i.gifer.com/VxN.gif" width="25" />
           </div>
+          <script>
+            var sitePages = [
+              'index.html',
+              'about.html',
+              'Music/music.html',
+              'video/gallery.html',
+              'video/bike.html',
+              'draw/draw.html',
+              'web/web.html',
+              'ML/ML.html',
+              'wikiquest/index.html'
+            ];
+            function goToRandomPage() {
+              var randomIndex = Math.floor(Math.random() * sitePages.length);
+              window.location.href = sitePages[randomIndex];
+            }
+          </script>
         </td>
       </tr>
     </table>
@@ -610,30 +627,27 @@
       <img src="https://i.gifer.com/6lO6.gif" alt="Bat" width="40" />
       <img src="https://i.gifer.com/6lO6.gif" alt="Bat" width="40" />
       <br /><br />
-      <a href="#"
-        ><img
+      <img
           src="https://cyber.dabamos.de/88x31/ie5.gif"
           alt="Best viewed in IE"
           class="badge"
           width="88"
           height="31"
-      /></a>
-      <a href="#"
-        ><img
+      />
+      <img
           src="https://cyber.dabamos.de/88x31/notepad2.gif"
           alt="Made with Notepad"
           class="badge"
           width="88"
           height="31"
-      /></a>
-      <a href="#"
-        ><img
+      />
+      <img
           src="https://cyber.dabamos.de/88x31/netscape.gif"
           alt="Netscape Now"
           class="badge"
           width="88"
           height="31"
-      /></a>
+      />
       <br /><br />
       <font color="#4a0000" size="2">
         (c) 2003 ~*~ Last updated from beyond the grave ~*~<br />
