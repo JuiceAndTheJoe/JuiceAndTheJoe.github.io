@@ -17,6 +17,14 @@ const DEFAULT_RADIUS = 2;
 const COUNTRIES_GEOJSON_URL =
   'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson';
 
+// Globe textures. The 2K Blue Marble looks iconic at orbital distance but
+// pixelates up close; we swap to a 4K natural-color texture below the close
+// altitude threshold. Preloaded on init so the swap is instant.
+const TEX_FAR = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
+const TEX_NEAR =
+  'https://cdn.jsdelivr.net/gh/turban/webgl-earth@master/images/2_no_clouds_4k.jpg';
+const TEX_SWAP_ALTITUDE = 0.7;
+
 // City prominence tiers. Top tier always visible; mid tier appears when the
 // camera drops below the regional altitude threshold; the rest only show on
 // close zoom. This keeps the globe legible from afar instead of solid text.
@@ -559,7 +567,7 @@ document.querySelectorAll('.preset-btn').forEach((btn) => {
     setTarget(lat, lng);
 
     if (globe) {
-      globe.pointOfView({ lat, lng, altitude: 0.35 }, 1200);
+      globe.pointOfView({ lat, lng, altitude: 0.12 }, 1200);
     }
   });
 });
@@ -573,8 +581,11 @@ let globe = null;
   const container = document.getElementById('globe-container');
   if (!container || typeof globalThis.Globe !== 'function') return;
 
+  // Warm the 4K texture cache so the close-up swap is instant.
+  new Image().src = TEX_NEAR;
+
   globe = globalThis.Globe()(container)
-    .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+    .globeImageUrl(TEX_FAR)
     .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
     .backgroundColor('rgba(0,0,0,0)')
     .showAtmosphere(true)
@@ -628,7 +639,7 @@ let globe = null;
       el.addEventListener('click', (event) => {
         event.stopPropagation();
         setTarget(d.lat, d.lng);
-        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.35 }, 1200);
+        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.12 }, 1200);
       });
       return el;
     });
@@ -666,14 +677,23 @@ let globe = null;
     setTarget(lat, lng);
   });
 
-  // Camera-altitude-driven label tiers: swap the visible city set when the
-  // user crosses an altitude threshold (avoids re-rendering on every frame).
+  // Camera-altitude-driven detail swap:
+  //   - city label tier (which set is visible)
+  //   - globe surface texture (blue-marble far away, 4K natural-color close)
+  // Both only re-apply when the altitude actually crosses a threshold to
+  // avoid thrashing on every animation frame.
   let currentTier = 1;
+  let currentTexMode = 'far';
   globe.onZoom(({ altitude }) => {
     const tier = altitude > 1.5 ? 1 : altitude > 0.5 ? 2 : 3;
     if (tier !== currentTier) {
       currentTier = tier;
       globe.htmlElementsData(citiesForAltitude(altitude));
+    }
+    const texMode = altitude < TEX_SWAP_ALTITUDE ? 'near' : 'far';
+    if (texMode !== currentTexMode) {
+      currentTexMode = texMode;
+      globe.globeImageUrl(texMode === 'near' ? TEX_NEAR : TEX_FAR);
     }
   });
 
