@@ -476,18 +476,26 @@ lonInput.addEventListener('input', syncHud);
 // Target selection — sets coords + visual marker without triggering capture.
 // Capture only happens when the user explicitly hits the CAPTURE button.
 // ---------------------------------------------------------------------------
+// Slider fires `input` events much faster than the browser repaints; we
+// coalesce them through requestAnimationFrame so globe.gl only rebuilds
+// the cylinder + ring meshes once per frame even on a frantic drag.
+let markerRAF = null;
 function updateTargetMarker() {
-  if (!globe) return;
-  const lat = parseFloat(latInput.value);
-  const lng = parseFloat(lonInput.value);
-  const sliderKm = parseFloat(radiusInput.value);
-  if (isNaN(lat) || isNaN(lng) || isNaN(sliderKm)) return;
-  const radiusDeg = captureHalfSideDeg(lat, sliderKm);
-  // Both the static disc (pointsData) and the radar pulse (ringsData) read
-  // their size from the same per-feature radiusDeg, so slider/disc/ring/image
-  // are all describing the same area.
-  globe.pointsData([{ lat, lng, radiusDeg }]);
-  globe.ringsData([{ lat, lng, radiusDeg }]);
+  if (markerRAF !== null) return;
+  markerRAF = requestAnimationFrame(() => {
+    markerRAF = null;
+    if (!globe) return;
+    const lat = parseFloat(latInput.value);
+    const lng = parseFloat(lonInput.value);
+    const sliderKm = parseFloat(radiusInput.value);
+    if (isNaN(lat) || isNaN(lng) || isNaN(sliderKm)) return;
+    const radiusDeg = captureHalfSideDeg(lat, sliderKm);
+    // Both the static disc (pointsData) and the radar pulse (ringsData) read
+    // their size from the same per-feature radiusDeg, so slider/disc/ring/image
+    // are all describing the same area.
+    globe.pointsData([{ lat, lng, radiusDeg }]);
+    globe.ringsData([{ lat, lng, radiusDeg }]);
+  });
 }
 
 function dismissHeader() {
@@ -810,6 +818,9 @@ let globe = null;
     // will cover. Lifted slightly above the polygon stack to stay visible.
     .pointAltitude(0.012)
     .pointRadius((d) => d.radiusDeg)
+    // 12 segments is the default — drop to 8 so each rebuild on slider drag
+    // is half the geometry. Visually indistinguishable for a translucent disc.
+    .pointResolution(8)
     .pointColor(() => 'rgba(255, 58, 140, 0.45)')
     // Pulsing ring — altitude bumped above the polygon overlays (0.005–0.008)
     // so country borders, urban areas, and lakes can't depth-occlude it even
