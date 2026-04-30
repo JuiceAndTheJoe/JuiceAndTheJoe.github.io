@@ -593,10 +593,11 @@ let globe = null;
     .atmosphereAltitude(0.18)
     .width(container.clientWidth)
     .height(container.clientHeight)
-    // Target marker
+    // Target marker — semi-transparent so it doesn't occlude the imagery
+    // beneath when the camera is close in.
     .pointAltitude(0.01)
     .pointRadius(0.5)
-    .pointColor(() => '#ff3a8c')
+    .pointColor(() => 'rgba(255, 58, 140, 0.45)')
     // Pulsing ring
     .ringColor(() => 'rgba(255,58,140,0.8)')
     .ringMaxRadius(2)
