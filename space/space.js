@@ -1095,6 +1095,37 @@ let globe = null;
     setTarget(lat, lng);
   });
 
+  // Polygons (country borders, urban areas, lakes) are 3D meshes above the
+  // sphere, so when the user clicks on land their click hits the polygon
+  // before reaching the globe sphere — onGlobeClick never fires. Register
+  // onPolygonClick to forward those clicks to the same setTarget code,
+  // using the globe-projected click point so the target lands exactly
+  // where the cursor was, not at the polygon's centroid.
+  globe.onPolygonClick((polygon, event) => {
+    if (event && typeof globe.toGlobeCoords === 'function') {
+      const coords = globe.toGlobeCoords(event.clientX, event.clientY);
+      if (coords && !isNaN(coords.lat) && !isNaN(coords.lng)) {
+        setTarget(coords.lat, coords.lng);
+        return;
+      }
+    }
+    if (polygon && typeof polygon._lat === 'number') {
+      setTarget(polygon._lat, polygon._lng);
+    }
+  });
+
+  // Disable the per-layer fade-in/out tweens — the user wants the disc and
+  // ring to track the radius slider in real time. globe.gl's defaults
+  // animate over ~1 s, which feels laggy especially when polygons occlude
+  // the cylinder mid-transition. Feature-detected so missing methods don't
+  // break the page.
+  if (typeof globe.pointsTransitionDuration === 'function') {
+    globe.pointsTransitionDuration(0);
+  }
+  if (typeof globe.polygonsTransitionDuration === 'function') {
+    globe.polygonsTransitionDuration(0);
+  }
+
   // Camera-driven detail updates. We listen to three.js OrbitControls
   // 'change' instead of globe.gl's onZoom because the latter doesn't
   // reliably fire during programmatic pointOfView flights in all versions.
