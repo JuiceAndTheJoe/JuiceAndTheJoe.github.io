@@ -1,7 +1,7 @@
 // Captures hit a Cloudflare Worker that holds the Mapbox token as a server-
 // side secret and enforces a global monthly cap. See worker/ in the repo.
 // Replace this with the URL printed by `wrangler deploy`.
-const PROXY_BASE = 'https://satellite-proxy.REPLACE_WITH_CF_SUBDOMAIN.workers.dev';
+const PROXY_BASE = 'https://satellite-proxy.esvela02.workers.dev';
 
 function estimateZoomForRadiusKm(km) {
   if (km <= 1) return 17;
