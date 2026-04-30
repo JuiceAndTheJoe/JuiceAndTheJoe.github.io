@@ -822,6 +822,13 @@ let globe = null;
     .ringMaxRadius((d) => d.radiusDeg)
     .ringPropagationSpeed((d) => Math.max(d.radiusDeg / 1.2, 0.005))
     .ringRepeatPeriod(1500)
+    // Transition durations control how long globe.gl spends fading layers
+    // in/out when their data changes. Defaults are ~1 s which adds
+    // perceptible CPU cost on every camera-driven refresh; snap them.
+    .pointsTransitionDuration(0)
+    .ringsTransitionDuration(0)
+    .polygonsTransitionDuration(0)
+    .htmlElementsTransitionDuration(0)
     // Vector overlays. Country borders load on init; states + urban areas +
     // lakes lazy-load on first close-zoom. All features carry a `_kind`
     // property so the polygon style callbacks render each layer differently.
@@ -942,11 +949,17 @@ let globe = null;
       pov.altitude > 0.15 ? 25 :
       12;
     // Cheap stability key so we don't re-filter on every animation frame.
-    const key = `${radiusDeg}|${pov.lat.toFixed(1)}|${pov.lng.toFixed(1)}|${polyBuckets.urban.length}|${polyBuckets.lake.length}`;
+    const key = `${radiusDeg}|${pov.lat.toFixed(1)}|${pov.lng.toFixed(1)}|${polyBuckets.urban.length}|${polyBuckets.lake.length}|${polyBuckets.country.length}`;
     if (key === lastFilterKey) return;
     lastFilterKey = key;
+    // Country borders also get spatially filtered at close zoom — at
+    // altitude < 0.5 there are at most a handful in view, no point paying
+    // for ~250 extruded meshes globally.
+    const countries = pov.altitude > 0.5
+      ? polyBuckets.country
+      : filterToView(polyBuckets.country, pov.lat, pov.lng, radiusDeg);
     globe.polygonsData([
-      ...polyBuckets.country,
+      ...countries,
       ...filterToView(polyBuckets.lake,  pov.lat, pov.lng, radiusDeg),
       ...filterToView(polyBuckets.urban, pov.lat, pov.lng, radiusDeg),
     ]);
@@ -1089,9 +1102,22 @@ let globe = null;
   // Camera-driven detail updates. We listen to three.js OrbitControls
   // 'change' instead of globe.gl's onZoom because the latter doesn't
   // reliably fire during programmatic pointOfView flights in all versions.
-  // Stability keys inside each refresh function keep this cheap even though
-  // 'change' fires every animation frame during a fly-in.
+  //
+  // Light work (texture swap, body class, lazy-load trigger, header dismiss)
+  // runs every change. The expensive part — re-filtering and uploading new
+  // polygon/label data to globe.gl — is debounced to fire 150 ms after the
+  // camera settles, so a fly-in that traverses dozens of degrees triggers
+  // exactly one heavy refresh at the end instead of one per animation frame.
   let currentTexMode = 'far';
+  let settleTimer = null;
+  function scheduleHeavyRefresh() {
+    if (settleTimer) clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+      settleTimer = null;
+      refreshLabels();
+      refreshPolygons();
+    }, 150);
+  }
   function onCameraChange() {
     const { altitude } = globe.pointOfView();
     if (altitude < 1.5) dismissHeader();
@@ -1105,17 +1131,19 @@ let globe = null;
     // sphere underneath. CSS rule keyed off this class flips
     // `pointer-events: none` on the city labels.
     document.body.classList.toggle('globe-close-zoom', altitude < 0.2);
-    refreshLabels();
-    refreshPolygons();
+    scheduleHeavyRefresh();
   }
   globe.controls().addEventListener('change', onCameraChange);
 
-  // Expose the refresh helpers so the label/preset click handlers can call
-  // them after their pointOfView animation finishes (a belt-and-braces fix
-  // for any case where the change events don't keep up with the tween).
+  // Expose a synchronous refresh for the label/preset click handlers to
+  // call right after their pointOfView animation finishes — bypasses the
+  // settle debounce so the user sees the new vector overlay/labels exactly
+  // when the camera arrives.
   globe._refreshAfterFlight = () => {
+    if (settleTimer) { clearTimeout(settleTimer); settleTimer = null; }
     loadDetailLayers();
-    onCameraChange();
+    refreshLabels();
+    refreshPolygons();
   };
 
   // Keep canvas sized to its container on window resize
