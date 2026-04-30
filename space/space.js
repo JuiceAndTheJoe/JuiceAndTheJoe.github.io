@@ -801,7 +801,7 @@ let globe = null;
     .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
     .backgroundColor('rgba(0,0,0,0)')
     .showAtmosphere(true)
-    .atmosphereColor('#5fc1ff')
+    .atmosphereColor('#7fff80')
     .atmosphereAltitude(0.18)
     .width(container.clientWidth)
     .height(container.clientHeight)
@@ -840,7 +840,7 @@ let globe = null;
       // Filled = visible polygon body (cap is the top face of the extrusion).
       switch (d._kind) {
         case 'urban': return 'rgba(255, 200, 80, 0.22)';
-        case 'lake':  return 'rgba(40, 140, 220, 0.35)';
+        case 'lake':  return 'rgba(40,220,120, 0.35)';
         default:      return 'rgba(0,0,0,0)';
       }
     })
@@ -848,8 +848,8 @@ let globe = null;
     .polygonStrokeColor((d) => {
       switch (d._kind) {
         case 'urban':   return 'rgba(255, 200, 80, 0.85)';
-        case 'lake':    return 'rgba(70, 180, 255, 0.7)';
-        case 'country': return 'rgba(16, 241, 249, 0.6)';
+        case 'lake':    return 'rgba(80,255,150, 0.7)';
+        case 'country': return 'rgba(57,255,20, 0.6)';
         default:        return 'rgba(0,0,0,0)';
       }
     })
