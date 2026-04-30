@@ -17,6 +17,63 @@ const DEFAULT_RADIUS = 2;
 const COUNTRIES_GEOJSON_URL =
   'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson';
 
+// City prominence tiers. Top tier always visible; mid tier appears when the
+// camera drops below the regional altitude threshold; the rest only show on
+// close zoom. This keeps the globe legible from afar instead of solid text.
+const TIER1_CITIES = new Set([
+  // Megacities + globally recognised capitals
+  'New York', 'Los Angeles', 'Chicago', 'San Francisco', 'Honolulu',
+  'Mexico City', 'Toronto',
+  'Rio de Janeiro', 'São Paulo', 'Buenos Aires',
+  'London', 'Paris', 'Berlin', 'Madrid', 'Rome', 'Moscow', 'Stockholm',
+  'Istanbul', 'Reykjavík',
+  'Tokyo', 'Beijing', 'Shanghai', 'Hong Kong', 'Seoul', 'Singapore',
+  'Bangkok', 'Mumbai', 'New Delhi', 'Jakarta', 'Dubai', 'Jerusalem',
+  'Cairo', 'Lagos', 'Cape Town', 'Johannesburg',
+  'Sydney', 'Melbourne', 'Auckland',
+]);
+
+const TIER2_CITIES = new Set([
+  // Europe
+  'Helsinki', 'Oslo', 'Copenhagen', 'Hamburg', 'Munich', 'Frankfurt',
+  'Amsterdam', 'Brussels', 'Zurich', 'Vienna', 'Prague', 'Warsaw',
+  'Kraków', 'Kyiv', 'St. Petersburg', 'Ankara', 'Athens', 'Lisbon',
+  'Barcelona', 'Manchester', 'Edinburgh', 'Dublin', 'Milan', 'Naples',
+  // North America
+  'Houston', 'Phoenix', 'Denver', 'Las Vegas', 'Seattle', 'Portland',
+  'Washington', 'Boston', 'Philadelphia', 'Miami', 'Atlanta', 'Dallas',
+  'Detroit', 'Minneapolis', 'Anchorage',
+  'Montreal', 'Vancouver', 'Calgary',
+  'Havana', 'Panama City', 'San Juan', 'Guatemala City',
+  // South America
+  'Bogotá', 'Lima', 'La Paz', 'Santiago', 'Brasília', 'Caracas',
+  'Montevideo', 'Quito',
+  // Asia
+  'Osaka', 'Kyoto', 'Taipei', 'Manila', 'Ho Chi Minh City', 'Hanoi',
+  'Kuala Lumpur', 'Guangzhou', 'Shenzhen', 'Bangalore', 'Chennai',
+  'Kolkata', 'Hyderabad', 'Karachi', 'Lahore', 'Islamabad', 'Tehran',
+  'Riyadh', 'Tel Aviv', 'Damascus', 'Beirut', 'Baghdad', 'Kabul',
+  'Tashkent', 'Almaty',
+  // Africa
+  'Casablanca', 'Algiers', 'Tunis', 'Dakar', 'Accra', 'Abuja', 'Nairobi',
+  'Addis Ababa', 'Kinshasa', 'Khartoum', 'Pretoria', 'Luanda',
+  // Oceania
+  'Brisbane', 'Perth', 'Adelaide', 'Wellington',
+]);
+
+function cityTier(name) {
+  if (TIER1_CITIES.has(name)) return 1;
+  if (TIER2_CITIES.has(name)) return 2;
+  return 3;
+}
+
+// Altitude thresholds: above 1.5 only tier-1; 0.5–1.5 tier-1+2; below 0.5 all.
+function citiesForAltitude(altitude) {
+  if (altitude > 1.5) return CITY_LABELS.filter((c) => cityTier(c.name) === 1);
+  if (altitude > 0.5) return CITY_LABELS.filter((c) => cityTier(c.name) <= 2);
+  return CITY_LABELS;
+}
+
 // Cities rendered as clickable HTML labels on the globe. Used for both the
 // label overlay and the random-preset roulette. ~220 entries, multiple
 // cities per major country, geographically distributed.
@@ -365,6 +422,21 @@ latInput.addEventListener('input', syncHud);
 lonInput.addEventListener('input', syncHud);
 
 // ---------------------------------------------------------------------------
+// Target selection — sets coords + visual marker without triggering capture.
+// Capture only happens when the user explicitly hits the CAPTURE button.
+// ---------------------------------------------------------------------------
+function setTarget(lat, lng) {
+  latInput.value = lat.toFixed(6);
+  lonInput.value = lng.toFixed(6);
+  syncHud();
+  globeStatus.textContent = 'TARGET LOCKED';
+  if (globe) {
+    globe.pointsData([{ lat, lng }]);
+    globe.ringsData([{ lat, lng }]);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Radius slider live readout
 // ---------------------------------------------------------------------------
 radiusInput.addEventListener('input', () => {
@@ -468,31 +540,27 @@ lonInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') capture(); 
 // ---------------------------------------------------------------------------
 document.querySelectorAll('.preset-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
+    let lat;
+    let lng;
+    let radius;
     if (btn.dataset.random === 'true') {
       const pick = CITY_LABELS[Math.floor(Math.random() * CITY_LABELS.length)];
-      latInput.value          = pick.lat.toFixed(6);
-      lonInput.value          = pick.lng.toFixed(6);
-      radiusInput.value       = '5';
-      radiusValue.textContent = '5';
+      lat = pick.lat;
+      lng = pick.lng;
+      radius = 5;
     } else {
-      latInput.value          = btn.dataset.lat;
-      lonInput.value          = btn.dataset.lon;
-      radiusInput.value       = btn.dataset.radius;
-      radiusValue.textContent = btn.dataset.radius;
+      lat = parseFloat(btn.dataset.lat);
+      lng = parseFloat(btn.dataset.lon);
+      radius = parseFloat(btn.dataset.radius);
     }
 
-    syncHud();
+    radiusInput.value       = String(radius);
+    radiusValue.textContent = String(radius);
+    setTarget(lat, lng);
 
-    // Fly the globe to the new target
     if (globe) {
-      const lat = parseFloat(latInput.value);
-      const lng = parseFloat(lonInput.value);
-      globe.pointsData([{ lat, lng }]);
-      globe.ringsData([{ lat, lng }]);
-      globe.pointOfView({ lat, lng, altitude: 1.5 }, 800);
+      globe.pointOfView({ lat, lng, altitude: 0.35 }, 1200);
     }
-
-    capture();
   });
 });
 
@@ -537,14 +605,16 @@ let globe = null;
     // Each element also gets its own click handler — clicking the label
     // snaps to the city's exact coordinates instead of relying on the
     // sphere raycast hitting the right pixel.
-    .htmlElementsData(CITY_LABELS)
+    // Initial label set is the top tier only (matches default altitude 1.8).
+    // The onZoom listener swaps in the larger tier sets as the camera drops.
+    .htmlElementsData(citiesForAltitude(1.8))
     .htmlLat('lat')
     .htmlLng('lng')
     .htmlAltitude(0.012)
     .htmlElement((d) => {
       const el = document.createElement('div');
       el.className = 'globe-city-label';
-      el.title = `Capture ${d.name}`;
+      el.title = `Lock target on ${d.name} and zoom in`;
       const dot = document.createElement('span');
       dot.className = 'city-dot';
       const name = document.createElement('span');
@@ -552,12 +622,13 @@ let globe = null;
       name.textContent = d.name;
       el.appendChild(dot);
       el.appendChild(name);
+      // Clicking a label locks the target and flies the camera in close
+      // enough that the user can pick a more precise spot inside the city.
+      // Capture only happens when they hit the CAPTURE button.
       el.addEventListener('click', (event) => {
         event.stopPropagation();
-        latInput.value = d.lat.toFixed(6);
-        lonInput.value = d.lng.toFixed(6);
-        syncHud();
-        capture();
+        setTarget(d.lat, d.lng);
+        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.35 }, 1200);
       });
       return el;
     });
@@ -589,15 +660,21 @@ let globe = null;
   globe.ringsData([{ lat: DEFAULT_LAT, lng: DEFAULT_LON }]);
   globe.pointOfView({ lat: DEFAULT_LAT, lng: DEFAULT_LON, altitude: 1.8 });
 
-  // Globe click → write inputs, sync HUD, update marker/ring, auto-capture
+  // Globe click → set the target and update marker/ring. Capture is a
+  // separate explicit action — the user hits CAPTURE when they're ready.
   globe.onGlobeClick(({ lat, lng }) => {
-    latInput.value = lat.toFixed(6);
-    lonInput.value = lng.toFixed(6);
-    syncHud();
-    globeStatus.textContent = 'TARGET LOCKED';
-    globe.pointsData([{ lat, lng }]);
-    globe.ringsData([{ lat, lng }]);
-    capture();
+    setTarget(lat, lng);
+  });
+
+  // Camera-altitude-driven label tiers: swap the visible city set when the
+  // user crosses an altitude threshold (avoids re-rendering on every frame).
+  let currentTier = 1;
+  globe.onZoom(({ altitude }) => {
+    const tier = altitude > 1.5 ? 1 : altitude > 0.5 ? 2 : 3;
+    if (tier !== currentTier) {
+      currentTier = tier;
+      globe.htmlElementsData(citiesForAltitude(altitude));
+    }
   });
 
   // Keep canvas sized to its container on window resize
