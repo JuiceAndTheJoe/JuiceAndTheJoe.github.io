@@ -183,7 +183,16 @@
                 <dd id="meta-zoom">—</dd>
               </div>
               <div class="metadata-row">
-                <dt>Likely source</dt>
+                <dt>
+                  Likely source
+                  <button
+                    type="button"
+                    id="source-info-btn"
+                    class="info-btn"
+                    aria-label="Why does this say 'likely'?"
+                    title="Why does this say 'likely'?"
+                  >?</button>
+                </dt>
                 <dd id="meta-source">—</dd>
               </div>
               <div class="metadata-row">
@@ -216,6 +225,17 @@
               </div>
             </dl>
           </aside>
+        </div>
+
+        <div id="source-info-popup" class="info-popup" hidden>
+          <button
+            type="button"
+            id="source-info-close"
+            class="info-popup-close"
+            aria-label="Close"
+          >×</button>
+          <h4>About 'Likely source'</h4>
+          <p id="source-info-body"></p>
         </div>
       </section>
 

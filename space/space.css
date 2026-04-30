@@ -738,6 +738,83 @@ body.globe-close-zoom .globe-city-label {
   word-break: break-all;
 }
 
+/* Small "?" affordance next to certain metadata labels. Click opens
+   .info-popup with a short explanation that references the current
+   target. */
+.info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  margin-left: 4px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(168,201,216,0.45);
+  border-radius: 50%;
+  color: rgba(168,201,216,0.7);
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.info-btn:hover,
+.info-btn:focus-visible {
+  color: rgb(16,241,249);
+  border-color: rgb(16,241,249);
+  box-shadow: 0 0 6px rgba(16,241,249,0.4);
+  outline: none;
+}
+
+.info-popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  z-index: 60;
+  width: min(360px, calc(100vw - 64px));
+  padding: 14px 16px 12px;
+  background: rgba(2,6,12,0.96);
+  border: 1px solid rgba(16,241,249,0.45);
+  border-top: 2px solid rgb(16,241,249);
+  box-shadow: 0 -8px 28px rgba(0,0,0,0.55), 0 0 16px rgba(16,241,249,0.15);
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+  line-height: 1.55;
+  color: rgba(232,248,255,0.92);
+}
+.info-popup h4 {
+  margin: 0 0 8px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: rgb(16,241,249);
+  text-transform: uppercase;
+}
+.info-popup p {
+  margin: 0;
+}
+.info-popup p strong {
+  color: rgb(16,241,249);
+  font-weight: bold;
+}
+.info-popup-close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: rgba(168,201,216,0.55);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+.info-popup-close:hover { color: #ff2d78; }
+
 /* ── 15. FOOTER ───────────────────────────────────────────── */
 
 .space-footer {

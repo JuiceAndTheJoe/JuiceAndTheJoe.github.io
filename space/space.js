@@ -443,6 +443,10 @@ const metaSun        = document.getElementById('meta-sun');
 const metaSolarTime  = document.getElementById('meta-solar-time');
 const metaAntipode   = document.getElementById('meta-antipode');
 const metaSource     = document.getElementById('meta-source');
+const sourceInfoBtn   = document.getElementById('source-info-btn');
+const sourceInfoPopup = document.getElementById('source-info-popup');
+const sourceInfoBody  = document.getElementById('source-info-body');
+const sourceInfoClose = document.getElementById('source-info-close');
 
 // ---------------------------------------------------------------------------
 // Status helper
@@ -503,6 +507,69 @@ radiusInput.addEventListener('input', () => {
 });
 
 // ---------------------------------------------------------------------------
+// "Likely source" explainer popup
+// ---------------------------------------------------------------------------
+function buildSourceInfoHtml() {
+  const lat = parseFloat(latInput.value);
+  const lng = parseFloat(lonInput.value);
+  const sliderKm = parseFloat(radiusInput.value);
+  if (isNaN(lat) || isNaN(lng) || isNaN(sliderKm)) {
+    return 'Pick a target first to see the example.';
+  }
+  const zoom = clampZoom(estimateZoomForRadiusKm(Math.max(sliderKm, 0.5)));
+  const city = closestCityName(lat, lng);
+  const placeStr = city
+    ? `your current capture near <strong>${city}</strong>`
+    : `your current target at <strong>${formatLatLng(lat, lng)}</strong>`;
+  const source = likelyImagerySource(zoom);
+  const band = zoomBandLabel(zoom);
+  return (
+    `Mapbox's <strong>satellite-v9</strong> tileset is a composite — they ` +
+    `stitch imagery from several satellites, picking different providers ` +
+    `depending on zoom level and region, and they don't publish which ` +
+    `satellite shot any specific tile. ` +
+    `For ${placeStr} at zoom z${zoom} (${band}), the band is typically ` +
+    `backed by <strong>${source}</strong>.`
+  );
+}
+
+function openSourceInfo() {
+  sourceInfoBody.innerHTML = buildSourceInfoHtml();
+  sourceInfoPopup.hidden = false;
+}
+
+function closeSourceInfo() {
+  sourceInfoPopup.hidden = true;
+}
+
+if (sourceInfoBtn) {
+  sourceInfoBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (sourceInfoPopup.hidden) openSourceInfo();
+    else closeSourceInfo();
+  });
+}
+if (sourceInfoClose) {
+  sourceInfoClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeSourceInfo();
+  });
+}
+// Click anywhere outside the popup or the button to dismiss.
+document.addEventListener('click', (e) => {
+  if (sourceInfoPopup.hidden) return;
+  if (sourceInfoPopup.contains(e.target)) return;
+  if (e.target === sourceInfoBtn) return;
+  closeSourceInfo();
+});
+// Keep text in sync if the user changes target/radius while the popup is open.
+[latInput, lonInput, radiusInput].forEach((el) => {
+  el.addEventListener('input', () => {
+    if (!sourceInfoPopup.hidden) sourceInfoBody.innerHTML = buildSourceInfoHtml();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Metadata extras: solar position, local solar time, antipode
 // ---------------------------------------------------------------------------
 
@@ -557,6 +624,34 @@ function likelyImagerySource(zoom) {
   if (zoom <= 12) return 'Sentinel-2 (ESA) + Landsat';
   if (zoom <= 16) return 'Maxar Vivid';
   return 'Maxar Vivid HD';
+}
+
+function zoomBandLabel(zoom) {
+  if (zoom <= 5)  return 'global scale';
+  if (zoom <= 9)  return 'continental scale';
+  if (zoom <= 12) return 'regional scale';
+  if (zoom <= 16) return 'city scale';
+  return 'street scale';
+}
+
+// Closest curated city to a lat/lng — used so the source-info popup can say
+// "your capture near Bogotá" instead of just spitting out coordinates.
+function closestCityName(lat, lng) {
+  let best = null;
+  let bestDistSq = Infinity;
+  const cosLat = Math.cos(lat * Math.PI / 180);
+  for (const c of CITY_LABELS) {
+    const dLat = c.lat - lat;
+    let dLng = c.lng - lng;
+    if (dLng > 180)  dLng -= 360;
+    if (dLng < -180) dLng += 360;
+    const distSq = dLat * dLat + (dLng * cosLat) ** 2;
+    if (distSq < bestDistSq) {
+      bestDistSq = distSq;
+      best = c.name;
+    }
+  }
+  return Math.sqrt(bestDistSq) < 3 ? best : null;
 }
 
 // ---------------------------------------------------------------------------
