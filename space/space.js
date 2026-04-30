@@ -508,6 +508,13 @@ function setTarget(lat, lng) {
   lonInput.value = lng.toFixed(6);
   syncHud();
   globeStatus.textContent = 'TARGET LOCKED';
+  // Stop the idle auto-rotation as soon as the user picks a target. The
+  // mousedown listener on the globe container only fires for direct globe
+  // interactions, not for clicks on the controls panel (Random preset etc).
+  if (globe && globe.controls && typeof globe.controls === 'function') {
+    const ctrls = globe.controls();
+    if (ctrls) ctrls.autoRotate = false;
+  }
   updateTargetMarker();
   dismissHeader();
 }
