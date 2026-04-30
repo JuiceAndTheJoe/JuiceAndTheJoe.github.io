@@ -442,6 +442,7 @@ const metaTime       = document.getElementById('meta-time');
 const metaSun        = document.getElementById('meta-sun');
 const metaSolarTime  = document.getElementById('meta-solar-time');
 const metaAntipode   = document.getElementById('meta-antipode');
+const metaSource     = document.getElementById('meta-source');
 
 // ---------------------------------------------------------------------------
 // Status helper
@@ -547,6 +548,17 @@ function antipode(lat, lng) {
   return { lat: -lat, lng: aLng };
 }
 
+// Mapbox satellite-v9 is a composite — they don't expose per-tile satellite
+// metadata, but their docs publish the typical source by zoom band:
+// https://docs.mapbox.com/data/tilesets/reference/mapbox-satellite/
+function likelyImagerySource(zoom) {
+  if (zoom <= 5)  return 'NASA MODIS / Blue Marble';
+  if (zoom <= 9)  return 'Landsat 8 (USGS)';
+  if (zoom <= 12) return 'Sentinel-2 (ESA) + Landsat';
+  if (zoom <= 16) return 'Maxar Vivid';
+  return 'Maxar Vivid HD';
+}
+
 // ---------------------------------------------------------------------------
 // Metadata fill
 // ---------------------------------------------------------------------------
@@ -564,6 +576,7 @@ function fillMetadata(lat, lon, zoom) {
 
   metaCoords.textContent     = formatLatLng(lat, lon);
   metaZoom.textContent       = `z${zoom} · 512×512 @2x`;
+  metaSource.textContent     = likelyImagerySource(zoom);
   metaResolution.textContent = formatResolution(displayMpp);
   metaSide.textContent       = `${formatLength(sideMeters)} × ${formatLength(sideMeters)}`;
   metaArea.textContent       = formatArea(areaM2);
