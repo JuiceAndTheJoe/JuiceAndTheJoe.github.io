@@ -1089,9 +1089,23 @@ let globe = null;
   updateTargetMarker();
   globe.pointOfView({ lat: DEFAULT_LAT, lng: DEFAULT_LON, altitude: 1.8 });
 
+  // City label clicks are handled by the label's own DOM click listener,
+  // which calls setTarget with the city's exact coordinates. The globe
+  // and polygon raycaster click handlers fire for the same event, and
+  // would otherwise overwrite that with the click's projected lat/lng
+  // (close to the label but not exactly the city center). Skip them when
+  // the click started on a label.
+  function clickStartedOnLabel(event) {
+    return !!(event &&
+              event.target &&
+              typeof event.target.closest === 'function' &&
+              event.target.closest('.globe-city-label'));
+  }
+
   // Globe click → set the target and update marker/ring. Capture is a
   // separate explicit action — the user hits CAPTURE when they're ready.
-  globe.onGlobeClick(({ lat, lng }) => {
+  globe.onGlobeClick(({ lat, lng }, event) => {
+    if (clickStartedOnLabel(event)) return;
     setTarget(lat, lng);
   });
 
@@ -1102,6 +1116,7 @@ let globe = null;
   // using the globe-projected click point so the target lands exactly
   // where the cursor was, not at the polygon's centroid.
   globe.onPolygonClick((polygon, event) => {
+    if (clickStartedOnLabel(event)) return;
     if (event && typeof globe.toGlobeCoords === 'function') {
       const coords = globe.toGlobeCoords(event.clientX, event.clientY);
       if (coords && !isNaN(coords.lat) && !isNaN(coords.lng)) {

@@ -309,9 +309,11 @@ body.globe-close-zoom .globe-city-label {
   right: 24px;
   bottom: 24px;
   z-index: 40;
-  width: 400px;
+  width: 420px;
   max-width: calc(100vw - 48px);
-  padding: 24px;
+  /* Extra horizontal padding so the slider thumb (18 px diameter + glow) at
+     either end of travel doesn't get cut by the panel's clip-path corners. */
+  padding: 24px 28px;
   background: rgba(5,20,12,0.92);
   border: 1px solid rgba(57,255,20,0.2);
   border-top: 2px solid rgba(57,255,20,0.5);
@@ -362,6 +364,11 @@ body.globe-close-zoom .globe-city-label {
 }
 
 .field input[type='number'] {
+  /* Fill the grid column. Without explicit width, browsers use a fixed
+     default (~150 px) that overflows the column on the right card. */
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 9px 12px;
   background: rgba(0,0,0,0.55);
   border: 1px solid rgba(57,255,20,0.25);
@@ -372,7 +379,6 @@ body.globe-close-zoom .globe-city-label {
   letter-spacing: 1px;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
 }
 .field input[type='number']:focus {
   border-color: rgb(57,255,20);
