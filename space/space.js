@@ -12,10 +12,16 @@ const DEFAULT_LAT = 59.349800;
 const DEFAULT_LON = 18.070700;
 const DEFAULT_RADIUS = 2;
 
-// Country borders GeoJSON (Natural Earth 110m, ~840 KB). Served from
-// jsdelivr's GitHub mirror — proper CDN caching + correct content type.
-const COUNTRIES_GEOJSON_URL =
-  'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson';
+// Vector overlays from Natural Earth via jsdelivr's GitHub mirror. Country
+// borders load on init; the higher-res state/province + urban-area + lake
+// polygons load lazily on first close-zoom, since they're only legible at
+// short range and add ~4 MB total.
+const NE_BASE = 'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson';
+const COUNTRIES_GEOJSON_URL = `${NE_BASE}/ne_110m_admin_0_countries.geojson`;
+const STATES_GEOJSON_URL    = `${NE_BASE}/ne_50m_admin_1_states_provinces.geojson`;
+const URBAN_GEOJSON_URL     = `${NE_BASE}/ne_50m_urban_areas.geojson`;
+const LAKES_GEOJSON_URL     = `${NE_BASE}/ne_50m_lakes.geojson`;
+const VECTOR_LOAD_ALTITUDE  = 0.7;
 
 // Globe textures. The 2K Blue Marble looks iconic at orbital distance but
 // pixelates up close; we swap to a self-hosted 8K natural-color daymap from
@@ -603,14 +609,39 @@ let globe = null;
     .ringMaxRadius(2)
     .ringPropagationSpeed(2)
     .ringRepeatPeriod(1200)
-    // Country borders — populated after the GeoJSON fetch resolves.
-    // Vector overlay stays sharp at any zoom level; transparent fill so the
-    // satellite texture shows through.
+    // Vector overlays. Country borders load on init; states + urban areas +
+    // lakes lazy-load on first close-zoom. All features carry a `_kind`
+    // property so the polygon style callbacks render each layer differently.
     .polygonsData([])
-    .polygonAltitude(0.005)
-    .polygonCapColor(() => 'rgba(0,0,0,0)')
+    .polygonAltitude((d) => {
+      // Stack altitudes so urban polygons sit above the states they're in,
+      // and both above country outlines, to avoid z-fighting.
+      switch (d._kind) {
+        case 'urban':   return 0.008;
+        case 'state':   return 0.006;
+        case 'lake':    return 0.004;
+        case 'country': return 0.005;
+        default:        return 0.005;
+      }
+    })
+    .polygonCapColor((d) => {
+      // Filled = visible polygon body (cap is the top face of the extrusion).
+      switch (d._kind) {
+        case 'urban': return 'rgba(255, 200, 80, 0.22)';
+        case 'lake':  return 'rgba(40, 140, 220, 0.35)';
+        default:      return 'rgba(0,0,0,0)';
+      }
+    })
     .polygonSideColor(() => 'rgba(0,0,0,0)')
-    .polygonStrokeColor(() => 'rgba(16,241,249,0.55)')
+    .polygonStrokeColor((d) => {
+      switch (d._kind) {
+        case 'urban':   return 'rgba(255, 200, 80, 0.85)';
+        case 'state':   return 'rgba(16, 241, 249, 0.28)';
+        case 'lake':    return 'rgba(70, 180, 255, 0.7)';
+        case 'country': return 'rgba(16, 241, 249, 0.6)';
+        default:        return 'rgba(0,0,0,0)';
+      }
+    })
     // City labels as DOM elements. WebGL-rendered labels use a default
     // typeface that lacks extended Latin glyphs (so 'Bogotá' became 'Bogot?');
     // HTML labels inherit the page's CSS font and support all Unicode.
@@ -645,19 +676,65 @@ let globe = null;
       return el;
     });
 
-  // Fetch country borders asynchronously so the globe renders immediately.
+  // Tagged feature buckets. We re-merge and call polygonsData whenever a new
+  // bucket loads. Country borders load now; the rest are lazy.
+  const polyBuckets = { country: [], state: [], urban: [], lake: [] };
+  const refreshPolygons = () => {
+    globe.polygonsData([
+      ...polyBuckets.country,
+      ...polyBuckets.state,
+      ...polyBuckets.lake,
+      ...polyBuckets.urban,
+    ]);
+  };
+
   fetch(COUNTRIES_GEOJSON_URL)
     .then((r) => r.json())
     .then((geo) => {
       // Skip Antarctica — its polygon spans the whole bottom and looks messy.
-      const features = geo.features.filter(
-        (f) => f.properties && f.properties.ISO_A2 !== 'AQ'
-      );
-      globe.polygonsData(features);
+      polyBuckets.country = geo.features
+        .filter((f) => f.properties && f.properties.ISO_A2 !== 'AQ')
+        .map((f) => ({ ...f, _kind: 'country' }));
+      refreshPolygons();
     })
     .catch(() => {
       // Borders are a nice-to-have — silently fail if the CDN is down.
     });
+
+  // One-shot lazy loaders for the heavy close-zoom layers.
+  const lazyLoaded = { state: false, urban: false, lake: false };
+  function loadDetailLayers() {
+    if (!lazyLoaded.state) {
+      lazyLoaded.state = true;
+      fetch(STATES_GEOJSON_URL)
+        .then((r) => r.json())
+        .then((geo) => {
+          polyBuckets.state = geo.features.map((f) => ({ ...f, _kind: 'state' }));
+          refreshPolygons();
+        })
+        .catch(() => { lazyLoaded.state = false; });
+    }
+    if (!lazyLoaded.urban) {
+      lazyLoaded.urban = true;
+      fetch(URBAN_GEOJSON_URL)
+        .then((r) => r.json())
+        .then((geo) => {
+          polyBuckets.urban = geo.features.map((f) => ({ ...f, _kind: 'urban' }));
+          refreshPolygons();
+        })
+        .catch(() => { lazyLoaded.urban = false; });
+    }
+    if (!lazyLoaded.lake) {
+      lazyLoaded.lake = true;
+      fetch(LAKES_GEOJSON_URL)
+        .then((r) => r.json())
+        .then((geo) => {
+          polyBuckets.lake = geo.features.map((f) => ({ ...f, _kind: 'lake' }));
+          refreshPolygons();
+        })
+        .catch(() => { lazyLoaded.lake = false; });
+    }
+  }
 
   // Slow idle rotation
   globe.controls().autoRotate      = true;
@@ -680,9 +757,10 @@ let globe = null;
 
   // Camera-altitude-driven detail swap:
   //   - city label tier (which set is visible)
-  //   - globe surface texture (blue-marble far away, 4K natural-color close)
-  // Both only re-apply when the altitude actually crosses a threshold to
-  // avoid thrashing on every animation frame.
+  //   - globe surface texture (blue-marble far away, 8K daymap close)
+  //   - lazy-load the heavy vector overlays once we drop below threshold
+  // Each only re-applies when the altitude actually crosses a threshold so
+  // we don't thrash on every animation frame.
   let currentTier = 1;
   let currentTexMode = 'far';
   globe.onZoom(({ altitude }) => {
@@ -695,6 +773,9 @@ let globe = null;
     if (texMode !== currentTexMode) {
       currentTexMode = texMode;
       globe.globeImageUrl(texMode === 'near' ? TEX_NEAR : TEX_FAR);
+    }
+    if (altitude < VECTOR_LOAD_ALTITUDE) {
+      loadDetailLayers();
     }
   });
 
