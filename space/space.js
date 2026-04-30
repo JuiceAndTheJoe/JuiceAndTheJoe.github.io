@@ -589,6 +589,7 @@ document.querySelectorAll('.preset-btn').forEach((btn) => {
 
     if (globe) {
       globe.pointOfView({ lat, lng, altitude: 0.06 }, 1200);
+      setTimeout(() => globe._refreshAfterFlight && globe._refreshAfterFlight(), 1300);
     }
   });
 });
@@ -684,7 +685,10 @@ let globe = null;
       el.addEventListener('click', (event) => {
         event.stopPropagation();
         setTarget(d.lat, d.lng);
+        loadDetailLayers(); // start fetching detail data immediately
         globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.06 }, 1200);
+        // Force a refresh once the flight settles.
+        setTimeout(() => globe._refreshAfterFlight && globe._refreshAfterFlight(), 1300);
       });
       return el;
     });
@@ -741,7 +745,7 @@ let globe = null;
       pov.altitude > 0.15 ? 25 :
       12;
     // Cheap stability key so we don't re-filter on every animation frame.
-    const key = `${radiusDeg}|${pov.lat.toFixed(0)}|${pov.lng.toFixed(0)}|${polyBuckets.urban.length}|${polyBuckets.lake.length}`;
+    const key = `${radiusDeg}|${pov.lat.toFixed(1)}|${pov.lng.toFixed(1)}|${polyBuckets.urban.length}|${polyBuckets.lake.length}`;
     if (key === lastFilterKey) return;
     lastFilterKey = key;
     globe.polygonsData([
@@ -804,7 +808,7 @@ let globe = null;
             .filter((p) => p.name && !seen.has(p.name))
         : [];
       labels = [...curatedInView, ...popInView];
-      key = `near|${pov.lat.toFixed(0)}|${pov.lng.toFixed(0)}|${radiusDeg}|${labels.length}`;
+      key = `near|${pov.lat.toFixed(1)}|${pov.lng.toFixed(1)}|${radiusDeg}|${labels.length}|${popPlaces.length}`;
     }
     if (key === lastLabelKey) return;
     lastLabelKey = key;
@@ -841,7 +845,10 @@ let globe = null;
     if (!lazyLoaded.pop) {
       lazyLoaded.pop = true;
       fetch(POP_PLACES_URL)
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
         .then((geo) => {
           popPlaces = geo.features
             .filter((f) =>
@@ -857,7 +864,10 @@ let globe = null;
           lastLabelKey = ''; // force re-render of labels
           refreshLabels();
         })
-        .catch(() => { lazyLoaded.pop = false; });
+        .catch((err) => {
+          console.error('[space] populated-places fetch failed:', err);
+          lazyLoaded.pop = false;
+        });
     }
   }
 
@@ -880,13 +890,14 @@ let globe = null;
     setTarget(lat, lng);
   });
 
-  // Camera-driven detail updates:
-  //   - lazy-load the heavy vector overlays once we drop below threshold
-  //   - swap globe surface texture (Blue Marble far away, flat dark close)
-  //   - refresh labels and polygons based on the new viewport (each handles
-  //     its own debouncing via a stability key).
+  // Camera-driven detail updates. We listen to three.js OrbitControls
+  // 'change' instead of globe.gl's onZoom because the latter doesn't
+  // reliably fire during programmatic pointOfView flights in all versions.
+  // Stability keys inside each refresh function keep this cheap even though
+  // 'change' fires every animation frame during a fly-in.
   let currentTexMode = 'far';
-  globe.onZoom(({ altitude }) => {
+  function onCameraChange() {
+    const { altitude } = globe.pointOfView();
     if (altitude < VECTOR_LOAD_ALTITUDE) loadDetailLayers();
     const texMode = altitude < TEX_DARK_ALTITUDE ? 'dark' : 'far';
     if (texMode !== currentTexMode) {
@@ -895,7 +906,16 @@ let globe = null;
     }
     refreshLabels();
     refreshPolygons();
-  });
+  }
+  globe.controls().addEventListener('change', onCameraChange);
+
+  // Expose the refresh helpers so the label/preset click handlers can call
+  // them after their pointOfView animation finishes (a belt-and-braces fix
+  // for any case where the change events don't keep up with the tween).
+  globe._refreshAfterFlight = () => {
+    loadDetailLayers();
+    onCameraChange();
+  };
 
   // Keep canvas sized to its container on window resize
   window.addEventListener('resize', () => {
