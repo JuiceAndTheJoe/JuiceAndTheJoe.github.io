@@ -18,11 +18,11 @@ const COUNTRIES_GEOJSON_URL =
   'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson';
 
 // Globe textures. The 2K Blue Marble looks iconic at orbital distance but
-// pixelates up close; we swap to a 4K natural-color texture below the close
-// altitude threshold. Preloaded on init so the swap is instant.
+// pixelates up close; we swap to a self-hosted 8K natural-color daymap from
+// Solar System Scope (CC-BY 4.0, attribution in the footer) once altitude
+// drops below TEX_SWAP_ALTITUDE. Preloaded on init so the swap is instant.
 const TEX_FAR = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
-const TEX_NEAR =
-  'https://cdn.jsdelivr.net/gh/turban/webgl-earth@master/images/2_no_clouds_4k.jpg';
+const TEX_NEAR = 'textures/earth_daymap_8k.jpg';
 const TEX_SWAP_ALTITUDE = 0.7;
 
 // City prominence tiers. Top tier always visible; mid tier appears when the
