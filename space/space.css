@@ -30,6 +30,11 @@ a {
 }
 a:hover { color: #ff2d78; }
 
+/* Class selectors with display:flex/grid/etc. would otherwise win over the
+   `hidden` attribute's user-agent display:none. Restore the expected
+   behaviour so JS toggling element.hidden actually hides it. */
+[hidden] { display: none !important; }
+
 /* ── 2. KEYFRAME LIBRARY ──────────────────────────────────── */
 
 @keyframes title-pulse {
@@ -295,8 +300,6 @@ body.globe-close-zoom .globe-city-label {
   z-index: 40;
   width: 360px;
   max-width: calc(100vw - 48px);
-  max-height: calc(100vh - 48px);
-  overflow-y: auto;
   padding: 24px;
   background: rgba(5,12,24,0.92);
   border: 1px solid rgba(16,241,249,0.2);
