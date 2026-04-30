@@ -12,6 +12,89 @@ const DEFAULT_LAT = 59.349800;
 const DEFAULT_LON = 18.070700;
 const DEFAULT_RADIUS = 2;
 
+// Country borders GeoJSON (Natural Earth 110m, ~840 KB). Served from
+// jsdelivr's GitHub mirror — proper CDN caching + correct content type.
+const COUNTRIES_GEOJSON_URL =
+  'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson';
+
+// City labels rendered on the globe. Mix of capitals + iconic cities,
+// geographically distributed so every continent has visible reference points.
+const CITY_LABELS = [
+  // Europe
+  { lat: 59.3293, lng: 18.0686,  name: 'Stockholm' },
+  { lat: 60.1699, lng: 24.9384,  name: 'Helsinki' },
+  { lat: 59.9139, lng: 10.7522,  name: 'Oslo' },
+  { lat: 55.6761, lng: 12.5683,  name: 'Copenhagen' },
+  { lat: 52.5200, lng: 13.4050,  name: 'Berlin' },
+  { lat: 48.8566, lng: 2.3522,   name: 'Paris' },
+  { lat: 51.5074, lng: -0.1278,  name: 'London' },
+  { lat: 53.3498, lng: -6.2603,  name: 'Dublin' },
+  { lat: 40.4168, lng: -3.7038,  name: 'Madrid' },
+  { lat: 38.7223, lng: -9.1393,  name: 'Lisbon' },
+  { lat: 41.9028, lng: 12.4964,  name: 'Rome' },
+  { lat: 48.2082, lng: 16.3738,  name: 'Vienna' },
+  { lat: 50.0755, lng: 14.4378,  name: 'Prague' },
+  { lat: 52.2297, lng: 21.0122,  name: 'Warsaw' },
+  { lat: 55.7558, lng: 37.6173,  name: 'Moscow' },
+  { lat: 41.0082, lng: 28.9784,  name: 'Istanbul' },
+  { lat: 37.9838, lng: 23.7275,  name: 'Athens' },
+  { lat: 64.1466, lng: -21.9426, name: 'Reykjavík' },
+  // Asia
+  { lat: 35.6762, lng: 139.6503, name: 'Tokyo' },
+  { lat: 37.5665, lng: 126.9780, name: 'Seoul' },
+  { lat: 39.9042, lng: 116.4074, name: 'Beijing' },
+  { lat: 31.2304, lng: 121.4737, name: 'Shanghai' },
+  { lat: 22.3193, lng: 114.1694, name: 'Hong Kong' },
+  { lat: 1.3521,  lng: 103.8198, name: 'Singapore' },
+  { lat: 13.7563, lng: 100.5018, name: 'Bangkok' },
+  { lat: 14.5995, lng: 120.9842, name: 'Manila' },
+  { lat: -6.2088, lng: 106.8456, name: 'Jakarta' },
+  { lat: 28.6139, lng: 77.2090,  name: 'New Delhi' },
+  { lat: 19.0760, lng: 72.8777,  name: 'Mumbai' },
+  { lat: 24.8607, lng: 67.0011,  name: 'Karachi' },
+  { lat: 25.2048, lng: 55.2708,  name: 'Dubai' },
+  { lat: 31.7683, lng: 35.2137,  name: 'Jerusalem' },
+  { lat: 35.6892, lng: 51.3890,  name: 'Tehran' },
+  { lat: 41.3111, lng: 69.2401,  name: 'Tashkent' },
+  // Africa
+  { lat: 30.0444, lng: 31.2357,  name: 'Cairo' },
+  { lat: 6.5244,  lng: 3.3792,   name: 'Lagos' },
+  { lat: -1.2921, lng: 36.8219,  name: 'Nairobi' },
+  { lat: -33.9249, lng: 18.4241, name: 'Cape Town' },
+  { lat: -26.2041, lng: 28.0473, name: 'Johannesburg' },
+  { lat: 9.0765,  lng: 7.3986,   name: 'Abuja' },
+  { lat: -4.4419, lng: 15.2663,  name: 'Kinshasa' },
+  { lat: 33.5731, lng: -7.5898,  name: 'Casablanca' },
+  { lat: 14.7167, lng: -17.4677, name: 'Dakar' },
+  // North America
+  { lat: 40.7128, lng: -74.0060, name: 'New York' },
+  { lat: 34.0522, lng: -118.2437, name: 'Los Angeles' },
+  { lat: 41.8781, lng: -87.6298, name: 'Chicago' },
+  { lat: 29.7604, lng: -95.3698, name: 'Houston' },
+  { lat: 43.6532, lng: -79.3832, name: 'Toronto' },
+  { lat: 45.5017, lng: -73.5673, name: 'Montreal' },
+  { lat: 49.2827, lng: -123.1207, name: 'Vancouver' },
+  { lat: 19.4326, lng: -99.1332, name: 'Mexico City' },
+  { lat: 25.7617, lng: -80.1918, name: 'Miami' },
+  { lat: 47.6062, lng: -122.3321, name: 'Seattle' },
+  // South America
+  { lat: -22.9068, lng: -43.1729, name: 'Rio de Janeiro' },
+  { lat: -23.5505, lng: -46.6333, name: 'São Paulo' },
+  { lat: -34.6037, lng: -58.3816, name: 'Buenos Aires' },
+  { lat: -33.4489, lng: -70.6693, name: 'Santiago' },
+  { lat: -12.0464, lng: -77.0428, name: 'Lima' },
+  { lat: 4.7110,  lng: -74.0721, name: 'Bogotá' },
+  { lat: 10.4806, lng: -66.9036, name: 'Caracas' },
+  // Oceania / Pacific
+  { lat: -33.8688, lng: 151.2093, name: 'Sydney' },
+  { lat: -37.8136, lng: 144.9631, name: 'Melbourne' },
+  { lat: -36.8485, lng: 174.7633, name: 'Auckland' },
+  { lat: 21.3099, lng: -157.8581, name: 'Honolulu' },
+  // Polar / extreme
+  { lat: 78.2232, lng: 15.6267,  name: 'Longyearbyen' },
+  { lat: -54.8019, lng: -68.3030, name: 'Ushuaia' },
+];
+
 // Notable land coordinates for the random preset (~30, spread across continents)
 const LAND_PRESETS = [
   { lat: 48.8584,   lon: 2.2945   }, // Eiffel Tower, Paris
@@ -310,7 +393,40 @@ let globe = null;
     .ringColor(() => 'rgba(255,58,140,0.8)')
     .ringMaxRadius(2)
     .ringPropagationSpeed(2)
-    .ringRepeatPeriod(1200);
+    .ringRepeatPeriod(1200)
+    // Country borders — populated after the GeoJSON fetch resolves.
+    // Vector overlay stays sharp at any zoom level; transparent fill so the
+    // satellite texture shows through.
+    .polygonsData([])
+    .polygonAltitude(0.005)
+    .polygonCapColor(() => 'rgba(0,0,0,0)')
+    .polygonSideColor(() => 'rgba(0,0,0,0)')
+    .polygonStrokeColor(() => 'rgba(16,241,249,0.55)')
+    // City labels
+    .labelsData(CITY_LABELS)
+    .labelLat('lat')
+    .labelLng('lng')
+    .labelText('name')
+    .labelSize(0.45)
+    .labelDotRadius(0.22)
+    .labelDotOrientation(() => 'bottom')
+    .labelColor(() => 'rgba(255,255,255,0.92)')
+    .labelAltitude(0.012)
+    .labelResolution(2);
+
+  // Fetch country borders asynchronously so the globe renders immediately.
+  fetch(COUNTRIES_GEOJSON_URL)
+    .then((r) => r.json())
+    .then((geo) => {
+      // Skip Antarctica — its polygon spans the whole bottom and looks messy.
+      const features = geo.features.filter(
+        (f) => f.properties && f.properties.ISO_A2 !== 'AQ'
+      );
+      globe.polygonsData(features);
+    })
+    .catch(() => {
+      // Borders are a nice-to-have — silently fail if the CDN is down.
+    });
 
   // Slow idle rotation
   globe.controls().autoRotate      = true;
