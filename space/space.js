@@ -468,13 +468,17 @@ lonInput.addEventListener('input', syncHud);
 // Target selection — sets coords + visual marker without triggering capture.
 // Capture only happens when the user explicitly hits the CAPTURE button.
 // ---------------------------------------------------------------------------
-function updateTargetRing() {
+function updateTargetMarker() {
   if (!globe) return;
   const lat = parseFloat(latInput.value);
   const lng = parseFloat(lonInput.value);
   const sliderKm = parseFloat(radiusInput.value);
   if (isNaN(lat) || isNaN(lng) || isNaN(sliderKm)) return;
   const radiusDeg = captureHalfSideDeg(lat, sliderKm);
+  // Both the static disc (pointsData) and the radar pulse (ringsData) read
+  // their size from the same per-feature radiusDeg, so slider/disc/ring/image
+  // are all describing the same area.
+  globe.pointsData([{ lat, lng, radiusDeg }]);
   globe.ringsData([{ lat, lng, radiusDeg }]);
 }
 
@@ -483,10 +487,7 @@ function setTarget(lat, lng) {
   lonInput.value = lng.toFixed(6);
   syncHud();
   globeStatus.textContent = 'TARGET LOCKED';
-  if (globe) {
-    globe.pointsData([{ lat, lng }]);
-    updateTargetRing();
-  }
+  updateTargetMarker();
 }
 
 // ---------------------------------------------------------------------------
@@ -494,7 +495,7 @@ function setTarget(lat, lng) {
 // ---------------------------------------------------------------------------
 radiusInput.addEventListener('input', () => {
   radiusValue.textContent = radiusInput.value;
-  updateTargetRing();
+  updateTargetMarker();
 });
 
 // ---------------------------------------------------------------------------
@@ -551,10 +552,7 @@ function capture() {
   if (globeHint)   globeHint.classList.add('hidden');
 
   // Update globe marker and ring to the current target
-  if (globe) {
-    globe.pointsData([{ lat, lng: lon }]);
-    updateTargetRing();
-  }
+  updateTargetMarker();
 
   resultImg.onload = () => {
     resultImg.hidden  = false;
@@ -637,15 +635,16 @@ let globe = null;
     .atmosphereAltitude(0.18)
     .width(container.clientWidth)
     .height(container.clientHeight)
-    // Target marker — semi-transparent and lifted above the polygon stack so
-    // it stays visible no matter what's underneath.
+    // Target marker — semi-transparent disc whose radius matches the capture
+    // half-side, so the user gets a visible footprint of what the next image
+    // will cover. Lifted slightly above the polygon stack to stay visible.
     .pointAltitude(0.012)
-    .pointRadius(0.5)
+    .pointRadius((d) => d.radiusDeg)
     .pointColor(() => 'rgba(255, 58, 140, 0.45)')
     // Pulsing ring — altitude bumped above the polygon overlays (0.005–0.008)
     // so country borders, urban areas, and lakes can't depth-occlude it even
     // when their caps are transparent. Radius and propagation speed read off
-    // each ring's own `radiusDeg`, set by updateTargetRing() to match the
+    // each ring's own `radiusDeg`, set by updateTargetMarker() to match the
     // half-side of the captured image. So the pulse fans out exactly to the
     // edge of what the next CAPTURE will photograph.
     .ringAltitude(0.012)
@@ -908,8 +907,7 @@ let globe = null;
   container.addEventListener('touchstart', () => { globe.controls().autoRotate = false; }, { passive: true });
 
   // Drop initial marker on default Stockholm coords
-  globe.pointsData([{ lat: DEFAULT_LAT, lng: DEFAULT_LON }]);
-  updateTargetRing();
+  updateTargetMarker();
   globe.pointOfView({ lat: DEFAULT_LAT, lng: DEFAULT_LON, altitude: 1.8 });
 
   // Globe click → set the target and update marker/ring. Capture is a
