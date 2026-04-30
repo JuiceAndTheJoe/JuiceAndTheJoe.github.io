@@ -298,7 +298,7 @@ body.globe-close-zoom .globe-city-label {
   right: 24px;
   bottom: 24px;
   z-index: 40;
-  width: 360px;
+  width: 400px;
   max-width: calc(100vw - 48px);
   padding: 24px;
   background: rgba(5,12,24,0.92);
@@ -438,15 +438,15 @@ body.globe-close-zoom .globe-city-label {
   margin-right: 4px;
 }
 .preset-btn {
-  padding: 6px 13px;
+  padding: 6px 12px;
   background: rgba(0,0,0,0.4);
   border: 1px solid rgba(16,241,249,0.3);
   color: rgba(16,241,249,0.8);
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 11px;
   letter-spacing: 0.5px;
+  white-space: nowrap;
   cursor: pointer;
-  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
   transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .preset-btn:hover {

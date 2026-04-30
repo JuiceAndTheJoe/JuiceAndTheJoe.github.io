@@ -439,6 +439,9 @@ const metaResolution = document.getElementById('meta-resolution');
 const metaSide       = document.getElementById('meta-side');
 const metaArea       = document.getElementById('meta-area');
 const metaTime       = document.getElementById('meta-time');
+const metaSun        = document.getElementById('meta-sun');
+const metaSolarTime  = document.getElementById('meta-solar-time');
+const metaAntipode   = document.getElementById('meta-antipode');
 
 // ---------------------------------------------------------------------------
 // Status helper
@@ -499,6 +502,52 @@ radiusInput.addEventListener('input', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Metadata extras: solar position, local solar time, antipode
+// ---------------------------------------------------------------------------
+
+// NOAA-style approximation of the sun's elevation (degrees above horizon)
+// at a given lat/lng/UTC date. Good to within ~0.5° — fine for a vibes-y
+// "is it day or night where this picture was just taken" readout.
+function solarElevationDeg(lat, lng, date) {
+  const startOfYear = Date.UTC(date.getUTCFullYear(), 0, 0);
+  const dayOfYear = (date.getTime() - startOfYear) / 86400000;
+  const decl = 23.45 * Math.sin((2 * Math.PI * (dayOfYear - 81)) / 365);
+  const utcHour = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+  const localSolarHour = utcHour + lng / 15;
+  const hourAngle = (localSolarHour - 12) * 15;
+  const toRad = Math.PI / 180;
+  const sinElev =
+    Math.sin(lat * toRad) * Math.sin(decl * toRad) +
+    Math.cos(lat * toRad) * Math.cos(decl * toRad) * Math.cos(hourAngle * toRad);
+  return Math.asin(Math.max(-1, Math.min(1, sinElev))) / toRad;
+}
+
+function describeSun(elevDeg) {
+  if (elevDeg >= 6)  return `Day · ${elevDeg.toFixed(1)}° above horizon`;
+  if (elevDeg >= 0)  return `Sunrise/sunset · ${elevDeg.toFixed(1)}° above`;
+  if (elevDeg >= -6) return `Civil twilight · ${(-elevDeg).toFixed(1)}° below`;
+  if (elevDeg >= -18) return `Astronomical twilight · ${(-elevDeg).toFixed(1)}° below`;
+  return `Night · ${(-elevDeg).toFixed(1)}° below`;
+}
+
+// Solar mean time at the given longitude — rough, ignores equation of time.
+function localSolarTime(lng, date) {
+  const utcMs = date.getTime();
+  const offsetMs = (lng / 15) * 3600 * 1000;
+  const local = new Date(utcMs + offsetMs);
+  const hh = String(local.getUTCHours()).padStart(2, '0');
+  const mm = String(local.getUTCMinutes()).padStart(2, '0');
+  return `${hh}:${mm} (LMT)`;
+}
+
+function antipode(lat, lng) {
+  let aLng = lng + 180;
+  if (aLng > 180) aLng -= 360;
+  if (aLng < -180) aLng += 360;
+  return { lat: -lat, lng: aLng };
+}
+
+// ---------------------------------------------------------------------------
 // Metadata fill
 // ---------------------------------------------------------------------------
 function fillMetadata(lat, lon, zoom) {
@@ -509,12 +558,19 @@ function fillMetadata(lat, lon, zoom) {
   // so actual ground sample on the image is halved.
   const displayMpp = mpp / 2;
 
+  const now = new Date();
+  const elev = solarElevationDeg(lat, lon, now);
+  const ant = antipode(lat, lon);
+
   metaCoords.textContent     = formatLatLng(lat, lon);
   metaZoom.textContent       = `z${zoom} · 512×512 @2x`;
   metaResolution.textContent = formatResolution(displayMpp);
   metaSide.textContent       = `${formatLength(sideMeters)} × ${formatLength(sideMeters)}`;
   metaArea.textContent       = formatArea(areaM2);
-  metaTime.textContent       = new Date().toLocaleString();
+  metaSun.textContent        = describeSun(elev);
+  metaSolarTime.textContent  = localSolarTime(lon, now);
+  metaAntipode.textContent   = formatLatLng(ant.lat, ant.lng);
+  metaTime.textContent       = now.toLocaleString();
 
   metadataCard.hidden = false;
 }
