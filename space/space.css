@@ -129,6 +129,15 @@ html, body { overflow: hidden; }
   text-align: center;
   /* Don't constrain — let the title size itself */
   max-width: min(720px, 90vw);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+/* Header is only meant for the empty-state landing view. Once the user
+   locks a target or zooms in, fade it out so it stops competing with
+   the controls and the captured imagery. */
+.space-header.dismissed {
+  opacity: 0;
+  transform: translate(-50%, -16px);
+  pointer-events: none;
 }
 
 .header-badge {

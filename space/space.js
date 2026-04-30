@@ -490,12 +490,18 @@ function updateTargetMarker() {
   globe.ringsData([{ lat, lng, radiusDeg }]);
 }
 
+function dismissHeader() {
+  const header = document.querySelector('.space-header');
+  if (header) header.classList.add('dismissed');
+}
+
 function setTarget(lat, lng) {
   latInput.value = lat.toFixed(6);
   lonInput.value = lng.toFixed(6);
   syncHud();
   globeStatus.textContent = 'TARGET LOCKED';
   updateTargetMarker();
+  dismissHeader();
 }
 
 // ---------------------------------------------------------------------------
@@ -1088,6 +1094,7 @@ let globe = null;
   let currentTexMode = 'far';
   function onCameraChange() {
     const { altitude } = globe.pointOfView();
+    if (altitude < 1.5) dismissHeader();
     if (altitude < VECTOR_LOAD_ALTITUDE) loadDetailLayers();
     const texMode = altitude < TEX_DARK_ALTITUDE ? 'dark' : 'far';
     if (texMode !== currentTexMode) {
