@@ -13,60 +13,35 @@
     <script src="https://unpkg.com/globe.gl"></script>
   </head>
   <body>
-    <!--
-      Animated background layers. Stacked behind everything else.
-      The .stars / .twinkling / .nebula divs are pure CSS (the design pass owns
-      the actual animations). Floating sprites (.satellite, .rocket) are
-      individual emoji elements that drift across the viewport.
-    -->
-    <div class="space-bg" aria-hidden="true">
-      <div class="stars"></div>
-      <div class="twinkling"></div>
-      <div class="nebula"></div>
-      <div class="satellite satellite-1">🛰</div>
-      <div class="satellite satellite-2">📡</div>
-      <div class="satellite satellite-3">🛰</div>
-      <div class="rocket rocket-1">🚀</div>
-      <div class="rocket rocket-2">🚀</div>
-      <div class="comet comet-1"></div>
-      <div class="comet comet-2"></div>
-    </div>
+    <!-- Full-viewport 3D globe is the visual centerpiece. -->
+    <div id="globe-container" class="globe-section"></div>
 
     <a href="/" class="home-link" title="Back to home">
       <i class="fas fa-home"></i> <span>Home</span>
     </a>
+
+    <!-- HUD overlays float in viewport corners over the globe. -->
+    <div class="globe-overlay-tl">
+      <span class="hud-label">TARGET</span>
+      <span id="globe-coords-readout" class="hud-value">--.------°, --.------°</span>
+    </div>
+    <div class="globe-overlay-bl">
+      <span class="hud-label">STATUS</span>
+      <span id="globe-status" class="hud-value">Awaiting target</span>
+    </div>
 
     <main class="space-container">
       <header class="space-header">
         <div class="header-badge">MISSION CONTROL</div>
         <h1 class="title-glow">SATELLITE IMAGERY</h1>
         <p class="subtitle">
-          Spin the globe, pick a target, and pull a snapshot from low orbit.
+          Spin the globe, pick a target, pull a snapshot from low orbit.
         </p>
-      </header>
-
-      <!--
-        3D globe section. JS mounts globe.gl into #globe-container. On click,
-        JS reads lat/lng and writes them into #lat / #lon, drops a marker, and
-        optionally auto-captures.
-      -->
-      <section class="globe-section">
-        <div class="globe-frame">
-          <div id="globe-container"></div>
-          <div class="globe-overlay-tl">
-            <span class="hud-label">TARGET</span>
-            <span id="globe-coords-readout" class="hud-value">--.------°, --.------°</span>
-          </div>
-          <div class="globe-overlay-bl">
-            <span class="hud-label">STATUS</span>
-            <span id="globe-status" class="hud-value">Awaiting target</span>
-          </div>
-          <div class="globe-hint">
-            <i class="fas fa-mouse-pointer"></i>
-            Click anywhere on Earth — drag to rotate, scroll to zoom
-          </div>
+        <div class="globe-hint">
+          <i class="fas fa-mouse-pointer"></i>
+          Click anywhere on Earth — drag to rotate, scroll to zoom
         </div>
-      </section>
+      </header>
 
       <!-- Manual coords + radius + presets + capture -->
       <section class="controls">

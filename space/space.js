@@ -207,6 +207,8 @@ const downloadLink  = document.getElementById('download-link');
 const metadataCard  = document.getElementById('metadata-card');
 const coordsReadout = document.getElementById('globe-coords-readout');
 const globeStatus   = document.getElementById('globe-status');
+const resultPanel   = document.querySelector('.result');
+const globeHint     = document.querySelector('.globe-hint');
 
 const metaCoords     = document.getElementById('meta-coords');
 const metaZoom       = document.getElementById('meta-zoom');
@@ -294,6 +296,10 @@ function capture() {
   setStatus('Acquiring satellite imagery…', 'loading');
   globeStatus.textContent = 'CAPTURING…';
   captureBtn.disabled = true;
+
+  // Reveal the result panel on first capture, hide the onboarding hint.
+  if (resultPanel) resultPanel.classList.add('visible');
+  if (globeHint)   globeHint.classList.add('hidden');
 
   // Update globe marker and ring to the current target
   if (globe) {

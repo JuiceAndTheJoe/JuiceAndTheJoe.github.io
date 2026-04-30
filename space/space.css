@@ -32,58 +32,6 @@ a:hover { color: #ff2d78; }
 
 /* ── 2. KEYFRAME LIBRARY ──────────────────────────────────── */
 
-@keyframes drift-1 {
-  0%   { transform: translate(-8vw, 15vh) rotate(0deg); opacity: 0; }
-  5%   { opacity: 1; }
-  95%  { opacity: 1; }
-  100% { transform: translate(108vw, -20vh) rotate(25deg); opacity: 0; }
-}
-@keyframes drift-2 {
-  0%   { transform: translate(110vw, 60vh) rotate(0deg); opacity: 0; }
-  5%   { opacity: 1; }
-  95%  { opacity: 1; }
-  100% { transform: translate(-10vw, 30vh) rotate(-20deg); opacity: 0; }
-}
-@keyframes drift-3 {
-  0%   { transform: translate(50vw, -8vh) rotate(0deg); opacity: 0; }
-  5%   { opacity: 1; }
-  95%  { opacity: 1; }
-  100% { transform: translate(80vw, 110vh) rotate(35deg); opacity: 0; }
-}
-@keyframes rocket-arc-1 {
-  0%   { transform: translate(-5vw, 90vh) rotate(-30deg); opacity: 0; }
-  4%   { opacity: 1; }
-  96%  { opacity: 1; }
-  100% { transform: translate(110vw, 5vh) rotate(-30deg); opacity: 0; }
-}
-@keyframes rocket-arc-2 {
-  0%   { transform: translate(110vw, 75vh) rotate(210deg); opacity: 0; }
-  4%   { opacity: 1; }
-  96%  { opacity: 1; }
-  100% { transform: translate(-8vw, 20vh) rotate(210deg); opacity: 0; }
-}
-@keyframes comet-streak {
-  0%   { transform: translate(110vw, -5vh) rotate(200deg); opacity: 0; }
-  3%   { opacity: 1; }
-  97%  { opacity: 1; }
-  100% { transform: translate(-10vw, 90vh) rotate(200deg); opacity: 0; }
-}
-@keyframes comet-streak-2 {
-  0%   { transform: translate(-5vw, 40vh) rotate(20deg); opacity: 0; }
-  3%   { opacity: 1; }
-  97%  { opacity: 1; }
-  100% { transform: translate(110vw, -10vh) rotate(20deg); opacity: 0; }
-}
-@keyframes twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50%       { opacity: 1;   transform: scale(1.4); }
-}
-@keyframes nebula-drift {
-  0%   { transform: translate(0, 0) scale(1); }
-  33%  { transform: translate(2vw, -2vh) scale(1.04); }
-  66%  { transform: translate(-2vw, 2vh) scale(0.97); }
-  100% { transform: translate(0, 0) scale(1); }
-}
 @keyframes title-pulse {
   0%, 100% { text-shadow:
     0 0 10px #10f1f9,
@@ -122,170 +70,23 @@ a:hover { color: #ff2d78; }
   50%       { background-position: 100% 50%; }
 }
 
-/* ── 3. ANIMATED BACKGROUND ──────────────────────────────── */
+/* ── 3. LAYOUT ────────────────────────────────────────────── */
 
-.space-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse at 20% 30%, #0a1628 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 70%, #080e1f 0%, transparent 55%),
-    #02060c;
-}
-
-/* Dense static star field via layered box-shadows */
-.stars {
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(1px 1px at 10% 8%,  #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 23% 44%, #c8e8ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 38% 72%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 55% 15%, #a0d4ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 67% 88%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 82% 33%, #c8e8ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 93% 61%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 4%  90%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 16% 57%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 31% 25%, #c8e8ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 47% 95%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 61% 50%, #a0d4ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 74% 12%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 88% 78%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 6%  35%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 19% 80%, #c8e8ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 43% 6%,  #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 58% 68%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 72% 42%, #a0d4ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 86% 20%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 96% 85%, #c8e8ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 2%  62%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 28% 38%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 52% 82%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 77% 55%, #c8e8ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 91% 10%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 14% 96%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 35% 49%, #a0d4ff 0%, transparent 100%),
-    radial-gradient(1px 1px at 63% 28%, #fff 0%, transparent 100%),
-    radial-gradient(1px 1px at 49% 4%,  #c8e8ff 0%, transparent 100%);
-  opacity: 0.7;
-}
-
-/* Larger, twinkling stars */
-.twinkling {
-  position: absolute;
-  inset: 0;
-}
-.twinkling::before,
-.twinkling::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-}
-.twinkling::before {
-  width: 3px; height: 3px;
-  background: #fff;
-  top: 18%; left: 12%;
-  box-shadow:
-    15vw 12vh 0 1px rgba(16,241,249,0.9),
-    35vw 5vh  0 0px #fff,
-    55vw 28vh 0 1px rgba(255,255,255,0.8),
-    72vw 14vh 0 0px rgba(16,241,249,0.9),
-    88vw 45vh 0 1px #fff,
-    8vw  65vh 0 0px rgba(160,212,255,0.9),
-    42vw 72vh 0 1px #fff,
-    60vw 88vh 0 0px rgba(16,241,249,0.8),
-    78vw 70vh 0 1px #fff;
-  animation: twinkle 4.2s ease-in-out infinite;
-}
-.twinkling::after {
-  width: 2px; height: 2px;
-  background: rgba(16,241,249,0.8);
-  top: 55%; left: 70%;
-  box-shadow:
-    -25vw 10vh 0 0px #fff,
-    -45vw -8vh 0 1px rgba(16,241,249,0.9),
-    -10vw -30vh 0 0px #fff,
-    20vw  8vh  0 1px rgba(255,255,255,0.9),
-    -60vw 25vh 0 0px rgba(160,212,255,0.9);
-  animation: twinkle 3.1s ease-in-out infinite 1.5s;
-}
-
-/* Nebula blobs */
-.nebula {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 40vw 25vh at 15% 20%,  rgba(100, 20, 180, 0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 50vw 30vh at 80% 60%,  rgba(16, 100, 200, 0.10) 0%, transparent 70%),
-    radial-gradient(ellipse 35vw 20vh at 50% 90%,  rgba(200, 20, 100, 0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 45vw 28vh at 90% 10%,  rgba(0, 180, 180, 0.07)  0%, transparent 70%),
-    radial-gradient(ellipse 30vw 22vh at 30% 55%,  rgba(80, 0, 160, 0.09)   0%, transparent 70%);
-  animation: nebula-drift 28s ease-in-out infinite;
-}
-
-/* Satellites */
-.satellite {
-  position: absolute;
-  font-size: 22px;
-  filter: drop-shadow(0 0 6px rgba(16,241,249,0.7));
-}
-.satellite-1 { animation: drift-1 32s linear infinite 2s; }
-.satellite-2 { animation: drift-2 44s linear infinite 8s; font-size: 18px; }
-.satellite-3 { animation: drift-3 38s linear infinite 15s; }
-
-/* Rockets with trail */
-.rocket {
-  position: absolute;
-  font-size: 26px;
-  filter: drop-shadow(0 0 8px rgba(255,120,50,0.8));
-}
-.rocket::after {
-  content: '';
-  position: absolute;
-  top: 50%; right: 100%;
-  transform: translateY(-50%);
-  width: 60px; height: 3px;
-  background: linear-gradient(to left, rgba(255,140,60,0.9), rgba(255,80,20,0.4), transparent);
-  border-radius: 2px;
-  filter: blur(1px);
-}
-.rocket-1 { animation: rocket-arc-1 18s ease-in-out infinite 4s; }
-.rocket-2 { animation: rocket-arc-2 24s ease-in-out infinite 14s; font-size: 22px; }
-.rocket-2::after { width: 50px; }
-
-/* Comets */
-.comet {
-  position: absolute;
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 6px 2px rgba(16,241,249,0.9);
-}
-.comet::after {
-  content: '';
-  position: absolute;
-  top: 50%; right: 100%;
-  transform: translateY(-50%);
-  width: 80px; height: 2px;
-  background: linear-gradient(to left, rgba(16,241,249,0.8), rgba(255,255,255,0.3), transparent);
-  border-radius: 2px;
-}
-.comet-1 { animation: comet-streak   10s ease-in-out infinite 6s; }
-.comet-2 { animation: comet-streak-2 14s ease-in-out infinite 22s; }
-
-/* ── 4. LAYOUT ────────────────────────────────────────────── */
+/* No scroll — everything floats over the full-viewport globe. */
+html, body { overflow: hidden; }
 
 .space-container {
-  position: relative;
-  z-index: 1;
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 90px 24px 60px;
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  /* The container itself doesn't catch clicks — only its child panels do.
+     This lets clicks pass through empty space to the globe behind. */
+  pointer-events: none;
 }
+.space-container > * { pointer-events: auto; }
+/* Header is plain text — let clicks fall through it too. */
+.space-header { pointer-events: none; }
+.space-header a { pointer-events: auto; }
 
 /* ── 5. HOME LINK ─────────────────────────────────────────── */
 
@@ -315,8 +116,14 @@ a:hover { color: #ff2d78; }
 /* ── 6. HEADER ────────────────────────────────────────────── */
 
 .space-header {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
   text-align: center;
-  margin-bottom: 40px;
+  /* Don't constrain — let the title size itself */
+  max-width: min(720px, 90vw);
 }
 
 .header-badge {
@@ -355,82 +162,37 @@ a:hover { color: #ff2d78; }
 
 /* ── 7. GLOBE SECTION ─────────────────────────────────────── */
 
-.globe-section {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 36px;
+/* Full-viewport globe canvas — sits behind everything as the visual core. */
+#globe-container.globe-section {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 50%, #061320 0%, #02060c 80%);
 }
 
-.globe-frame {
-  position: relative;
-  width: 500px;
-  height: 500px;
-  /* Bezel */
-  background: radial-gradient(circle at 50% 50%, #0a1628 60%, #02060c 100%);
-  border: 1px solid rgba(16,241,249,0.3);
-  box-shadow:
-    0 0 0 1px rgba(16,241,249,0.08),
-    0 0 30px rgba(16,241,249,0.1),
-    inset 0 0 40px rgba(2,6,12,0.6);
-  /* HUD scanline overlay */
-  overflow: hidden;
-}
-
-/* Corner bracket decorations on globe-frame */
-.globe-frame::before,
-.globe-frame::after {
-  content: '';
-  position: absolute;
-  z-index: 3;
-  pointer-events: none;
-}
-.globe-frame::before {
-  top: 8px; left: 8px;
-  width: 28px; height: 28px;
-  border-top: 2px solid rgb(16,241,249);
-  border-left: 2px solid rgb(16,241,249);
-  box-shadow: -2px -2px 8px rgba(16,241,249,0.4);
-}
-.globe-frame::after {
-  bottom: 8px; right: 8px;
-  width: 28px; height: 28px;
-  border-bottom: 2px solid rgb(16,241,249);
-  border-right: 2px solid rgb(16,241,249);
-  box-shadow: 2px 2px 8px rgba(16,241,249,0.4);
-}
-
-/* Faint repeating scanlines over the globe */
-.globe-frame .globe-overlay-tl,
-.globe-frame .globe-overlay-bl {
-  background: none;
-}
-
-#globe-container {
-  width: 500px;
-  height: 500px;
-  display: block;
-}
-
-/* HUD overlays */
+/* HUD overlays — fixed in viewport corners, floating over the globe. */
 .globe-overlay-tl,
 .globe-overlay-bl {
-  position: absolute;
-  z-index: 4;
+  position: fixed;
+  z-index: 50;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 6px 10px;
+  gap: 3px;
+  padding: 8px 14px;
   background: rgba(2,6,12,0.72);
-  border: 1px solid rgba(16,241,249,0.25);
+  border: 1px solid rgba(16,241,249,0.3);
   pointer-events: none;
+  backdrop-filter: blur(4px);
 }
 .globe-overlay-tl {
-  top: 38px; left: 8px;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+  top: 24px; right: 24px;
+  min-width: 200px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
 }
 .globe-overlay-bl {
-  bottom: 38px; left: 8px;
-  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+  top: 86px; right: 24px;
+  min-width: 200px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
 }
 
 .hud-label {
@@ -443,38 +205,52 @@ a:hover { color: #ff2d78; }
 
 .hud-value {
   font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 12px;
+  font-size: 13px;
   color: rgb(16,241,249);
   animation: hud-glow 2.8s ease-in-out infinite;
   white-space: nowrap;
 }
 
+/* Hint sits inside the header — small instruction line under the title. */
 .globe-hint {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 4;
-  padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 5px 14px;
   background: rgba(2,6,12,0.7);
   border: 1px solid rgba(16,241,249,0.2);
-  color: rgba(168,201,216,0.7);
+  color: rgba(168,201,216,0.85);
+  font-family: 'Consolas', 'Courier New', monospace;
   font-size: 11px;
-  white-space: nowrap;
+  letter-spacing: 0.5px;
   pointer-events: none;
 }
-.globe-hint i { margin-right: 5px; color: rgba(16,241,249,0.6); }
+.globe-hint i { color: rgba(16,241,249,0.7); }
+.globe-hint.hidden {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
 
 /* ── 8. CONTROLS ──────────────────────────────────────────── */
 
 .controls {
-  margin-bottom: 28px;
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  width: 360px;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   padding: 24px;
-  background: rgba(5,12,24,0.85);
+  background: rgba(5,12,24,0.92);
   border: 1px solid rgba(16,241,249,0.2);
   border-top: 2px solid rgba(16,241,249,0.5);
-  position: relative;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(16,241,249,0.08);
   clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  backdrop-filter: blur(6px);
 }
 .controls::before {
   content: 'SYS://INPUT_TERMINAL';
@@ -491,7 +267,12 @@ a:hover { color: #ff2d78; }
 .controls-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px 20px;
+  gap: 14px 16px;
+}
+.field-wide,
+.controls-grid .presets,
+.controls-grid .actions {
+  grid-column: 1 / -1;
 }
 
 .field {
@@ -703,19 +484,42 @@ a:hover { color: #ff2d78; }
   color: #fff;
 }
 
-/* ── 11. STATUS ───────────────────────────────────────────── */
+/* ── 11. STATUS + RESULT ──────────────────────────────────── */
 
-.result { margin-top: 16px; }
+/* Result panel floats bottom-left, opposite the controls. Hidden until a
+   capture has been initiated — JS toggles a .visible class. */
+.result {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 40;
+  width: min(560px, calc(100vw - 432px));
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Default state: not yet captured — hide the panel completely. JS adds
+     .visible after the first capture starts. */
+  opacity: 0;
+  transform: translateX(-12px);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.result.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
 
 .status {
-  margin-bottom: 16px;
   padding: 10px 16px;
-  background: rgba(2,6,12,0.8);
+  background: rgba(2,6,12,0.85);
   border-left: 3px solid rgba(16,241,249,0.5);
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 13px;
-  color: rgba(168,201,216,0.85);
+  color: rgba(168,201,216,0.9);
   letter-spacing: 0.3px;
+  backdrop-filter: blur(6px);
 }
 .status[data-kind='error'] {
   border-left-color: #ff2d78;
@@ -737,8 +541,11 @@ a:hover { color: #ff2d78; }
 
 .capture-display {
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  gap: 14px;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ── 13. IMAGE FRAME ──────────────────────────────────────── */
@@ -746,13 +553,15 @@ a:hover { color: #ff2d78; }
 .image-frame {
   position: relative;
   flex: 1 1 auto;
-  min-height: 240px;
+  min-width: 0;
+  min-height: 220px;
   background: #000;
   border: 1px solid rgba(16,241,249,0.25);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(2px);
 }
 
 #result-img {
@@ -806,12 +615,14 @@ a:hover { color: #ff2d78; }
 /* ── 14. METADATA CARD ────────────────────────────────────── */
 
 .metadata-card {
-  flex: 0 0 240px;
+  flex: 0 0 220px;
+  min-width: 0;
   background: rgba(2,6,12,0.9);
   border: 1px solid rgba(16,241,249,0.2);
   border-top: 2px solid rgba(57,255,138,0.6);
   clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
   overflow: hidden;
+  backdrop-filter: blur(6px);
 }
 
 .metadata-header {
@@ -874,31 +685,54 @@ a:hover { color: #ff2d78; }
 /* ── 15. FOOTER ───────────────────────────────────────────── */
 
 .space-footer {
-  margin-top: 40px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(16,241,249,0.12);
+  position: fixed;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
   text-align: center;
   font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 11px;
-  color: rgba(122,152,167,0.7);
+  font-size: 10px;
+  color: rgba(122,152,167,0.55);
   letter-spacing: 0.3px;
+  pointer-events: none;
 }
-.space-footer a { color: rgba(16,241,249,0.6); }
+.space-footer a { color: rgba(16,241,249,0.55); pointer-events: auto; }
 .space-footer a:hover { color: #ff2d78; }
 
 /* ── 16. RESPONSIVE ───────────────────────────────────────── */
 
+@media (max-width: 1080px) {
+  /* On narrower screens the bottom-left result panel and bottom-right
+     controls panel collide. Stack them: result on top, controls below. */
+  .controls {
+    width: min(420px, calc(100vw - 32px));
+    right: 16px;
+    bottom: 16px;
+  }
+  .result {
+    width: min(560px, calc(100vw - 32px));
+    left: 16px;
+    bottom: calc(40vh + 16px);
+  }
+}
+
 @media (max-width: 720px) {
-  .globe-frame,
-  #globe-container {
-    width: min(85vw, 500px);
-    height: min(85vw, 500px);
+  .controls {
+    width: calc(100vw - 32px);
+    max-height: 50vh;
+    right: 16px;
+    bottom: 16px;
+  }
+  .result {
+    width: calc(100vw - 32px);
+    left: 16px;
+    bottom: auto;
+    top: 140px;
+    max-height: calc(100vh - 360px);
   }
   .controls-grid {
     grid-template-columns: 1fr;
-  }
-  .field-wide {
-    grid-column: 1;
   }
   .capture-display {
     flex-direction: column;
@@ -908,7 +742,12 @@ a:hover { color: #ff2d78; }
     width: 100%;
     clip-path: none;
   }
+  .globe-overlay-tl,
+  .globe-overlay-bl {
+    display: none;
+  }
   .title-glow {
+    font-size: clamp(18px, 5vw, 28px);
     letter-spacing: 3px;
   }
   .capture-btn {
@@ -918,33 +757,26 @@ a:hover { color: #ff2d78; }
 }
 
 @media (max-width: 420px) {
-  .space-container {
-    padding: 70px 14px 40px;
-  }
   .title-glow {
-    font-size: 22px;
+    font-size: 18px;
     letter-spacing: 2px;
   }
   .header-badge {
-    font-size: 10px;
+    font-size: 9px;
+    letter-spacing: 2px;
   }
   .globe-hint {
     font-size: 9px;
     padding: 3px 8px;
+  }
+  .space-footer {
+    display: none;
   }
 }
 
 /* ── 17. REDUCED MOTION ───────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-  .satellite-1, .satellite-2, .satellite-3,
-  .rocket-1, .rocket-2,
-  .comet-1, .comet-2,
-  .nebula,
-  .twinkling::before, .twinkling::after {
-    animation: none;
-    opacity: 0;
-  }
   .title-glow {
     animation: none;
     text-shadow: 0 0 10px rgba(16,241,249,0.4);
