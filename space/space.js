@@ -904,6 +904,10 @@ let globe = null;
       currentTexMode = texMode;
       globe.globeImageUrl(texMode === 'dark' ? TEX_DARK : GLOBE_TEXTURE);
     }
+    // At close zoom, let clicks pass straight through labels to the globe
+    // sphere underneath. CSS rule keyed off this class flips
+    // `pointer-events: none` on the city labels.
+    document.body.classList.toggle('globe-close-zoom', altitude < 0.2);
     refreshLabels();
     refreshPolygons();
   }

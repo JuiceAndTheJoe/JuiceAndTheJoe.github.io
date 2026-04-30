@@ -279,6 +279,13 @@ html, body { overflow: hidden; }
   box-shadow: 0 0 6px rgba(255,45,120,0.8);
 }
 
+/* When the user has zoomed in close, labels become decorative-only so
+   clicks pass through to the globe sphere underneath. Lets the user lock
+   target on any pixel inside a city, not just the empty sea. */
+body.globe-close-zoom .globe-city-label {
+  pointer-events: none;
+}
+
 /* ── 8. CONTROLS ──────────────────────────────────────────── */
 
 .controls {
