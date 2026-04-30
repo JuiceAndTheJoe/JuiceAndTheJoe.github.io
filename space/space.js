@@ -23,13 +23,10 @@ const URBAN_GEOJSON_URL     = `${NE_BASE}/ne_50m_urban_areas.geojson`;
 const LAKES_GEOJSON_URL     = `${NE_BASE}/ne_50m_lakes.geojson`;
 const VECTOR_LOAD_ALTITUDE  = 0.7;
 
-// Globe textures. The 2K Blue Marble looks iconic at orbital distance but
-// pixelates up close; we swap to a self-hosted 8K natural-color daymap from
-// Solar System Scope (CC-BY 4.0, attribution in the footer) once altitude
-// drops below TEX_SWAP_ALTITUDE. Preloaded on init so the swap is instant.
-const TEX_FAR = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
-const TEX_NEAR = 'textures/earth_daymap_8k.jpg';
-const TEX_SWAP_ALTITUDE = 0.7;
+// Globe surface texture. Close-zoom legibility comes from the vector
+// overlays (urban areas, state borders, lakes), not from a higher-res
+// raster, so we just keep the iconic 2K Blue Marble at every altitude.
+const GLOBE_TEXTURE = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
 
 // City prominence tiers. Top tier always visible; mid tier appears when the
 // camera drops below the regional altitude threshold; the rest only show on
@@ -587,11 +584,8 @@ let globe = null;
   const container = document.getElementById('globe-container');
   if (!container || typeof globalThis.Globe !== 'function') return;
 
-  // Warm the 4K texture cache so the close-up swap is instant.
-  new Image().src = TEX_NEAR;
-
   globe = globalThis.Globe()(container)
-    .globeImageUrl(TEX_FAR)
+    .globeImageUrl(GLOBE_TEXTURE)
     .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
     .backgroundColor('rgba(0,0,0,0)')
     .showAtmosphere(true)
@@ -757,22 +751,15 @@ let globe = null;
 
   // Camera-altitude-driven detail swap:
   //   - city label tier (which set is visible)
-  //   - globe surface texture (blue-marble far away, 8K daymap close)
   //   - lazy-load the heavy vector overlays once we drop below threshold
   // Each only re-applies when the altitude actually crosses a threshold so
   // we don't thrash on every animation frame.
   let currentTier = 1;
-  let currentTexMode = 'far';
   globe.onZoom(({ altitude }) => {
     const tier = altitude > 1.5 ? 1 : altitude > 0.5 ? 2 : 3;
     if (tier !== currentTier) {
       currentTier = tier;
       globe.htmlElementsData(citiesForAltitude(altitude));
-    }
-    const texMode = altitude < TEX_SWAP_ALTITUDE ? 'near' : 'far';
-    if (texMode !== currentTexMode) {
-      currentTexMode = texMode;
-      globe.globeImageUrl(texMode === 'near' ? TEX_NEAR : TEX_FAR);
     }
     if (altitude < VECTOR_LOAD_ALTITUDE) {
       loadDetailLayers();
