@@ -27,6 +27,18 @@ function corsHeaders(origin) {
   };
 }
 
+// `<img src>` requests don't send an Origin header — only Referer. Accept
+// either as proof that the call is coming from one of our pages.
+function isAllowedCaller(req) {
+  const origin = req.headers.get('Origin') || '';
+  if (ALLOWED_ORIGINS.has(origin)) return true;
+  const referer = req.headers.get('Referer') || '';
+  for (const allowed of ALLOWED_ORIGINS) {
+    if (referer === allowed || referer.startsWith(allowed + '/')) return true;
+  }
+  return false;
+}
+
 function monthKey(d = new Date()) {
   const m = String(d.getUTCMonth() + 1).padStart(2, '0');
   return `count:${d.getUTCFullYear()}-${m}`;
@@ -50,7 +62,7 @@ export default {
     if (req.method !== 'GET') {
       return jsonError('Method not allowed', 405, cors);
     }
-    if (!ALLOWED_ORIGINS.has(origin)) {
+    if (!isAllowedCaller(req)) {
       return jsonError('Forbidden origin', 403, cors);
     }
 
