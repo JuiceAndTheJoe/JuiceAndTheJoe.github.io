@@ -401,6 +401,20 @@ function formatLatLng(lat, lng) {
   return `${Math.abs(lat).toFixed(6)}° ${latDir}, ${Math.abs(lng).toFixed(6)}° ${lonDir}`;
 }
 
+// 1° of latitude = ~111.32 km. We use this to convert the captured image's
+// half-side (in km) into degrees on the sphere for the ring radius.
+const KM_PER_DEG = 111.32;
+
+// What does the captured image actually cover, in degrees? At zoom Z and
+// latitude L, Mapbox's 512×512@2x tile spans 512 logical pixels of
+// metersPerPixel(L,Z) each, so half the side is the natural radius for the
+// pink ring to indicate "this is what gets photographed".
+function captureHalfSideDeg(lat, sliderRadiusKm) {
+  const zoom = clampZoom(estimateZoomForRadiusKm(Math.max(sliderRadiusKm, 0.5)));
+  const halfSideMeters = 256 * metersPerPixel(lat, zoom);
+  return halfSideMeters / 1000 / KM_PER_DEG;
+}
+
 // ---------------------------------------------------------------------------
 // DOM refs
 // ---------------------------------------------------------------------------
@@ -454,6 +468,16 @@ lonInput.addEventListener('input', syncHud);
 // Target selection — sets coords + visual marker without triggering capture.
 // Capture only happens when the user explicitly hits the CAPTURE button.
 // ---------------------------------------------------------------------------
+function updateTargetRing() {
+  if (!globe) return;
+  const lat = parseFloat(latInput.value);
+  const lng = parseFloat(lonInput.value);
+  const sliderKm = parseFloat(radiusInput.value);
+  if (isNaN(lat) || isNaN(lng) || isNaN(sliderKm)) return;
+  const radiusDeg = captureHalfSideDeg(lat, sliderKm);
+  globe.ringsData([{ lat, lng, radiusDeg }]);
+}
+
 function setTarget(lat, lng) {
   latInput.value = lat.toFixed(6);
   lonInput.value = lng.toFixed(6);
@@ -461,7 +485,7 @@ function setTarget(lat, lng) {
   globeStatus.textContent = 'TARGET LOCKED';
   if (globe) {
     globe.pointsData([{ lat, lng }]);
-    globe.ringsData([{ lat, lng }]);
+    updateTargetRing();
   }
 }
 
@@ -470,6 +494,7 @@ function setTarget(lat, lng) {
 // ---------------------------------------------------------------------------
 radiusInput.addEventListener('input', () => {
   radiusValue.textContent = radiusInput.value;
+  updateTargetRing();
 });
 
 // ---------------------------------------------------------------------------
@@ -528,7 +553,7 @@ function capture() {
   // Update globe marker and ring to the current target
   if (globe) {
     globe.pointsData([{ lat, lng: lon }]);
-    globe.ringsData([{ lat, lng: lon }]);
+    updateTargetRing();
   }
 
   resultImg.onload = () => {
@@ -618,13 +643,16 @@ let globe = null;
     .pointRadius(0.5)
     .pointColor(() => 'rgba(255, 58, 140, 0.45)')
     // Pulsing ring — altitude bumped above the polygon overlays (0.005–0.008)
-    // so country borders, urban areas, and lakes can't depth-occlude the ring
-    // even when their caps are transparent.
+    // so country borders, urban areas, and lakes can't depth-occlude it even
+    // when their caps are transparent. Radius and propagation speed read off
+    // each ring's own `radiusDeg`, set by updateTargetRing() to match the
+    // half-side of the captured image. So the pulse fans out exactly to the
+    // edge of what the next CAPTURE will photograph.
     .ringAltitude(0.012)
     .ringColor(() => 'rgba(255,58,140,0.8)')
-    .ringMaxRadius(2)
-    .ringPropagationSpeed(2)
-    .ringRepeatPeriod(1200)
+    .ringMaxRadius((d) => d.radiusDeg)
+    .ringPropagationSpeed((d) => Math.max(d.radiusDeg / 1.2, 0.005))
+    .ringRepeatPeriod(1500)
     // Vector overlays. Country borders load on init; states + urban areas +
     // lakes lazy-load on first close-zoom. All features carry a `_kind`
     // property so the polygon style callbacks render each layer differently.
@@ -881,7 +909,7 @@ let globe = null;
 
   // Drop initial marker on default Stockholm coords
   globe.pointsData([{ lat: DEFAULT_LAT, lng: DEFAULT_LON }]);
-  globe.ringsData([{ lat: DEFAULT_LAT, lng: DEFAULT_LON }]);
+  updateTargetRing();
   globe.pointOfView({ lat: DEFAULT_LAT, lng: DEFAULT_LON, altitude: 1.8 });
 
   // Globe click → set the target and update marker/ring. Capture is a
