@@ -176,13 +176,6 @@ a:hover {
   font-size: 14px;
 }
 
-.quota {
-  margin-left: auto;
-  color: #a8c9d8;
-  font-size: 12px;
-  font-style: italic;
-}
-
 .result {
   margin-top: 24px;
 }
@@ -240,8 +233,5 @@ a:hover {
 @media (max-width: 520px) {
   .controls {
     grid-template-columns: 1fr;
-  }
-  .quota {
-    margin-left: 0;
   }
 }
