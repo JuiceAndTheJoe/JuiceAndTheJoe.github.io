@@ -10,7 +10,7 @@ const PROXY_BASE = 'https://satellite-proxy.esvela02.workers.dev';
 
 const DEFAULT_LAT = 59.349800;
 const DEFAULT_LON = 18.070700;
-const DEFAULT_RADIUS = 2;
+const DEFAULT_RADIUS = 100;
 
 // Vector overlays from Natural Earth via jsdelivr's GitHub mirror. Country
 // borders load on init; urban-area + lake polygons load lazily on first
