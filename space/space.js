@@ -567,7 +567,7 @@ document.querySelectorAll('.preset-btn').forEach((btn) => {
     setTarget(lat, lng);
 
     if (globe) {
-      globe.pointOfView({ lat, lng, altitude: 0.12 }, 1200);
+      globe.pointOfView({ lat, lng, altitude: 0.06 }, 1200);
     }
   });
 });
@@ -639,7 +639,7 @@ let globe = null;
       el.addEventListener('click', (event) => {
         event.stopPropagation();
         setTarget(d.lat, d.lng);
-        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.12 }, 1200);
+        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.06 }, 1200);
       });
       return el;
     });
