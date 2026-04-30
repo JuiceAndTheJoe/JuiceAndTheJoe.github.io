@@ -611,12 +611,15 @@ let globe = null;
     .atmosphereAltitude(0.18)
     .width(container.clientWidth)
     .height(container.clientHeight)
-    // Target marker — semi-transparent so it doesn't occlude the imagery
-    // beneath when the camera is close in.
-    .pointAltitude(0.01)
+    // Target marker — semi-transparent and lifted above the polygon stack so
+    // it stays visible no matter what's underneath.
+    .pointAltitude(0.012)
     .pointRadius(0.5)
     .pointColor(() => 'rgba(255, 58, 140, 0.45)')
-    // Pulsing ring
+    // Pulsing ring — altitude bumped above the polygon overlays (0.005–0.008)
+    // so country borders, urban areas, and lakes can't depth-occlude the ring
+    // even when their caps are transparent.
+    .ringAltitude(0.012)
     .ringColor(() => 'rgba(255,58,140,0.8)')
     .ringMaxRadius(2)
     .ringPropagationSpeed(2)
@@ -782,16 +785,26 @@ let globe = null;
     const pov = globe.pointOfView();
     let labels;
     let key;
-    if (pov.altitude > 0.5 || popPlaces.length === 0) {
-      // Far/medium: use the curated tiered set.
+    if (pov.altitude > 0.5) {
+      // Far/medium: curated tiered set, no spatial cull (small lists).
       labels = citiesForAltitude(pov.altitude);
       key = `tier|${labels.length}`;
     } else {
-      // Close: spatially-filtered populated places. Tighter radius the
-      // closer we get so the label density doesn't explode.
-      const radiusDeg = pov.altitude > 0.15 ? 30 : 14;
-      labels = filterPointsToView(popPlaces, pov.lat, pov.lng, radiusDeg);
-      key = `pop|${pov.lat.toFixed(0)}|${pov.lng.toFixed(0)}|${radiusDeg}|${labels.length}`;
+      // Close: combine curated CITY_LABELS (so megacities never disappear)
+      // with the populated-places dataset for richer regional context, all
+      // spatially filtered. Wider radius than the polygon cull because labels
+      // are cheap (DOM elements; globe.gl auto-hides backside ones).
+      const radiusDeg = pov.altitude > 0.15 ? 45 : 25;
+      const curatedInView = filterPointsToView(
+        CITY_LABELS, pov.lat, pov.lng, radiusDeg
+      );
+      const seen = new Set(curatedInView.map((c) => c.name));
+      const popInView = popPlaces.length
+        ? filterPointsToView(popPlaces, pov.lat, pov.lng, radiusDeg)
+            .filter((p) => p.name && !seen.has(p.name))
+        : [];
+      labels = [...curatedInView, ...popInView];
+      key = `near|${pov.lat.toFixed(0)}|${pov.lng.toFixed(0)}|${radiusDeg}|${labels.length}`;
     }
     if (key === lastLabelKey) return;
     lastLabelKey = key;
