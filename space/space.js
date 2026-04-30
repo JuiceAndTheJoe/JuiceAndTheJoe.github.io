@@ -822,13 +822,6 @@ let globe = null;
     .ringMaxRadius((d) => d.radiusDeg)
     .ringPropagationSpeed((d) => Math.max(d.radiusDeg / 1.2, 0.005))
     .ringRepeatPeriod(1500)
-    // Transition durations control how long globe.gl spends fading layers
-    // in/out when their data changes. Defaults are ~1 s which adds
-    // perceptible CPU cost on every camera-driven refresh; snap them.
-    .pointsTransitionDuration(0)
-    .ringsTransitionDuration(0)
-    .polygonsTransitionDuration(0)
-    .htmlElementsTransitionDuration(0)
     // Vector overlays. Country borders load on init; states + urban areas +
     // lakes lazy-load on first close-zoom. All features carry a `_kind`
     // property so the polygon style callbacks render each layer differently.
