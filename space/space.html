@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Satellite Imagery - Jose Velásquez</title>
+    <link rel="stylesheet" href="space.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <a href="/" class="home-link" title="Back to home">
+      <i class="fas fa-home"></i> Home
+    </a>
+
+    <main class="space-container">
+      <header class="space-header">
+        <h1>Satellite Imagery</h1>
+        <p class="subtitle">
+          Drop in coordinates and a radius. Pull a satellite snapshot from
+          orbit. Powered by the Mapbox Static Images API.
+        </p>
+      </header>
+
+      <section class="controls">
+        <div class="field">
+          <label for="lat">Latitude</label>
+          <input
+            id="lat"
+            type="number"
+            step="any"
+            min="-90"
+            max="90"
+            placeholder="59.349800"
+            value="59.349800"
+          />
+        </div>
+
+        <div class="field">
+          <label for="lon">Longitude</label>
+          <input
+            id="lon"
+            type="number"
+            step="any"
+            min="-180"
+            max="180"
+            placeholder="18.070700"
+            value="18.070700"
+          />
+        </div>
+
+        <div class="field field-wide">
+          <label for="radius">
+            Radius: <span id="radius-value">2</span> km
+          </label>
+          <input
+            id="radius"
+            type="range"
+            min="0.5"
+            max="1500"
+            step="0.5"
+            value="2"
+          />
+        </div>
+
+        <div class="presets">
+          <span class="presets-label">Presets:</span>
+          <button
+            type="button"
+            class="preset-btn"
+            data-lat="59.349800"
+            data-lon="18.070700"
+            data-radius="2"
+          >
+            KTH
+          </button>
+          <button
+            type="button"
+            class="preset-btn"
+            data-lat="59.898300"
+            data-lon="17.593700"
+            data-radius="3"
+          >
+            Uppsala Ärna
+          </button>
+          <button
+            type="button"
+            class="preset-btn"
+            data-lat="40.689200"
+            data-lon="-74.044500"
+            data-radius="2"
+          >
+            Liberty Island
+          </button>
+          <button
+            type="button"
+            class="preset-btn"
+            data-lat="-22.951900"
+            data-lon="-43.210500"
+            data-radius="3"
+          >
+            Cristo Redentor
+          </button>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="capture-btn" class="capture-btn">
+            <i class="fas fa-satellite"></i> Capture
+          </button>
+          <a id="download-link" class="download-link" hidden>
+            <i class="fas fa-download"></i> Download JPEG
+          </a>
+          <span id="quota" class="quota">—</span>
+        </div>
+      </section>
+
+      <section class="result">
+        <div id="status" class="status" role="status" aria-live="polite">
+          Ready. Hit Capture to pull an image.
+        </div>
+        <div class="image-frame">
+          <img id="result-img" alt="Satellite capture" hidden />
+        </div>
+      </section>
+
+      <footer class="space-footer">
+        <p>
+          Imagery © <a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener">Mapbox</a>
+          © <a href="https://www.openstreetmap.org/about/" target="_blank" rel="noopener">OpenStreetMap</a>.
+          Satellite tiles via Mapbox Static Images API.
+        </p>
+      </footer>
+    </main>
+
+    <script src="space.js"></script>
+  </body>
+</html>
