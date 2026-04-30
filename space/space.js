@@ -13,15 +13,19 @@ const DEFAULT_LON = 18.070700;
 const DEFAULT_RADIUS = 2;
 
 // Vector overlays from Natural Earth via jsdelivr's GitHub mirror. Country
-// borders load on init; the higher-res state/province + urban-area + lake
-// polygons load lazily on first close-zoom, since they're only legible at
-// short range and add ~4 MB total.
+// borders load on init; urban-area + lake polygons load lazily on first
+// close-zoom. We dropped state polygons entirely (294 extra meshes for
+// modest visual gain) and the urban dataset is filtered down to the larger
+// footprints, since each polygon turns into a 3D extruded mesh.
 const NE_BASE = 'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson';
 const COUNTRIES_GEOJSON_URL = `${NE_BASE}/ne_110m_admin_0_countries.geojson`;
-const STATES_GEOJSON_URL    = `${NE_BASE}/ne_50m_admin_1_states_provinces.geojson`;
 const URBAN_GEOJSON_URL     = `${NE_BASE}/ne_50m_urban_areas.geojson`;
 const LAKES_GEOJSON_URL     = `${NE_BASE}/ne_50m_lakes.geojson`;
 const VECTOR_LOAD_ALTITUDE  = 0.7;
+// Dataset has ~2,100 urban polygons globally; only keeping the larger ones
+// keeps the per-frame draw count manageable while still showing every city
+// you're realistically going to point a satellite at.
+const URBAN_MIN_AREA_SQKM   = 200;
 
 // Globe surface texture. Close-zoom legibility comes from the vector
 // overlays (urban areas, state borders, lakes), not from a higher-res
@@ -608,11 +612,10 @@ let globe = null;
     // property so the polygon style callbacks render each layer differently.
     .polygonsData([])
     .polygonAltitude((d) => {
-      // Stack altitudes so urban polygons sit above the states they're in,
-      // and both above country outlines, to avoid z-fighting.
+      // Stack altitudes so urban sits above country outlines, lakes below,
+      // to avoid z-fighting on the extruded caps.
       switch (d._kind) {
         case 'urban':   return 0.008;
-        case 'state':   return 0.006;
         case 'lake':    return 0.004;
         case 'country': return 0.005;
         default:        return 0.005;
@@ -630,7 +633,6 @@ let globe = null;
     .polygonStrokeColor((d) => {
       switch (d._kind) {
         case 'urban':   return 'rgba(255, 200, 80, 0.85)';
-        case 'state':   return 'rgba(16, 241, 249, 0.28)';
         case 'lake':    return 'rgba(70, 180, 255, 0.7)';
         case 'country': return 'rgba(16, 241, 249, 0.6)';
         default:        return 'rgba(0,0,0,0)';
@@ -670,17 +672,67 @@ let globe = null;
       return el;
     });
 
-  // Tagged feature buckets. We re-merge and call polygonsData whenever a new
-  // bucket loads. Country borders load now; the rest are lazy.
-  const polyBuckets = { country: [], state: [], urban: [], lake: [] };
-  const refreshPolygons = () => {
+  // Tagged feature buckets. Country borders load now; urban + lakes are lazy.
+  // Each feature is augmented with a centroid so we can do a cheap spatial
+  // filter (only render polygons within angular range of the camera).
+  const polyBuckets = { country: [], urban: [], lake: [] };
+
+  function bboxCentroid(geometry) {
+    let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+    const visit = (a) => {
+      if (typeof a[0] === 'number') {
+        if (a[0] < minLng) minLng = a[0];
+        if (a[0] > maxLng) maxLng = a[0];
+        if (a[1] < minLat) minLat = a[1];
+        if (a[1] > maxLat) maxLat = a[1];
+      } else {
+        for (const x of a) visit(x);
+      }
+    };
+    visit(geometry.coordinates);
+    return [(minLat + maxLat) / 2, (minLng + maxLng) / 2];
+  }
+
+  function tagFeature(feature, kind) {
+    const [lat, lng] = bboxCentroid(feature.geometry);
+    return { ...feature, _kind: kind, _lat: lat, _lng: lng };
+  }
+
+  // Spatial filter: only keep features whose centroid sits within radiusDeg
+  // of the camera's pointOfView. Country outlines stay always-visible since
+  // there are only ~250 of them and they're the orientation backbone.
+  function filterToView(features, centerLat, centerLng, radiusDeg) {
+    if (radiusDeg >= 360) return features;
+    const cosLat = Math.cos(centerLat * Math.PI / 180);
+    return features.filter((f) => {
+      const dLat = f._lat - centerLat;
+      let dLng = f._lng - centerLng;
+      if (dLng > 180)  dLng -= 360;
+      if (dLng < -180) dLng += 360;
+      const ang = Math.sqrt(dLat * dLat + (dLng * cosLat) ** 2);
+      return ang < radiusDeg;
+    });
+  }
+
+  let lastFilterKey = '';
+  function refreshPolygons() {
+    const pov = globe.pointOfView();
+    // Wider radius at higher altitude; tighter when zoomed in close.
+    const radiusDeg =
+      pov.altitude > 1.0 ? 360 :
+      pov.altitude > 0.4 ? 60 :
+      pov.altitude > 0.15 ? 25 :
+      12;
+    // Cheap stability key so we don't re-filter on every animation frame.
+    const key = `${radiusDeg}|${pov.lat.toFixed(0)}|${pov.lng.toFixed(0)}|${polyBuckets.urban.length}|${polyBuckets.lake.length}`;
+    if (key === lastFilterKey) return;
+    lastFilterKey = key;
     globe.polygonsData([
       ...polyBuckets.country,
-      ...polyBuckets.state,
-      ...polyBuckets.lake,
-      ...polyBuckets.urban,
+      ...filterToView(polyBuckets.lake,  pov.lat, pov.lng, radiusDeg),
+      ...filterToView(polyBuckets.urban, pov.lat, pov.lng, radiusDeg),
     ]);
-  };
+  }
 
   fetch(COUNTRIES_GEOJSON_URL)
     .then((r) => r.json())
@@ -688,32 +740,23 @@ let globe = null;
       // Skip Antarctica — its polygon spans the whole bottom and looks messy.
       polyBuckets.country = geo.features
         .filter((f) => f.properties && f.properties.ISO_A2 !== 'AQ')
-        .map((f) => ({ ...f, _kind: 'country' }));
+        .map((f) => tagFeature(f, 'country'));
       refreshPolygons();
     })
-    .catch(() => {
-      // Borders are a nice-to-have — silently fail if the CDN is down.
-    });
+    .catch(() => {});
 
-  // One-shot lazy loaders for the heavy close-zoom layers.
-  const lazyLoaded = { state: false, urban: false, lake: false };
+  // One-shot lazy loaders for the close-zoom layers.
+  const lazyLoaded = { urban: false, lake: false };
   function loadDetailLayers() {
-    if (!lazyLoaded.state) {
-      lazyLoaded.state = true;
-      fetch(STATES_GEOJSON_URL)
-        .then((r) => r.json())
-        .then((geo) => {
-          polyBuckets.state = geo.features.map((f) => ({ ...f, _kind: 'state' }));
-          refreshPolygons();
-        })
-        .catch(() => { lazyLoaded.state = false; });
-    }
     if (!lazyLoaded.urban) {
       lazyLoaded.urban = true;
       fetch(URBAN_GEOJSON_URL)
         .then((r) => r.json())
         .then((geo) => {
-          polyBuckets.urban = geo.features.map((f) => ({ ...f, _kind: 'urban' }));
+          polyBuckets.urban = geo.features
+            .filter((f) => (f.properties && f.properties.area_sqkm) >= URBAN_MIN_AREA_SQKM)
+            .map((f) => tagFeature(f, 'urban'));
+          lastFilterKey = ''; // force re-filter
           refreshPolygons();
         })
         .catch(() => { lazyLoaded.urban = false; });
@@ -723,7 +766,8 @@ let globe = null;
       fetch(LAKES_GEOJSON_URL)
         .then((r) => r.json())
         .then((geo) => {
-          polyBuckets.lake = geo.features.map((f) => ({ ...f, _kind: 'lake' }));
+          polyBuckets.lake = geo.features.map((f) => tagFeature(f, 'lake'));
+          lastFilterKey = '';
           refreshPolygons();
         })
         .catch(() => { lazyLoaded.lake = false; });
@@ -749,11 +793,11 @@ let globe = null;
     setTarget(lat, lng);
   });
 
-  // Camera-altitude-driven detail swap:
+  // Camera-driven detail updates:
   //   - city label tier (which set is visible)
   //   - lazy-load the heavy vector overlays once we drop below threshold
-  // Each only re-applies when the altitude actually crosses a threshold so
-  // we don't thrash on every animation frame.
+  //   - spatial-filter polygons by viewport (refreshPolygons handles its own
+  //     debouncing via a stability key).
   let currentTier = 1;
   globe.onZoom(({ altitude }) => {
     const tier = altitude > 1.5 ? 1 : altitude > 0.5 ? 2 : 3;
@@ -764,6 +808,7 @@ let globe = null;
     if (altitude < VECTOR_LOAD_ALTITUDE) {
       loadDetailLayers();
     }
+    refreshPolygons();
   });
 
   // Keep canvas sized to its container on window resize
