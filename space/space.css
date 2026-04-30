@@ -1,10 +1,10 @@
 /* ============================================================
    SATELLITE IMAGERY — space.css
-   80s Phosphor Console × Synthwave
+   80s Phosphor Console — green primary, ice-blue accent
    Palette: ink-black #02100a, deep-green #0a1e14,
             phosphor-green #39ff14 (primary),
             soft-green #39ff8a (instrument readouts),
-            hot-magenta #ff2d78 (contrast / hover / errors),
+            ice-blue #5fcfff (contrast / hover / target / errors),
             amber #f0c33c (loading)
    Fonts: Tahoma (body), 'Consolas'/'Courier New' (HUD readouts)
    ============================================================ */
@@ -30,7 +30,7 @@ a {
   text-decoration: none;
   transition: color 0.25s;
 }
-a:hover { color: #ff2d78; }
+a:hover { color: #5fcfff; }
 
 /* Class selectors with display:flex/grid/etc. would otherwise win over the
    `hidden` attribute's user-agent display:none. Restore the expected
@@ -43,12 +43,12 @@ a:hover { color: #ff2d78; }
   0%, 100% { text-shadow:
     0 0 10px #39ff14,
     0 0 30px rgba(57,255,20,0.5),
-    2px 2px 0 #ff2d78,
+    2px 2px 0 #5fcfff,
     -1px -1px 0 rgba(0,212,224,0.6); }
   50% { text-shadow:
     0 0 20px #39ff14,
     0 0 60px rgba(57,255,20,0.7),
-    3px 3px 0 #ff2d78,
+    3px 3px 0 #5fcfff,
     -2px -2px 0 rgba(0,212,224,0.8),
     0 0 100px rgba(57,255,20,0.2); }
 }
@@ -146,9 +146,9 @@ html, body { overflow: hidden; }
   display: inline-block;
   padding: 4px 12px;
   margin-bottom: 14px;
-  background: rgba(255,45,120,0.12);
-  border: 1px solid rgba(255,45,120,0.55);
-  color: #ff2d78;
+  background: rgba(95,207,255,0.12);
+  border: 1px solid rgba(95,207,255,0.55);
+  color: #5fcfff;
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 11px;
   font-weight: bold;
@@ -291,8 +291,8 @@ html, body { overflow: hidden; }
   box-shadow: 0 0 5px rgba(57,255,20,0.7);
 }
 .globe-city-label:hover .city-dot {
-  background: #ff2d78;
-  box-shadow: 0 0 6px rgba(255,45,120,0.8);
+  background: #5fcfff;
+  box-shadow: 0 0 6px rgba(95,207,255,0.8);
 }
 
 /* When the user has zoomed in close, labels become decorative-only so
@@ -475,20 +475,20 @@ body.globe-close-zoom .globe-city-label {
 .preset-random {
   background: linear-gradient(
     135deg,
-    rgba(255,45,120,0.2) 0%,
+    rgba(95,207,255,0.2) 0%,
     rgba(57,255,20,0.15) 50%,
-    rgba(255,45,120,0.2) 100%
+    rgba(95,207,255,0.2) 100%
   );
   background-size: 200% 200%;
-  border-color: rgba(255,45,120,0.5);
-  color: #ff2d78;
+  border-color: rgba(95,207,255,0.5);
+  color: #5fcfff;
   animation: random-shimmer 3s ease infinite;
 }
 .preset-random:hover {
-  background: rgba(255,45,120,0.25);
-  border-color: #ff2d78;
+  background: rgba(95,207,255,0.25);
+  border-color: #5fcfff;
   color: #fff;
-  box-shadow: 0 0 12px rgba(255,45,120,0.5);
+  box-shadow: 0 0 12px rgba(95,207,255,0.5);
 }
 
 /* ── 10. ACTIONS ──────────────────────────────────────────── */
@@ -597,9 +597,9 @@ body.globe-close-zoom .globe-city-label {
   backdrop-filter: blur(6px);
 }
 .status[data-kind='error'] {
-  border-left-color: #ff2d78;
+  border-left-color: #5fcfff;
   color: #ffd0e0;
-  box-shadow: inset 0 0 20px rgba(255,45,120,0.05), 0 0 8px rgba(255,45,120,0.2);
+  box-shadow: inset 0 0 20px rgba(95,207,255,0.05), 0 0 8px rgba(95,207,255,0.2);
 }
 .status[data-kind='loading'] {
   border-left-color: #f0c33c;
@@ -839,7 +839,7 @@ body.globe-close-zoom .globe-city-label {
   padding: 2px 6px;
   cursor: pointer;
 }
-.info-popup-close:hover { color: #ff2d78; }
+.info-popup-close:hover { color: #5fcfff; }
 
 /* ── 15. FOOTER ───────────────────────────────────────────── */
 
@@ -857,7 +857,7 @@ body.globe-close-zoom .globe-city-label {
   pointer-events: none;
 }
 .space-footer a { color: rgba(57,255,20,0.55); pointer-events: auto; }
-.space-footer a:hover { color: #ff2d78; }
+.space-footer a:hover { color: #5fcfff; }
 
 /* ── 16. RESPONSIVE ───────────────────────────────────────── */
 

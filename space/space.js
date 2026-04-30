@@ -821,7 +821,7 @@ let globe = null;
     // 12 segments is the default — drop to 8 so each rebuild on slider drag
     // is half the geometry. Visually indistinguishable for a translucent disc.
     .pointResolution(8)
-    .pointColor(() => 'rgba(255, 58, 140, 0.45)')
+    .pointColor(() => 'rgba(95,207,255, 0.45)')
     // Pulsing ring — altitude bumped above the polygon overlays (0.005–0.008)
     // so country borders, urban areas, and lakes can't depth-occlude it even
     // when their caps are transparent. Radius and propagation speed read off
@@ -829,7 +829,7 @@ let globe = null;
     // half-side of the captured image. So the pulse fans out exactly to the
     // edge of what the next CAPTURE will photograph.
     .ringAltitude(0.012)
-    .ringColor(() => 'rgba(255,58,140,0.8)')
+    .ringColor(() => 'rgba(95,207,255,0.8)')
     .ringMaxRadius((d) => d.radiusDeg)
     .ringPropagationSpeed((d) => Math.max(d.radiusDeg / 1.2, 0.005))
     .ringRepeatPeriod(1500)
