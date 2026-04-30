@@ -21,16 +21,30 @@ const NE_BASE = 'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master
 const COUNTRIES_GEOJSON_URL = `${NE_BASE}/ne_110m_admin_0_countries.geojson`;
 const URBAN_GEOJSON_URL     = `${NE_BASE}/ne_50m_urban_areas.geojson`;
 const LAKES_GEOJSON_URL     = `${NE_BASE}/ne_50m_lakes.geojson`;
+const POP_PLACES_URL        = `${NE_BASE}/ne_50m_populated_places.geojson`;
 const VECTOR_LOAD_ALTITUDE  = 0.7;
+// SCALERANK 0–4 covers ~1,100 cities, 5+ adds smaller towns. Keep up through
+// 7 so virtually every urban polygon has a nearby labelled point.
+const POP_PLACES_MAX_SCALERANK = 7;
 // Dataset has ~2,100 urban polygons globally; only keeping the larger ones
 // keeps the per-frame draw count manageable while still showing every city
 // you're realistically going to point a satellite at.
 const URBAN_MIN_AREA_SQKM   = 200;
 
-// Globe surface texture. Close-zoom legibility comes from the vector
-// overlays (urban areas, state borders, lakes), not from a higher-res
-// raster, so we just keep the iconic 2K Blue Marble at every altitude.
+// Globe surface texture. Iconic 2K Blue Marble at orbital distance; below
+// TEX_DARK_ALTITUDE the texture is replaced by a flat dark sphere so the
+// vector overlays are the only thing the eye sees up close.
 const GLOBE_TEXTURE = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
+const TEX_DARK_ALTITUDE = 0.15;
+function buildDarkTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 2; canvas.height = 2;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#040a14';
+  ctx.fillRect(0, 0, 2, 2);
+  return canvas.toDataURL();
+}
+const TEX_DARK = buildDarkTexture();
 
 // City prominence tiers. Top tier always visible; mid tier appears when the
 // camera drops below the regional altitude threshold; the rest only show on
@@ -745,8 +759,47 @@ let globe = null;
     })
     .catch(() => {});
 
+  // Populated places — used as the close-zoom label layer so every urban
+  // polygon gets a name from a nearby labelled point. Stored as
+  // {lat, lng, name} so the existing htmlElement renderer works unchanged.
+  let popPlaces = [];
+
+  function filterPointsToView(points, centerLat, centerLng, radiusDeg) {
+    if (radiusDeg >= 360) return points;
+    const cosLat = Math.cos(centerLat * Math.PI / 180);
+    return points.filter((p) => {
+      const dLat = p.lat - centerLat;
+      let dLng = p.lng - centerLng;
+      if (dLng > 180)  dLng -= 360;
+      if (dLng < -180) dLng += 360;
+      const ang = Math.sqrt(dLat * dLat + (dLng * cosLat) ** 2);
+      return ang < radiusDeg;
+    });
+  }
+
+  let lastLabelKey = '';
+  function refreshLabels() {
+    const pov = globe.pointOfView();
+    let labels;
+    let key;
+    if (pov.altitude > 0.5 || popPlaces.length === 0) {
+      // Far/medium: use the curated tiered set.
+      labels = citiesForAltitude(pov.altitude);
+      key = `tier|${labels.length}`;
+    } else {
+      // Close: spatially-filtered populated places. Tighter radius the
+      // closer we get so the label density doesn't explode.
+      const radiusDeg = pov.altitude > 0.15 ? 30 : 14;
+      labels = filterPointsToView(popPlaces, pov.lat, pov.lng, radiusDeg);
+      key = `pop|${pov.lat.toFixed(0)}|${pov.lng.toFixed(0)}|${radiusDeg}|${labels.length}`;
+    }
+    if (key === lastLabelKey) return;
+    lastLabelKey = key;
+    globe.htmlElementsData(labels);
+  }
+
   // One-shot lazy loaders for the close-zoom layers.
-  const lazyLoaded = { urban: false, lake: false };
+  const lazyLoaded = { urban: false, lake: false, pop: false };
   function loadDetailLayers() {
     if (!lazyLoaded.urban) {
       lazyLoaded.urban = true;
@@ -772,6 +825,27 @@ let globe = null;
         })
         .catch(() => { lazyLoaded.lake = false; });
     }
+    if (!lazyLoaded.pop) {
+      lazyLoaded.pop = true;
+      fetch(POP_PLACES_URL)
+        .then((r) => r.json())
+        .then((geo) => {
+          popPlaces = geo.features
+            .filter((f) =>
+              f.properties &&
+              typeof f.properties.SCALERANK === 'number' &&
+              f.properties.SCALERANK <= POP_PLACES_MAX_SCALERANK
+            )
+            .map((f) => ({
+              lat: f.geometry.coordinates[1],
+              lng: f.geometry.coordinates[0],
+              name: f.properties.NAME || f.properties.NAMEASCII || '',
+            }));
+          lastLabelKey = ''; // force re-render of labels
+          refreshLabels();
+        })
+        .catch(() => { lazyLoaded.pop = false; });
+    }
   }
 
   // Slow idle rotation
@@ -794,20 +868,19 @@ let globe = null;
   });
 
   // Camera-driven detail updates:
-  //   - city label tier (which set is visible)
   //   - lazy-load the heavy vector overlays once we drop below threshold
-  //   - spatial-filter polygons by viewport (refreshPolygons handles its own
-  //     debouncing via a stability key).
-  let currentTier = 1;
+  //   - swap globe surface texture (Blue Marble far away, flat dark close)
+  //   - refresh labels and polygons based on the new viewport (each handles
+  //     its own debouncing via a stability key).
+  let currentTexMode = 'far';
   globe.onZoom(({ altitude }) => {
-    const tier = altitude > 1.5 ? 1 : altitude > 0.5 ? 2 : 3;
-    if (tier !== currentTier) {
-      currentTier = tier;
-      globe.htmlElementsData(citiesForAltitude(altitude));
+    if (altitude < VECTOR_LOAD_ALTITUDE) loadDetailLayers();
+    const texMode = altitude < TEX_DARK_ALTITUDE ? 'dark' : 'far';
+    if (texMode !== currentTexMode) {
+      currentTexMode = texMode;
+      globe.globeImageUrl(texMode === 'dark' ? TEX_DARK : GLOBE_TEXTURE);
     }
-    if (altitude < VECTOR_LOAD_ALTITUDE) {
-      loadDetailLayers();
-    }
+    refreshLabels();
     refreshPolygons();
   });
 
