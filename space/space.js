@@ -1030,7 +1030,10 @@ let globe = null;
             .filter((f) => (f.properties && f.properties.area_sqkm) >= URBAN_MIN_AREA_SQKM)
             .map((f) => tagFeature(f, 'urban'));
           lastFilterKey = ''; // force re-filter
-          refreshPolygons();
+          // Route through the debounced path: a fly-in fetch could resolve
+          // mid-animation, and uploading polygons synchronously would
+          // freeze the camera tween.
+          scheduleHeavyRefresh();
         })
         .catch(() => { lazyLoaded.urban = false; });
     }
@@ -1041,7 +1044,7 @@ let globe = null;
         .then((geo) => {
           polyBuckets.lake = geo.features.map((f) => tagFeature(f, 'lake'));
           lastFilterKey = '';
-          refreshPolygons();
+          scheduleHeavyRefresh();
         })
         .catch(() => { lazyLoaded.lake = false; });
     }
@@ -1065,7 +1068,7 @@ let globe = null;
               name: f.properties.NAME || f.properties.NAMEASCII || '',
             }));
           lastLabelKey = ''; // force re-render of labels
-          refreshLabels();
+          scheduleHeavyRefresh();
         })
         .catch((err) => {
           console.error('[space] populated-places fetch failed:', err);
