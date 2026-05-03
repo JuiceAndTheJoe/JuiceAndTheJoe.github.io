@@ -15,6 +15,14 @@
 //
 // Hard caps per month + per-IP-per-minute on each endpoint, so a runaway
 // client or a viral moment can't blow past Mapbox's free tier.
+//
+// Workers KV free tier is 1k writes/day, so this Worker is careful never
+// to write to KV on the hot path:
+//   - Per-IP rate-limit counters live in the Cache API (free, per-DC,
+//     functionally per-user since a single client routes to one DC).
+//   - Monthly Mapbox-call counters use sampled writes — record 1-in-N
+//     calls with increment=N, so the running total tracks the truth on
+//     average while writes drop ~Nx.
 
 const ALLOWED_ORIGINS = new Set([
   'https://juiceandthejoe.github.io',
@@ -27,13 +35,20 @@ const REFERER = 'https://juiceandthejoe.github.io/';
 const STATIC_BASE       = 'https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static';
 const MAX_MONTHLY       = 40000;
 const PER_IP_PER_MIN    = 10;
+// Captures are rare (one per CAPTURE button click) so a small sample rate
+// keeps the counter close to the truth without burning many writes.
+const STATIC_SAMPLE_N   = 5;
 
 // Tile endpoint. Mapbox Raster Tiles free tier is 200k/month — but the
 // edge cache means we only hit Mapbox on tile cache misses, so even much
 // busier traffic stays within budget.
 const TILE_BASE             = 'https://api.mapbox.com/v4/mapbox.satellite';
-const MAX_MONTHLY_TILES     = 200000;
+// Lower than Mapbox's 200k free tier to leave headroom for sampled-counter
+// noise: with N=50 the counter's stddev is ~50·sqrt(actual·(1−1/N)/N), so
+// a 160k cap reads as roughly 160k ± 2k. Stays comfortably under 200k.
+const MAX_MONTHLY_TILES     = 160000;
 const PER_IP_PER_MIN_TILES  = 100;
+const TILE_SAMPLE_N         = 50;
 
 const TILE_PATH_RE = /^\/tile\/(\d+)\/(\d+)\/(\d+)$/;
 
@@ -73,6 +88,42 @@ function jsonError(msg, status, headers) {
   });
 }
 
+// Per-IP rate limit using the Cache API. KV writes burn the 1k/day free
+// tier fast; Cache puts are free and unlimited. The trade-off is that the
+// CF cache is per-data-center, so this rate-limits per (IP × DC) instead
+// of globally per IP — fine in practice, since a client almost always
+// routes to one DC at a time.
+//
+// Returns true if the request is under cap and the counter has been
+// bumped, false if the cap was hit.
+async function bumpRateLimit(prefix, ip, max) {
+  const minute = Math.floor(Date.now() / 60000);
+  const url = `https://rl.local/${prefix}/${encodeURIComponent(ip)}/${minute}`;
+  const cache = caches.default;
+  const cached = await cache.match(url);
+  let count = 0;
+  if (cached) count = parseInt(await cached.text(), 10) || 0;
+  if (count >= max) return false;
+  await cache.put(
+    url,
+    new Response(String(count + 1), {
+      headers: { 'Cache-Control': 'public, max-age=120' },
+    })
+  );
+  return true;
+}
+
+// Sampled increment for the monthly Mapbox-call counters. Writing on every
+// hot-path request burned through 1k KV writes/day in a few hours.
+// Instead, with probability 1/N write `current + N` so the long-run mean
+// equals the true count. The cap-check still reads the counter on every
+// request (reads are 100k/day — plenty of headroom).
+function sampledIncrement(env, ctx, key, current, sampleN) {
+  if (Math.random() < 1 / sampleN) {
+    ctx.waitUntil(env.QUOTA.put(key, String(current + sampleN)));
+  }
+}
+
 export default {
   async fetch(req, env, ctx) {
     const origin = req.headers.get('Origin') || '';
@@ -93,11 +144,11 @@ export default {
     if (tileMatch) {
       return handleTile(req, env, ctx, cors, tileMatch);
     }
-    return handleStatic(req, env, cors, u);
+    return handleStatic(req, env, ctx, cors, u);
   },
 };
 
-async function handleStatic(req, env, cors, u) {
+async function handleStatic(req, env, ctx, cors, u) {
   const lat = parseFloat(u.searchParams.get('lat'));
   const lon = parseFloat(u.searchParams.get('lon'));
   const zoom = parseInt(u.searchParams.get('zoom'), 10);
@@ -111,9 +162,7 @@ async function handleStatic(req, env, cors, u) {
   }
 
   const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
-  const ipKey = `ip:${ip}:${Math.floor(Date.now() / 60000)}`;
-  const ipCount = parseInt((await env.QUOTA.get(ipKey)) || '0', 10);
-  if (ipCount >= PER_IP_PER_MIN) {
+  if (!(await bumpRateLimit('s', ip, PER_IP_PER_MIN))) {
     return jsonError('Rate limited — slow down', 429, cors);
   }
 
@@ -138,12 +187,7 @@ async function handleStatic(req, env, cors, u) {
     return jsonError(`Upstream ${upstream.status}`, 502, cors);
   }
 
-  // Eventually consistent — fine, since the cap sits well below the free
-  // tier and a few-request overshoot near the boundary is harmless.
-  await Promise.all([
-    env.QUOTA.put(mKey, String(monthly + 1)),
-    env.QUOTA.put(ipKey, String(ipCount + 1), { expirationTtl: 120 }),
-  ]);
+  sampledIncrement(env, ctx, mKey, monthly, STATIC_SAMPLE_N);
 
   const out = new Headers(cors);
   out.set('Content-Type', upstream.headers.get('Content-Type') || 'image/jpeg');
@@ -181,13 +225,11 @@ async function handleTile(req, env, ctx, cors, [, zStr, xStr, yStr]) {
 
   // Cache miss — apply per-IP burst cap before paying for the Mapbox call.
   // Cache hits don't reach here, so cached traffic costs zero KV writes.
+  // Per-IP counter lives in the Cache API (free, per-DC) instead of KV.
   const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
-  const ipKey = `tip:${ip}:${Math.floor(Date.now() / 60000)}`;
-  const ipCount = parseInt((await env.QUOTA.get(ipKey)) || '0', 10);
-  if (ipCount >= PER_IP_PER_MIN_TILES) {
+  if (!(await bumpRateLimit('t', ip, PER_IP_PER_MIN_TILES))) {
     return jsonError('Tile rate limited — slow down', 429, cors);
   }
-  ctx.waitUntil(env.QUOTA.put(ipKey, String(ipCount + 1), { expirationTtl: 120 }));
 
   // Monthly Mapbox cap.
   const mKey = tileMonthKey();
@@ -218,7 +260,7 @@ async function handleTile(req, env, ctx, cors, [, zStr, xStr, yStr]) {
   ctx.waitUntil(
     cache.put(cacheKey, new Response(body, { status: 200, headers: cacheHeaders }))
   );
-  ctx.waitUntil(env.QUOTA.put(mKey, String(monthly + 1)));
+  sampledIncrement(env, ctx, mKey, monthly, TILE_SAMPLE_N);
 
   // Per-request response with CORS headers on top of the cache headers.
   const out = new Headers(cors);

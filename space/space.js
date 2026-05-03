@@ -35,6 +35,26 @@ const GLOBE_TEXTURE = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg
 // most of the load.
 const TILE_PROXY_BASE = `${PROXY_BASE}/tile`;
 
+// Tiles for the most-clicked cities are pre-built into the repo under
+// /space/tiles/{z}/{x}/{y}.jpg by space/tiles/build-cache.mjs. The
+// manifest is a JSON array of "z/x/y" keys that exist locally; we resolve
+// it once at startup and the tile-engine URL builder consults it before
+// falling through to the Worker. This keeps the most common viewing
+// patterns (city-click → close-zoom) entirely off the Mapbox/KV path.
+const TILE_LOCAL_BASE = '/space/tiles';
+const TILE_MANIFEST_URL = `${TILE_LOCAL_BASE}/manifest.json`;
+let LOCAL_TILES = null; // populated after manifest fetch — see initGlobe.
+async function loadTileManifest() {
+  try {
+    const res = await fetch(TILE_MANIFEST_URL, { cache: 'force-cache' });
+    if (!res.ok) return new Set();
+    const arr = await res.json();
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
 // City prominence tiers. Top tier always visible; mid tier appears when the
 // camera drops below the regional altitude threshold; the rest only show on
 // close zoom. This keeps the globe legible from afar instead of solid text.
@@ -964,6 +984,11 @@ let globe = null;
   const container = document.getElementById('globe-container');
   if (!container || typeof globalThis.Globe !== 'function') return;
 
+  // Fire the manifest fetch in parallel with globe construction. The slippy
+  // tile engine doesn't ask for tiles until altitude drops below ~0.15, so
+  // the small JSON has plenty of time to land before its first lookup.
+  loadTileManifest().then((set) => { LOCAL_TILES = set; });
+
   globe = globalThis.Globe()(container)
     .globeImageUrl(GLOBE_TEXTURE)
     .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
@@ -979,7 +1004,13 @@ let globe = null;
     // longer need. The Blue Marble image above stays as the underlying
     // texture so orbital views (and any tile gaps mid-load) still show
     // recognizable Earth instead of black.
-    .globeTileEngineUrl((x, y, l) => `${TILE_PROXY_BASE}/${l}/${x}/${y}`)
+    .globeTileEngineUrl((x, y, l) => {
+      const key = `${l}/${x}/${y}`;
+      if (LOCAL_TILES && LOCAL_TILES.has(key)) {
+        return `${TILE_LOCAL_BASE}/${l}/${x}/${y}.jpg`;
+      }
+      return `${TILE_PROXY_BASE}/${l}/${x}/${y}`;
+    })
     // Target marker — semi-transparent disc whose radius matches the capture
     // half-side, so the user gets a visible footprint of what the next image
     // will cover. Lifted slightly above the polygon stack to stay visible.
