@@ -320,6 +320,12 @@ body.globe-close-zoom .globe-city-label {
   box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(57,255,20,0.08);
   clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
   backdrop-filter: blur(6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.controls.collapsed {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
 }
 .controls::before {
   content: 'SYS://INPUT_TERMINAL';
@@ -538,23 +544,32 @@ body.globe-close-zoom .globe-city-label {
   box-shadow: none;
 }
 
-.download-link {
+.download-link,
+.share-btn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   padding: 11px 20px;
+  background: transparent;
   border: 1px solid rgba(57,255,20,0.45);
   color: rgba(57,255,20,0.8);
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 13px;
   letter-spacing: 1px;
   clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  cursor: pointer;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
-.download-link:hover {
+.download-link:hover,
+.share-btn:hover {
   background: rgba(57,255,20,0.1);
   border-color: rgb(57,255,20);
   color: #fff;
+}
+.share-btn.copied {
+  background: rgba(57,255,138,0.18);
+  border-color: rgba(57,255,138,0.9);
+  color: #b0f5d0;
 }
 
 /* ── 11. STATUS + RESULT ──────────────────────────────────── */
@@ -643,23 +658,6 @@ body.globe-close-zoom .globe-city-label {
   display: block;
   max-width: 100%;
   height: auto;
-}
-
-.image-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 40px;
-  color: rgba(57,255,20,0.2);
-  font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 13px;
-  letter-spacing: 1px;
-}
-.image-placeholder i {
-  font-size: 42px;
-  color: rgba(57,255,20,0.15);
 }
 
 /* Corner markers */
@@ -841,6 +839,201 @@ body.globe-close-zoom .globe-city-label {
 }
 .info-popup-close:hover { color: #5fcfff; }
 
+/* ── 14b. CAPTURE HISTORY ─────────────────────────────────── */
+
+.capture-history {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(2,16,10,0.78);
+  border: 1px solid rgba(57,255,20,0.18);
+  backdrop-filter: blur(4px);
+}
+
+.capture-history .history-label {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(57,255,138,0.55);
+  text-transform: uppercase;
+}
+
+.capture-history .history-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(57,255,20,0.4) transparent;
+}
+.capture-history .history-strip::-webkit-scrollbar {
+  height: 4px;
+}
+.capture-history .history-strip::-webkit-scrollbar-thumb {
+  background: rgba(57,255,20,0.4);
+}
+
+.history-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(57,255,20,0.3);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.history-item:hover,
+.history-item:focus-visible {
+  border-color: rgb(57,255,20);
+  box-shadow: 0 0 8px rgba(57,255,20,0.4);
+  transform: translateY(-1px);
+  outline: none;
+}
+.history-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.history-item-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: rgba(57,255,20,0.35);
+  font-size: 18px;
+}
+.history-item-meta {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2px 4px;
+  background: rgba(0,0,0,0.7);
+  color: rgba(57,255,20,0.9);
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 14c. PANEL CLOSE / REOPEN ────────────────────────────── */
+
+/* Small × button used in the corner of the closeable panels and inside
+   the metadata-card header. The metadata variant inherits this base and
+   overrides position to inline-flex so it sits in the header row. */
+.panel-close {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  z-index: 5;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(57,255,20,0.25);
+  color: rgba(57,255,20,0.7);
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.panel-close:hover,
+.panel-close:focus-visible {
+  color: #5fcfff;
+  border-color: rgba(95,207,255,0.7);
+  background: rgba(95,207,255,0.08);
+  box-shadow: 0 0 6px rgba(95,207,255,0.3);
+  outline: none;
+}
+
+/* Metadata-card close: lives inside the header flex row, not absolute. */
+.metadata-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panel-close.metadata-close {
+  position: static;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+}
+
+/* The result panel reuses .visible (its existing reveal state) for
+   collapse — closing simply removes .visible. The reopen pill below
+   takes care of restoring it. The .panel-reopen rule sits in fixed
+   viewport corners so it shows up exactly where the panel was. */
+.panel-reopen {
+  position: fixed;
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  background: rgba(2,16,10,0.88);
+  border: 1px solid rgba(57,255,20,0.5);
+  color: rgb(57,255,20);
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  backdrop-filter: blur(4px);
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.panel-reopen:hover,
+.panel-reopen:focus-visible {
+  background: rgba(57,255,20,0.15);
+  color: #fff;
+  border-color: rgb(57,255,20);
+  box-shadow: 0 0 12px rgba(57,255,20,0.35);
+  outline: none;
+}
+.panel-reopen i { font-size: 12px; }
+
+.panel-reopen-controls { right: 24px; bottom: 24px; }
+.panel-reopen-result   { left: 24px;  bottom: 24px; }
+
+/* Inline pill that surfaces inside the result panel when the metadata
+   card has been hidden. Click reopens the card. */
+.metadata-toggle-tab {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(2,16,10,0.85);
+  border: 1px solid rgba(57,255,138,0.45);
+  color: rgba(57,255,138,0.85);
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.metadata-toggle-tab:hover,
+.metadata-toggle-tab:focus-visible {
+  background: rgba(57,255,138,0.12);
+  color: #fff;
+  border-color: rgb(57,255,138);
+  outline: none;
+}
+
 /* ── 15. FOOTER ───────────────────────────────────────────── */
 
 .space-footer {
@@ -889,6 +1082,17 @@ body.globe-close-zoom .globe-city-label {
     bottom: auto;
     top: 140px;
     max-height: calc(100vh - 360px);
+  }
+  /* Mirror panel positions on mobile so each reopen pill sits where the
+     panel it restores used to be. */
+  .panel-reopen-controls {
+    right: 16px;
+    bottom: 16px;
+  }
+  .panel-reopen-result {
+    left: 16px;
+    top: 140px;
+    bottom: auto;
   }
   .controls-grid {
     grid-template-columns: 1fr;

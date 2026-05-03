@@ -12,39 +12,28 @@ const DEFAULT_LAT = 59.349800;
 const DEFAULT_LON = 18.070700;
 const DEFAULT_RADIUS = 100;
 
-// Vector overlays from Natural Earth via jsdelivr's GitHub mirror. Country
-// borders load on init; urban-area + lake polygons load lazily on first
-// close-zoom. We dropped state polygons entirely (294 extra meshes for
-// modest visual gain) and the urban dataset is filtered down to the larger
-// footprints, since each polygon turns into a 3D extruded mesh.
+// Country borders + lakes + populated-place labels come from Natural Earth
+// via jsdelivr's GitHub mirror.
 const NE_BASE = 'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson';
-const COUNTRIES_GEOJSON_URL = `${NE_BASE}/ne_110m_admin_0_countries.geojson`;
-const URBAN_GEOJSON_URL     = `${NE_BASE}/ne_50m_urban_areas.geojson`;
-const LAKES_GEOJSON_URL     = `${NE_BASE}/ne_50m_lakes.geojson`;
+const COUNTRIES_GEOJSON_URL = `${NE_BASE}/ne_50m_admin_0_countries.geojson`;
+const LAKES_GEOJSON_URL     = `${NE_BASE}/ne_10m_lakes.geojson`;
 const POP_PLACES_URL        = `${NE_BASE}/ne_50m_populated_places.geojson`;
 const VECTOR_LOAD_ALTITUDE  = 0.7;
 // SCALERANK 0–4 covers ~1,100 cities, 5+ adds smaller towns. Keep up through
-// 7 so virtually every urban polygon has a nearby labelled point.
+// 7 for richer regional context at close zoom.
 const POP_PLACES_MAX_SCALERANK = 7;
-// Dataset has ~2,100 urban polygons globally; only keeping the larger ones
-// keeps the per-frame draw count manageable while still showing every city
-// you're realistically going to point a satellite at.
-const URBAN_MIN_AREA_SQKM   = 200;
 
-// Globe surface texture. Iconic 2K Blue Marble at orbital distance; below
-// TEX_DARK_ALTITUDE the texture is replaced by a flat dark sphere so the
-// vector overlays are the only thing the eye sees up close.
+// Globe surface texture. Iconic 2K Blue Marble at orbital distance.
+// As the user zooms in, globe.gl's built-in slippy-tile engine drapes
+// real Mapbox satellite tiles on top of this base texture (configured
+// in initGlobe via .globeTileEngineUrl).
 const GLOBE_TEXTURE = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
-const TEX_DARK_ALTITUDE = 0.15;
-function buildDarkTexture() {
-  const canvas = document.createElement('canvas');
-  canvas.width = 2; canvas.height = 2;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#040a14';
-  ctx.fillRect(0, 0, 2, 2);
-  return canvas.toDataURL();
-}
-const TEX_DARK = buildDarkTexture();
+
+// Mapbox tile endpoint on our Cloudflare Worker. Each tile request is
+// /tile/{z}/{x}/{y}; the Worker proxies Mapbox, enforces our quotas, and
+// stamps 1-year immutable Cache-Control so the CF edge cache absorbs
+// most of the load.
+const TILE_PROXY_BASE = `${PROXY_BASE}/tile`;
 
 // City prominence tiers. Top tier always visible; mid tier appears when the
 // camera drops below the regional altitude threshold; the rest only show on
@@ -96,10 +85,27 @@ function cityTier(name) {
   return 3;
 }
 
+// Strip diacritics and lower-case so name comparisons treat 'Bogotá' and
+// 'Bogota', 'São Paulo' and 'Sao Paulo', etc. as the same city.
+function normalizeCityName(name) {
+  return name.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+}
+
 // Altitude thresholds: above 1.5 only tier-1; 0.5–1.5 tier-1+2; below 0.5 all.
+// Tier slices are computed once on first use — refreshLabels() runs on every
+// camera change, and the lists are immutable, so re-filtering 220 entries each
+// frame is pure waste.
+let _tier1Cities = null;
+let _tier12Cities = null;
 function citiesForAltitude(altitude) {
-  if (altitude > 1.5) return CITY_LABELS.filter((c) => cityTier(c.name) === 1);
-  if (altitude > 0.5) return CITY_LABELS.filter((c) => cityTier(c.name) <= 2);
+  if (altitude > 1.5) {
+    if (!_tier1Cities) _tier1Cities = CITY_LABELS.filter((c) => cityTier(c.name) === 1);
+    return _tier1Cities;
+  }
+  if (altitude > 0.5) {
+    if (!_tier12Cities) _tier12Cities = CITY_LABELS.filter((c) => cityTier(c.name) <= 2);
+    return _tier12Cities;
+  }
   return CITY_LABELS;
 }
 
@@ -405,6 +411,26 @@ function formatLatLng(lat, lng) {
 // half-side (in km) into degrees on the sphere for the ring radius.
 const KM_PER_DEG = 111.32;
 
+// Central angle (great-circle distance, in degrees) between two lat/lng points.
+// We use this for every "is feature within radiusDeg of the camera target"
+// check. The cheaper cos-corrected Euclidean works near the equator but
+// degrades near the poles and across the antimeridian — at high latitudes
+// it can cull features that are actually nearby, or keep ones that aren't.
+// Haversine is correct everywhere and the per-frame cost is negligible since
+// the spatial filters only run on debounced camera-settle, not every frame.
+const DEG_TO_RAD = Math.PI / 180;
+const RAD_TO_DEG = 180 / Math.PI;
+function centralAngleDeg(lat1, lng1, lat2, lng2) {
+  const dLat = (lat2 - lat1) * DEG_TO_RAD;
+  const dLng = (lng2 - lng1) * DEG_TO_RAD;
+  const sLat = Math.sin(dLat / 2);
+  const sLng = Math.sin(dLng / 2);
+  const a = sLat * sLat +
+            Math.cos(lat1 * DEG_TO_RAD) * Math.cos(lat2 * DEG_TO_RAD) *
+            sLng * sLng;
+  return 2 * Math.asin(Math.min(1, Math.sqrt(a))) * RAD_TO_DEG;
+}
+
 // What does the captured image actually cover, in degrees? At zoom Z and
 // latitude L, Mapbox's 512×512@2x tile spans 512 logical pixels of
 // metersPerPixel(L,Z) each, so half the side is the natural radius for the
@@ -425,8 +451,21 @@ const radiusValue   = document.getElementById('radius-value');
 const captureBtn    = document.getElementById('capture-btn');
 const statusEl      = document.getElementById('status');
 const resultImg     = document.getElementById('result-img');
-const placeholder   = document.getElementById('image-placeholder');
 const downloadLink  = document.getElementById('download-link');
+const shareBtn      = document.getElementById('share-btn');
+const historyEl     = document.getElementById('capture-history');
+const controlsPanel = document.querySelector('.controls');
+const controlsClose = document.getElementById('controls-close');
+const controlsReopen = document.getElementById('controls-reopen');
+const resultClose    = document.getElementById('result-close');
+const resultReopen   = document.getElementById('result-reopen');
+const metadataClose  = document.getElementById('metadata-close');
+const metadataReopen = document.getElementById('metadata-reopen');
+
+// Allow canvas readback so we can generate thumbnails for the history
+// strip. The Worker responds with CORS headers for our allowed origins,
+// so an anonymous-credentials request loads cleanly without tainting.
+if (resultImg) resultImg.crossOrigin = 'anonymous';
 const metadataCard  = document.getElementById('metadata-card');
 const coordsReadout = document.getElementById('globe-coords-readout');
 const globeStatus   = document.getElementById('globe-status');
@@ -508,12 +547,22 @@ function setTarget(lat, lng) {
   lonInput.value = lng.toFixed(6);
   syncHud();
   globeStatus.textContent = 'TARGET LOCKED';
-  // Stop the idle auto-rotation as soon as the user picks a target. The
-  // mousedown listener on the globe container only fires for direct globe
-  // interactions, not for clicks on the controls panel (Random preset etc).
+  // Hard-stop any idle camera motion the moment the user picks a target.
+  // Just flipping autoRotate off isn't enough: OrbitControls accumulates
+  // rotation in `_sphericalDelta`, and with damping enabled (default in
+  // three-globe) that residual bleeds out over ~1 s. During a pointOfView
+  // flight, controls.update() composes that residual on top of the tween
+  // each frame and drags the city off-center after the flight settles.
+  // Zero the delta so the flight lands precisely on the target.
   if (globe && globe.controls && typeof globe.controls === 'function') {
     const ctrls = globe.controls();
-    if (ctrls) ctrls.autoRotate = false;
+    if (ctrls) {
+      ctrls.autoRotate = false;
+      const delta = ctrls._sphericalDelta || ctrls.sphericalDelta;
+      if (delta && typeof delta.set === 'function') delta.set(0, 0, 0);
+      const panOffset = ctrls._panOffset || ctrls.panOffset;
+      if (panOffset && typeof panOffset.set === 'function') panOffset.set(0, 0, 0);
+    }
   }
   updateTargetMarker();
   dismissHeader();
@@ -659,20 +708,15 @@ function zoomBandLabel(zoom) {
 // "your capture near Bogotá" instead of just spitting out coordinates.
 function closestCityName(lat, lng) {
   let best = null;
-  let bestDistSq = Infinity;
-  const cosLat = Math.cos(lat * Math.PI / 180);
+  let bestDeg = Infinity;
   for (const c of CITY_LABELS) {
-    const dLat = c.lat - lat;
-    let dLng = c.lng - lng;
-    if (dLng > 180)  dLng -= 360;
-    if (dLng < -180) dLng += 360;
-    const distSq = dLat * dLat + (dLng * cosLat) ** 2;
-    if (distSq < bestDistSq) {
-      bestDistSq = distSq;
+    const ang = centralAngleDeg(lat, lng, c.lat, c.lng);
+    if (ang < bestDeg) {
+      bestDeg = ang;
       best = c.name;
     }
   }
-  return Math.sqrt(bestDistSq) < 3 ? best : null;
+  return bestDeg < 3 ? best : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -701,8 +745,113 @@ function fillMetadata(lat, lon, zoom) {
   metaAntipode.textContent   = formatLatLng(ant.lat, ant.lng);
   metaTime.textContent       = now.toLocaleString();
 
-  metadataCard.hidden = false;
+  setMetadataVisible(true);
 }
+
+// ---------------------------------------------------------------------------
+// Share link — encode {lat, lng, radius} into the URL hash so a capture is
+// replayable. Hash form: #lat=…&lng=…&r=…  Lat/lng to 6 decimals (~10 cm),
+// radius matches the slider step (0.5 km).
+// ---------------------------------------------------------------------------
+function buildShareHash(lat, lng, radiusKm) {
+  const params = new URLSearchParams({
+    lat: lat.toFixed(6),
+    lng: lng.toFixed(6),
+    r: String(radiusKm),
+  });
+  return params.toString();
+}
+
+function parseShareHash() {
+  const raw = window.location.hash.startsWith('#')
+    ? window.location.hash.slice(1)
+    : window.location.hash;
+  if (!raw) return null;
+  const params = new URLSearchParams(raw);
+  const lat = parseFloat(params.get('lat'));
+  const lng = parseFloat(params.get('lng'));
+  const r   = parseFloat(params.get('r'));
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90) return null;
+  if (!Number.isFinite(lng) || lng < -180 || lng > 180) return null;
+  if (!Number.isFinite(r)   || r <= 0) return null;
+  return { lat, lng, radius: r };
+}
+
+// Updating the hash via history.replaceState avoids both a scroll jump and
+// flooding the back-stack with one entry per capture.
+function updateShareHash(lat, lng, radiusKm) {
+  const hash = '#' + buildShareHash(lat, lng, radiusKm);
+  if (window.location.hash === hash) return;
+  history.replaceState(null, '', window.location.pathname + window.location.search + hash);
+}
+
+let shareCopiedTimer = null;
+async function copyShareLink() {
+  const lat = parseFloat(latInput.value);
+  const lng = parseFloat(lonInput.value);
+  const r   = parseFloat(radiusInput.value);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(r)) return;
+  updateShareHash(lat, lng, r);
+  const url = window.location.href;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(url);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    const labelEl = shareBtn.querySelector('.share-btn-label');
+    if (labelEl) labelEl.textContent = 'Copied!';
+    shareBtn.classList.add('copied');
+    if (shareCopiedTimer) clearTimeout(shareCopiedTimer);
+    shareCopiedTimer = setTimeout(() => {
+      if (labelEl) labelEl.textContent = 'Share';
+      shareBtn.classList.remove('copied');
+    }, 1600);
+  } catch (err) {
+    console.warn('[space] share copy failed:', err);
+    setStatus('Could not copy link to clipboard.', 'error');
+  }
+}
+
+if (shareBtn) shareBtn.addEventListener('click', copyShareLink);
+
+// ---------------------------------------------------------------------------
+// Closeable panels — controls / result / metadata-card
+//
+// Each closeable surface keeps its visibility on a single class or attribute,
+// and a corresponding reopen affordance becomes visible when it's hidden.
+// .result re-uses its existing `.visible` reveal class instead of a new
+// collapsed state, so a fresh capture continues to auto-show it.
+// ---------------------------------------------------------------------------
+function setControlsVisible(visible) {
+  if (!controlsPanel) return;
+  controlsPanel.classList.toggle('collapsed', !visible);
+  if (controlsReopen) controlsReopen.hidden = visible;
+}
+function setResultVisible(visible) {
+  if (!resultPanel) return;
+  resultPanel.classList.toggle('visible', visible);
+  if (resultReopen) resultReopen.hidden = visible;
+}
+function setMetadataVisible(visible) {
+  if (!metadataCard) return;
+  metadataCard.hidden = !visible;
+  if (metadataReopen) metadataReopen.hidden = visible;
+}
+
+if (controlsClose)  controlsClose.addEventListener('click',  () => setControlsVisible(false));
+if (controlsReopen) controlsReopen.addEventListener('click', () => setControlsVisible(true));
+if (resultClose)    resultClose.addEventListener('click',    () => setResultVisible(false));
+if (resultReopen)   resultReopen.addEventListener('click',   () => setResultVisible(true));
+if (metadataClose)  metadataClose.addEventListener('click',  () => setMetadataVisible(false));
+if (metadataReopen) metadataReopen.addEventListener('click', () => setMetadataVisible(true));
 
 // ---------------------------------------------------------------------------
 // Capture
@@ -733,7 +882,8 @@ function capture() {
   captureBtn.disabled = true;
 
   // Reveal the result panel on first capture, hide the onboarding hint.
-  if (resultPanel) resultPanel.classList.add('visible');
+  // setResultVisible also dismisses any reopen pill the user left up.
+  setResultVisible(true);
   if (globeHint)   globeHint.classList.add('hidden');
 
   // Update globe marker and ring to the current target
@@ -741,14 +891,16 @@ function capture() {
 
   resultImg.onload = () => {
     resultImg.hidden  = false;
-    placeholder.hidden = true;
     downloadLink.href = url;
     downloadLink.download = `satellite_${lat.toFixed(4)}_${lon.toFixed(4)}_z${zoom}.jpg`;
     downloadLink.hidden = false;
+    if (shareBtn) shareBtn.hidden = false;
+    updateShareHash(lat, lon, radius);
     setStatus('Imagery acquired successfully.', 'ok');
     globeStatus.textContent = 'TARGET LOCKED';
     captureBtn.disabled = false;
     fillMetadata(lat, lon, zoom);
+    saveCaptureToHistory({ lat, lng: lon, zoom, radius, url, ts: Date.now() });
   };
 
   resultImg.onerror = () => {
@@ -759,6 +911,7 @@ function capture() {
     globeStatus.textContent = 'SIGNAL LOST';
     captureBtn.disabled = false;
     downloadLink.hidden = true;
+    if (shareBtn) shareBtn.hidden = true;
   };
 
   resultImg.src = url;
@@ -796,8 +949,8 @@ document.querySelectorAll('.preset-btn').forEach((btn) => {
     setTarget(lat, lng);
 
     if (globe) {
-      globe.pointOfView({ lat, lng, altitude: 0.06 }, 1200);
-      setTimeout(() => globe._refreshAfterFlight && globe._refreshAfterFlight(), 1300);
+      globe.pointOfView({ lat, lng, altitude: 0.06 }, 800);
+      setTimeout(() => globe._refreshAfterFlight && globe._refreshAfterFlight(), 900);
     }
   });
 });
@@ -820,6 +973,13 @@ let globe = null;
     .atmosphereAltitude(0.18)
     .width(container.clientWidth)
     .height(container.clientHeight)
+    // Slippy-tile engine. globe.gl computes the visible tile set per frame,
+    // fetches each tile by calling this URL builder, drapes them on the
+    // sphere with proper Mercator unwrapping, and disposes textures we no
+    // longer need. The Blue Marble image above stays as the underlying
+    // texture so orbital views (and any tile gaps mid-load) still show
+    // recognizable Earth instead of black.
+    .globeTileEngineUrl((x, y, l) => `${TILE_PROXY_BASE}/${l}/${x}/${y}`)
     // Target marker — semi-transparent disc whose radius matches the capture
     // half-side, so the user gets a visible footprint of what the next image
     // will cover. Lifted slightly above the polygon stack to stay visible.
@@ -829,9 +989,9 @@ let globe = null;
     // is half the geometry. Visually indistinguishable for a translucent disc.
     .pointResolution(8)
     .pointColor(() => 'rgba(95,207,255, 0.45)')
-    // Pulsing ring — altitude bumped above the polygon overlays (0.005–0.008)
-    // so country borders, urban areas, and lakes can't depth-occlude it even
-    // when their caps are transparent. Radius and propagation speed read off
+    // Pulsing ring — altitude bumped above the polygon overlays (0.004–0.005)
+    // so country borders and lakes can't depth-occlude it even when their
+    // caps are transparent. Radius and propagation speed read off
     // each ring's own `radiusDeg`, set by updateTargetMarker() to match the
     // half-side of the captured image. So the pulse fans out exactly to the
     // edge of what the next CAPTURE will photograph.
@@ -840,15 +1000,14 @@ let globe = null;
     .ringMaxRadius((d) => d.radiusDeg)
     .ringPropagationSpeed((d) => Math.max(d.radiusDeg / 1.2, 0.005))
     .ringRepeatPeriod(1500)
-    // Vector overlays. Country borders load on init; states + urban areas +
-    // lakes lazy-load on first close-zoom. All features carry a `_kind`
-    // property so the polygon style callbacks render each layer differently.
+    // Vector overlays. Country borders load on init; lakes lazy-load on
+    // first close-zoom. All features carry a `_kind` property so the
+    // polygon style callbacks render each layer differently.
     .polygonsData([])
     .polygonAltitude((d) => {
-      // Stack altitudes so urban sits above country outlines, lakes below,
-      // to avoid z-fighting on the extruded caps.
+      // Stack altitudes so country outlines sit above lakes to avoid
+      // z-fighting on the extruded caps.
       switch (d._kind) {
-        case 'urban':   return 0.008;
         case 'lake':    return 0.004;
         case 'country': return 0.005;
         default:        return 0.005;
@@ -857,7 +1016,6 @@ let globe = null;
     .polygonCapColor((d) => {
       // Filled = visible polygon body (cap is the top face of the extrusion).
       switch (d._kind) {
-        case 'urban': return 'rgba(255, 200, 80, 0.22)';
         case 'lake':  return 'rgba(40,220,120, 0.35)';
         default:      return 'rgba(0,0,0,0)';
       }
@@ -865,7 +1023,6 @@ let globe = null;
     .polygonSideColor(() => 'rgba(0,0,0,0)')
     .polygonStrokeColor((d) => {
       switch (d._kind) {
-        case 'urban':   return 'rgba(255, 200, 80, 0.85)';
         case 'lake':    return 'rgba(80,255,150, 0.7)';
         case 'country': return 'rgba(57,255,20, 0.6)';
         default:        return 'rgba(0,0,0,0)';
@@ -901,17 +1058,17 @@ let globe = null;
         event.stopPropagation();
         setTarget(d.lat, d.lng);
         loadDetailLayers(); // start fetching detail data immediately
-        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.06 }, 1200);
+        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.06 }, 800);
         // Force a refresh once the flight settles.
-        setTimeout(() => globe._refreshAfterFlight && globe._refreshAfterFlight(), 1300);
+        setTimeout(() => globe._refreshAfterFlight && globe._refreshAfterFlight(), 900);
       });
       return el;
     });
 
-  // Tagged feature buckets. Country borders load now; urban + lakes are lazy.
+  // Tagged feature buckets. Country borders load now; lakes are lazy.
   // Each feature is augmented with a centroid so we can do a cheap spatial
   // filter (only render polygons within angular range of the camera).
-  const polyBuckets = { country: [], urban: [], lake: [] };
+  const polyBuckets = { country: [], lake: [] };
 
   function bboxCentroid(geometry) {
     let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
@@ -939,15 +1096,9 @@ let globe = null;
   // there are only ~250 of them and they're the orientation backbone.
   function filterToView(features, centerLat, centerLng, radiusDeg) {
     if (radiusDeg >= 360) return features;
-    const cosLat = Math.cos(centerLat * Math.PI / 180);
-    return features.filter((f) => {
-      const dLat = f._lat - centerLat;
-      let dLng = f._lng - centerLng;
-      if (dLng > 180)  dLng -= 360;
-      if (dLng < -180) dLng += 360;
-      const ang = Math.sqrt(dLat * dLat + (dLng * cosLat) ** 2);
-      return ang < radiusDeg;
-    });
+    return features.filter(
+      (f) => centralAngleDeg(centerLat, centerLng, f._lat, f._lng) < radiusDeg
+    );
   }
 
   let lastFilterKey = '';
@@ -960,7 +1111,7 @@ let globe = null;
       pov.altitude > 0.15 ? 25 :
       12;
     // Cheap stability key so we don't re-filter on every animation frame.
-    const key = `${radiusDeg}|${pov.lat.toFixed(1)}|${pov.lng.toFixed(1)}|${polyBuckets.urban.length}|${polyBuckets.lake.length}|${polyBuckets.country.length}`;
+    const key = `${radiusDeg}|${pov.lat.toFixed(1)}|${pov.lng.toFixed(1)}|${polyBuckets.lake.length}|${polyBuckets.country.length}`;
     if (key === lastFilterKey) return;
     lastFilterKey = key;
     // Country borders also get spatially filtered at close zoom — at
@@ -971,8 +1122,7 @@ let globe = null;
       : filterToView(polyBuckets.country, pov.lat, pov.lng, radiusDeg);
     globe.polygonsData([
       ...countries,
-      ...filterToView(polyBuckets.lake,  pov.lat, pov.lng, radiusDeg),
-      ...filterToView(polyBuckets.urban, pov.lat, pov.lng, radiusDeg),
+      ...filterToView(polyBuckets.lake, pov.lat, pov.lng, radiusDeg),
     ]);
   }
 
@@ -987,22 +1137,16 @@ let globe = null;
     })
     .catch(() => {});
 
-  // Populated places — used as the close-zoom label layer so every urban
-  // polygon gets a name from a nearby labelled point. Stored as
+  // Populated places — used as the close-zoom label layer for richer
+  // regional context beyond the curated CITY_LABELS list. Stored as
   // {lat, lng, name} so the existing htmlElement renderer works unchanged.
   let popPlaces = [];
 
   function filterPointsToView(points, centerLat, centerLng, radiusDeg) {
     if (radiusDeg >= 360) return points;
-    const cosLat = Math.cos(centerLat * Math.PI / 180);
-    return points.filter((p) => {
-      const dLat = p.lat - centerLat;
-      let dLng = p.lng - centerLng;
-      if (dLng > 180)  dLng -= 360;
-      if (dLng < -180) dLng += 360;
-      const ang = Math.sqrt(dLat * dLat + (dLng * cosLat) ** 2);
-      return ang < radiusDeg;
-    });
+    return points.filter(
+      (p) => centralAngleDeg(centerLat, centerLng, p.lat, p.lng) < radiusDeg
+    );
   }
 
   let lastLabelKey = '';
@@ -1023,10 +1167,13 @@ let globe = null;
       const curatedInView = filterPointsToView(
         CITY_LABELS, pov.lat, pov.lng, radiusDeg
       );
-      const seen = new Set(curatedInView.map((c) => c.name));
+      // Accent-fold the dedupe key so curated 'Bogotá' matches NE's 'Bogota',
+      // 'Brasília' matches 'Brasilia', etc. — otherwise both render and the
+      // user sees double labels for any city with a diacritic.
+      const seen = new Set(curatedInView.map((c) => normalizeCityName(c.name)));
       const popInView = popPlaces.length
         ? filterPointsToView(popPlaces, pov.lat, pov.lng, radiusDeg)
-            .filter((p) => p.name && !seen.has(p.name))
+            .filter((p) => p.name && !seen.has(normalizeCityName(p.name)))
         : [];
       labels = [...curatedInView, ...popInView];
       key = `near|${pov.lat.toFixed(1)}|${pov.lng.toFixed(1)}|${radiusDeg}|${labels.length}|${popPlaces.length}`;
@@ -1037,24 +1184,8 @@ let globe = null;
   }
 
   // One-shot lazy loaders for the close-zoom layers.
-  const lazyLoaded = { urban: false, lake: false, pop: false };
+  const lazyLoaded = { lake: false, pop: false };
   function loadDetailLayers() {
-    if (!lazyLoaded.urban) {
-      lazyLoaded.urban = true;
-      fetch(URBAN_GEOJSON_URL)
-        .then((r) => r.json())
-        .then((geo) => {
-          polyBuckets.urban = geo.features
-            .filter((f) => (f.properties && f.properties.area_sqkm) >= URBAN_MIN_AREA_SQKM)
-            .map((f) => tagFeature(f, 'urban'));
-          lastFilterKey = ''; // force re-filter
-          // Route through the debounced path: a fly-in fetch could resolve
-          // mid-animation, and uploading polygons synchronously would
-          // freeze the camera tween.
-          scheduleHeavyRefresh();
-        })
-        .catch(() => { lazyLoaded.urban = false; });
-    }
     if (!lazyLoaded.lake) {
       lazyLoaded.lake = true;
       fetch(LAKES_GEOJSON_URL)
@@ -1127,7 +1258,7 @@ let globe = null;
     setTarget(lat, lng);
   });
 
-  // Polygons (country borders, urban areas, lakes) are 3D meshes above the
+  // Polygons (country borders, lakes) are 3D meshes above the
   // sphere, so when the user clicks on land their click hits the polygon
   // before reaching the globe sphere — onGlobeClick never fires. Register
   // onPolygonClick to forward those clicks to the same setTarget code,
@@ -1163,12 +1294,11 @@ let globe = null;
   // 'change' instead of globe.gl's onZoom because the latter doesn't
   // reliably fire during programmatic pointOfView flights in all versions.
   //
-  // Light work (texture swap, body class, lazy-load trigger, header dismiss)
-  // runs every change. The expensive part — re-filtering and uploading new
-  // polygon/label data to globe.gl — is debounced to fire 150 ms after the
-  // camera settles, so a fly-in that traverses dozens of degrees triggers
-  // exactly one heavy refresh at the end instead of one per animation frame.
-  let currentTexMode = 'far';
+  // Light work (body class, lazy-load trigger, header dismiss) runs every
+  // change. Heavier work — re-filtering polygons/labels and recomputing
+  // the tile set — is debounced to fire 80 ms after the camera settles,
+  // so a fly-in across dozens of degrees triggers exactly one heavy
+  // refresh at the end instead of one per animation frame.
   let settleTimer = null;
   function scheduleHeavyRefresh() {
     if (settleTimer) clearTimeout(settleTimer);
@@ -1176,17 +1306,13 @@ let globe = null;
       settleTimer = null;
       refreshLabels();
       refreshPolygons();
-    }, 150);
+    }, 80);
   }
   function onCameraChange() {
-    const { altitude } = globe.pointOfView();
+    const pov = globe.pointOfView();
+    const { altitude } = pov;
     if (altitude < 1.5) dismissHeader();
     if (altitude < VECTOR_LOAD_ALTITUDE) loadDetailLayers();
-    const texMode = altitude < TEX_DARK_ALTITUDE ? 'dark' : 'far';
-    if (texMode !== currentTexMode) {
-      currentTexMode = texMode;
-      globe.globeImageUrl(texMode === 'dark' ? TEX_DARK : GLOBE_TEXTURE);
-    }
     // At close zoom, let clicks pass straight through labels to the globe
     // sphere underneath. CSS rule keyed off this class flips
     // `pointer-events: none` on the city labels.
@@ -1213,7 +1339,186 @@ let globe = null;
 })();
 
 // ---------------------------------------------------------------------------
+// Capture history — persists the last few successful captures locally so
+// the user can flip between them without burning Worker quota. We store a
+// tiny JPEG thumbnail plus the original URL; revisiting the same URL is
+// served from the browser HTTP cache (Worker sets max-age=86400) so a
+// replay typically does not increment our monthly counter.
+// ---------------------------------------------------------------------------
+const HISTORY_KEY = 'space.history.v1';
+const HISTORY_MAX = 6;
+const THUMB_PX = 96;
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistHistory(history) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch {
+    // QuotaExceededError, private-browsing denial, etc. — skip silently.
+  }
+}
+
+// Quantize the storage key so a tap-tap-tap on the same spot doesn't fill
+// history with near-duplicates. ~10 m at the equator is finer than the
+// imagery resolves, plenty for "have I already captured this?".
+function captureKey(lat, lng, zoom) {
+  return `${lat.toFixed(4)}|${lng.toFixed(4)}|z${zoom}`;
+}
+
+function makeThumbnail(img, size) {
+  if (!img || !img.naturalWidth || !img.naturalHeight) return null;
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, size, size);
+    return canvas.toDataURL('image/jpeg', 0.7);
+  } catch (err) {
+    // Tainted canvas (image loaded without proper CORS) — skip the thumb.
+    console.warn('[space] thumbnail generation failed:', err);
+    return null;
+  }
+}
+
+function saveCaptureToHistory(entry) {
+  if (!entry || !Number.isFinite(entry.lat) || !Number.isFinite(entry.lng)) return;
+  const thumb = makeThumbnail(resultImg, THUMB_PX);
+  const item = { ...entry, thumb };
+  const history = loadHistory();
+  const key = captureKey(item.lat, item.lng, item.zoom);
+  const filtered = history.filter(
+    (h) => captureKey(h.lat, h.lng, h.zoom) !== key
+  );
+  filtered.unshift(item);
+  const trimmed = filtered.slice(0, HISTORY_MAX);
+  persistHistory(trimmed);
+  renderHistory(trimmed);
+}
+
+// Short coord form used as the history-strip label when no curated city
+// is within range. "59.3°N 18.1°E" reads at a glance and fits a 64 px tile.
+function formatLatLngShort(lat, lng) {
+  const latDir = lat >= 0 ? 'N' : 'S';
+  const lonDir = lng >= 0 ? 'E' : 'W';
+  return `${Math.abs(lat).toFixed(1)}°${latDir} ${Math.abs(lng).toFixed(1)}°${lonDir}`;
+}
+
+function placeLabelFor(lat, lng) {
+  return closestCityName(lat, lng) || formatLatLngShort(lat, lng);
+}
+
+function renderHistory(items) {
+  if (!historyEl) return;
+  const list = items || loadHistory();
+  // Strip excludes the most recent entry — that's whatever the image frame
+  // is currently showing, no point listing it as a "recent" capture too.
+  // Hide the strip entirely until there's at least one previous capture
+  // (i.e. ≥2 captures total).
+  const visible = list.slice(1);
+  if (!visible.length) {
+    historyEl.hidden = true;
+    historyEl.innerHTML = '';
+    return;
+  }
+  historyEl.hidden = false;
+  historyEl.innerHTML = '';
+
+  const heading = document.createElement('div');
+  heading.className = 'history-label';
+  heading.textContent = 'RECENT CAPTURES';
+  historyEl.appendChild(heading);
+
+  const strip = document.createElement('div');
+  strip.className = 'history-strip';
+  for (const item of visible) {
+    const place = placeLabelFor(item.lat, item.lng);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'history-item';
+    btn.title = `${place} · ${formatLatLng(item.lat, item.lng)} · ${item.radius} km · z${item.zoom}`;
+    btn.setAttribute(
+      'aria-label',
+      `Replay capture near ${place}, ${item.radius} km radius`
+    );
+
+    if (item.thumb) {
+      const img = document.createElement('img');
+      img.src = item.thumb;
+      img.alt = '';
+      btn.appendChild(img);
+    } else {
+      const ph = document.createElement('span');
+      ph.className = 'history-item-placeholder';
+      ph.innerHTML = '<i class="fas fa-satellite-dish" aria-hidden="true"></i>';
+      btn.appendChild(ph);
+    }
+
+    const meta = document.createElement('span');
+    meta.className = 'history-item-meta';
+    meta.textContent = place;
+    btn.appendChild(meta);
+
+    btn.addEventListener('click', () => replayCapture(item));
+    strip.appendChild(btn);
+  }
+  historyEl.appendChild(strip);
+}
+
+function replayCapture(item) {
+  radiusInput.value       = String(item.radius);
+  radiusValue.textContent = String(item.radius);
+  setTarget(item.lat, item.lng);
+  if (globe) {
+    globe.pointOfView({ lat: item.lat, lng: item.lng, altitude: 0.06 }, 800);
+    setTimeout(() => {
+      if (globe._refreshAfterFlight) globe._refreshAfterFlight();
+    }, 900);
+  }
+  capture();
+}
+
+renderHistory();
+
+// ---------------------------------------------------------------------------
 // Initial HUD
 // ---------------------------------------------------------------------------
 syncHud();
 globeStatus.textContent = 'READY';
+
+// ---------------------------------------------------------------------------
+// Share-link bootstrap — if the page loaded with a #lat=…&lng=…&r=… hash,
+// apply that target, fly the globe in, and auto-capture so the recipient
+// sees the same imagery the sharer did. Plain visits without a hash drop
+// into the normal Stockholm idle state.
+// ---------------------------------------------------------------------------
+function applyShareFromHash() {
+  const parsed = parseShareHash();
+  if (!parsed) return;
+  const { lat, lng, radius } = parsed;
+  radiusInput.value       = String(radius);
+  radiusValue.textContent = String(radius);
+  setTarget(lat, lng);
+  if (globe) {
+    globe.pointOfView({ lat, lng, altitude: 0.06 }, 800);
+    setTimeout(() => {
+      if (globe._refreshAfterFlight) globe._refreshAfterFlight();
+      capture();
+    }, 900);
+  } else {
+    // Globe failed to init (no WebGL) — still trigger the capture so the
+    // image and metadata fill in.
+    capture();
+  }
+}
+applyShareFromHash();

@@ -45,6 +45,13 @@
 
       <!-- Manual coords + radius + presets + capture -->
       <section class="controls">
+        <button
+          type="button"
+          id="controls-close"
+          class="panel-close"
+          aria-label="Hide controls panel"
+          title="Hide controls"
+        >×</button>
         <div class="controls-grid">
           <div class="field">
             <label for="lat">Latitude</label>
@@ -141,6 +148,16 @@
             <a id="download-link" class="download-link" hidden>
               <i class="fas fa-download"></i> Download JPEG
             </a>
+            <button
+              type="button"
+              id="share-btn"
+              class="share-btn"
+              title="Copy a link that replays this capture"
+              hidden
+            >
+              <i class="fas fa-link"></i>
+              <span class="share-btn-label">Share</span>
+            </button>
           </div>
         </div>
       </section>
@@ -150,9 +167,27 @@
         JS shows the image and fills metadata after a successful capture.
       -->
       <section class="result">
+        <button
+          type="button"
+          id="result-close"
+          class="panel-close"
+          aria-label="Hide data panel"
+          title="Hide data panel"
+        >×</button>
         <div id="status" class="status" role="status" aria-live="polite">
           Standing by. Pick a target and hit CAPTURE.
         </div>
+
+        <button
+          type="button"
+          id="metadata-reopen"
+          class="metadata-toggle-tab"
+          aria-label="Show data card"
+          hidden
+        >
+          <i class="fas fa-table-list" aria-hidden="true"></i>
+          <span>Show data card</span>
+        </button>
 
         <div class="capture-display">
           <div class="image-frame">
@@ -162,16 +197,21 @@
             <div class="corner-marker bl"></div>
             <div class="corner-marker br"></div>
             <img id="result-img" alt="Satellite capture" hidden />
-            <div id="image-placeholder" class="image-placeholder">
-              <i class="fas fa-satellite-dish"></i>
-              <p>No imagery yet</p>
-            </div>
           </div>
 
           <aside id="metadata-card" class="metadata-card" hidden>
             <div class="metadata-header">
               <span class="metadata-title">CAPTURE DATA</span>
-              <span class="metadata-led"></span>
+              <div class="metadata-header-right">
+                <span class="metadata-led"></span>
+                <button
+                  type="button"
+                  id="metadata-close"
+                  class="panel-close metadata-close"
+                  aria-label="Hide data card"
+                  title="Hide data card"
+                >×</button>
+              </div>
             </div>
             <dl class="metadata-list">
               <div class="metadata-row">
@@ -237,6 +277,14 @@
           <h4>About 'Likely source'</h4>
           <p id="source-info-body"></p>
         </div>
+
+        <!--
+          Recent-captures strip. Persisted in localStorage as small JPEG
+          thumbnails. Clicking one restores the target and re-issues the
+          same image URL — typically served from the browser cache so it
+          doesn't burn through the Worker's monthly quota.
+        -->
+        <section id="capture-history" class="capture-history" hidden></section>
       </section>
 
       <footer class="space-footer">
@@ -250,6 +298,31 @@
         </p>
       </footer>
     </main>
+
+    <!--
+      Reopen pills for collapsed panels. Mirror the panel positions so the
+      pill appears in the same corner the panel vacated.
+    -->
+    <button
+      type="button"
+      id="controls-reopen"
+      class="panel-reopen panel-reopen-controls"
+      aria-label="Show controls panel"
+      hidden
+    >
+      <i class="fas fa-terminal" aria-hidden="true"></i>
+      <span>INPUT</span>
+    </button>
+    <button
+      type="button"
+      id="result-reopen"
+      class="panel-reopen panel-reopen-result"
+      aria-label="Show data panel"
+      hidden
+    >
+      <i class="fas fa-satellite-dish" aria-hidden="true"></i>
+      <span>DATA</span>
+    </button>
 
     <script src="space.js"></script>
   </body>
