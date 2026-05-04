@@ -1373,9 +1373,12 @@ let globe = null;
 
   // Globe click → set the target and update marker/ring. Capture is a
   // separate explicit action — the user hits CAPTURE when they're ready.
+  // Surface the controls panel: on mobile it may be collapsed and the
+  // user's next move is almost certainly CAPTURE.
   globe.onGlobeClick(({ lat, lng }, event) => {
     if (clickStartedOnLabel(event)) return;
     setTarget(lat, lng);
+    setControlsVisible(true);
   });
 
   // Polygons (country borders, lakes) are 3D meshes above the
@@ -1390,11 +1393,13 @@ let globe = null;
       const coords = globe.toGlobeCoords(event.clientX, event.clientY);
       if (coords && !isNaN(coords.lat) && !isNaN(coords.lng)) {
         setTarget(coords.lat, coords.lng);
+        setControlsVisible(true);
         return;
       }
     }
     if (polygon && typeof polygon._lat === 'number') {
       setTarget(polygon._lat, polygon._lng);
+      setControlsVisible(true);
     }
   });
 
