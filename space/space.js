@@ -877,6 +877,18 @@ function syncControlsReopenVisibility() {
   controlsReopen.hidden = !collapsed || resultShown;
 }
 
+// Download / Share are tied to the imagery: they only make sense while
+// a capture exists AND the result panel is showing it. Closing the
+// result hides them; re-opening via the DATA pill brings them back.
+// The flag is flipped to true in the capture onload handler.
+let captureReady = false;
+function syncCaptureActionsVisibility() {
+  const resultShown = !!resultPanel && resultPanel.classList.contains('visible');
+  const visible = captureReady && resultShown;
+  if (downloadLink) downloadLink.hidden = !visible;
+  if (shareBtn)     shareBtn.hidden     = !visible;
+}
+
 function setControlsVisible(visible) {
   if (!controlsPanel) return;
   controlsPanel.classList.toggle('collapsed', !visible);
@@ -886,6 +898,7 @@ function setResultVisible(visible) {
   if (!resultPanel) return;
   resultPanel.classList.toggle('visible', visible);
   if (resultReopen) resultReopen.hidden = visible;
+  syncCaptureActionsVisibility();
   syncControlsReopenVisibility();
 }
 function setMetadataVisible(visible) {
@@ -995,8 +1008,8 @@ function capture() {
     resultImg.hidden  = false;
     downloadLink.href = url;
     downloadLink.download = `satellite_${lat.toFixed(4)}_${lon.toFixed(4)}_z${zoom}.jpg`;
-    downloadLink.hidden = false;
-    if (shareBtn) shareBtn.hidden = false;
+    captureReady = true;
+    syncCaptureActionsVisibility();
     updateShareHash(lat, lon, radius);
     setStatus('Imagery acquired successfully.', 'ok');
     globeStatus.textContent = 'TARGET LOCKED';
@@ -1012,8 +1025,8 @@ function capture() {
     );
     globeStatus.textContent = 'SIGNAL LOST';
     captureBtn.disabled = false;
-    downloadLink.hidden = true;
-    if (shareBtn) shareBtn.hidden = true;
+    captureReady = false;
+    syncCaptureActionsVisibility();
   };
 
   resultImg.src = url;

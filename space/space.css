@@ -1216,10 +1216,12 @@ body.globe-close-zoom .globe-city-label {
     right: 12px;
     bottom: 12px;
   }
+  /* DATA pill sits bottom-left on mobile, mirroring the INPUT pill at
+     bottom-right. Top-left would overlap the fixed Home button. */
   .panel-reopen-result {
     left: 12px;
-    top: 12px;
-    bottom: auto;
+    bottom: 12px;
+    top: auto;
   }
   .controls-grid {
     grid-template-columns: 1fr;
