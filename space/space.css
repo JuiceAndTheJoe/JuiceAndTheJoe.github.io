@@ -1111,11 +1111,17 @@ body.globe-close-zoom .globe-city-label {
     display: none;
   }
   .result {
-    width: calc(100vw - 24px);
+    /* Match controls' symmetric inset so result also centers cleanly. */
     left: 12px;
+    right: 12px;
     bottom: auto;
     top: 12px;
-    max-height: 60dvh;
+    width: auto;
+    max-width: none;
+    /* The capture flow on mobile collapses the controls panel, so the
+       result can use almost the full viewport. Leave ~80 px at the
+       bottom for the INPUT reopen pill plus a small breathing gap. */
+    max-height: calc(100dvh - 80px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }

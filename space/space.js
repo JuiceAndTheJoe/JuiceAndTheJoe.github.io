@@ -932,6 +932,17 @@ function capture() {
   // setResultVisible also dismisses any reopen pill the user left up.
   setResultVisible(true);
   if (globeHint)   globeHint.classList.add('hidden');
+  // Mobile-only: the controls sheet is no longer relevant once CAPTURE
+  // fires — the user's attention shifts to the imagery. Collapse it so
+  // the result panel can use the full screen. The INPUT pill stays in
+  // the bottom-right for re-targeting.
+  if (
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(max-width: 720px)').matches
+  ) {
+    setControlsVisible(false);
+  }
 
   // Update globe marker and ring to the current target
   updateTargetMarker();
