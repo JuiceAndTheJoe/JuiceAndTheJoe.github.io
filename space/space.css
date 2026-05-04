@@ -844,6 +844,24 @@ body.globe-close-zoom .globe-city-label {
 }
 .info-popup-close:hover { color: #5fcfff; }
 
+/* ── 14a. RESULT-PANEL ACTIONS (MOBILE) ───────────────────── */
+
+/* Mobile-only landing spot for the Download / Share buttons. JS moves
+   the existing buttons here at init on phone-width viewports so the
+   user can act on a capture without first reopening the controls
+   panel. Empty on desktop because the buttons stay in .actions. */
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  padding: 4px 2px 0;
+}
+.result-actions:empty {
+  display: none;
+}
+
 /* ── 14b. CAPTURE HISTORY ─────────────────────────────────── */
 
 .capture-history {

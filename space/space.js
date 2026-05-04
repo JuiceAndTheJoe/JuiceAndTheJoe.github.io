@@ -892,12 +892,23 @@ if (metadataReopen) metadataReopen.addEventListener('click', () => setMetadataVi
 // globe fills the screen on first paint. The user opens it via the floating
 // "INPUT" pill in the bottom-right when they want to tweak target/radius
 // or hit CAPTURE. Desktop and tablet keep the panel open by default.
+//
+// Also relocate the Download/Share buttons from the controls panel into
+// the result panel so they remain accessible after CAPTURE collapses
+// the controls. References (downloadLink, shareBtn) survive the move,
+// so the existing capture pipeline continues to flip their hidden flags
+// and href without any rewiring.
 if (
   typeof window !== 'undefined' &&
   window.matchMedia &&
   window.matchMedia('(max-width: 720px)').matches
 ) {
   setControlsVisible(false);
+  const resultActions = document.querySelector('.result-actions');
+  if (resultActions) {
+    if (downloadLink) resultActions.appendChild(downloadLink);
+    if (shareBtn)     resultActions.appendChild(shareBtn);
+  }
 }
 
 // ---------------------------------------------------------------------------

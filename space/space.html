@@ -285,6 +285,15 @@
           doesn't burn through the Worker's monthly quota.
         -->
         <section id="capture-history" class="capture-history" hidden></section>
+
+        <!--
+          Mobile-only landing spot for the Download/Share buttons. JS
+          relocates the existing #download-link and #share-btn here on
+          phone-width viewports so the user can save/share without
+          re-opening the controls panel after CAPTURE collapses it.
+          Empty on desktop → hidden via :empty.
+        -->
+        <div class="result-actions"></div>
       </section>
 
       <footer class="space-footer">
