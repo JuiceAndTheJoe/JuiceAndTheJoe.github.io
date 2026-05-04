@@ -1091,8 +1091,17 @@ body.globe-close-zoom .globe-city-label {
        sheet leaves the globe partially visible for orientation. */
     max-height: 70dvh;
     overflow-y: auto;
-    padding: 18px 20px;
+    /* 44 px of top padding so the close × (top:8 + 32 px on touch) sits
+       in its own band above the content. Otherwise the × overlaps the
+       radius slider track once lat/lon collapse out of the way. */
+    padding: 44px 20px 18px;
     -webkit-overflow-scrolling: touch;
+  }
+  /* SYS://INPUT_TERMINAL ribbon protruding above the panel edge reads as
+     decorative noise on a small screen, especially next to the close ×.
+     Drop it on mobile — the panel's purpose is obvious from context. */
+  .controls::before {
+    display: none;
   }
   .result {
     width: calc(100vw - 24px);
