@@ -1176,13 +1176,15 @@ body.globe-close-zoom .globe-city-label {
     left: 12px;
     right: 12px;
     bottom: auto;
-    top: 12px;
+    /* Start below the Home button (top:12 + ~32 px tall) so the status
+       text inside the result panel doesn't get hidden behind it. */
+    top: 56px;
     width: auto;
     max-width: none;
     /* The capture flow on mobile collapses the controls panel, so the
-       result can use almost the full viewport. Leave ~80 px at the
-       bottom for the INPUT reopen pill plus a small breathing gap. */
-    max-height: calc(100dvh - 80px);
+       result can use most of the viewport. 124 = 56 top offset + ~60
+       at the bottom (Download/Share/INPUT pills + breathing room). */
+    max-height: calc(100dvh - 124px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
