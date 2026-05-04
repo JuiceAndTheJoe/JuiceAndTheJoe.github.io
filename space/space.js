@@ -451,6 +451,15 @@ function centralAngleDeg(lat1, lng1, lat2, lng2) {
   return 2 * Math.asin(Math.min(1, Math.sqrt(a))) * RAD_TO_DEG;
 }
 
+// prefers-reduced-motion users get instant camera transitions instead of
+// 800 ms tweens; idle globe rotation also stays off. Match-media is checked
+// once at load — close enough for our purposes (no live OS-toggle handling).
+const PREFERS_REDUCED_MOTION =
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function flightMs(ms) { return PREFERS_REDUCED_MOTION ? 0 : ms; }
+
 // What does the captured image actually cover, in degrees? At zoom Z and
 // latitude L, Mapbox's 512×512@2x tile spans 512 logical pixels of
 // metersPerPixel(L,Z) each, so half the side is the natural radius for the
@@ -969,7 +978,7 @@ document.querySelectorAll('.preset-btn').forEach((btn) => {
     setTarget(lat, lng);
 
     if (globe) {
-      globe.pointOfView({ lat, lng, altitude: 0.06 }, 800);
+      globe.pointOfView({ lat, lng, altitude: 0.06 }, flightMs(800));
       setTimeout(() => globe._refreshAfterFlight && globe._refreshAfterFlight(), 900);
     }
   });
@@ -1089,7 +1098,7 @@ let globe = null;
         event.stopPropagation();
         setTarget(d.lat, d.lng);
         loadDetailLayers(); // start fetching detail data immediately
-        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.06 }, 800);
+        globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.06 }, flightMs(800));
         // Force a refresh once the flight settles.
         setTimeout(() => globe._refreshAfterFlight && globe._refreshAfterFlight(), 900);
       });
@@ -1101,24 +1110,40 @@ let globe = null;
   // filter (only render polygons within angular range of the camera).
   const polyBuckets = { country: [], lake: [] };
 
-  function bboxCentroid(geometry) {
-    let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  // Unit-sphere centroid: convert each ring vertex to a 3D unit vector,
+  // average, normalize, project back to lat/lng. A plain lat/lng bbox center
+  // breaks for any feature crossing the antimeridian — Russia spans
+  // ~20°E to ~−170° (i.e. 190°E in unwrapped form), but its bbox-min/max
+  // longitudes are −170 and +180, so the bbox center comes out at +5°E
+  // (somewhere over Europe) instead of central Russia. Vector-space
+  // averaging is correct everywhere on the sphere, including poles and
+  // antimeridian crossings, at a small constant per-vertex cost.
+  function sphericalCentroid(geometry) {
+    let sx = 0, sy = 0, sz = 0, n = 0;
     const visit = (a) => {
       if (typeof a[0] === 'number') {
-        if (a[0] < minLng) minLng = a[0];
-        if (a[0] > maxLng) maxLng = a[0];
-        if (a[1] < minLat) minLat = a[1];
-        if (a[1] > maxLat) maxLat = a[1];
+        const lng = a[0] * DEG_TO_RAD;
+        const lat = a[1] * DEG_TO_RAD;
+        const c = Math.cos(lat);
+        sx += c * Math.cos(lng);
+        sy += c * Math.sin(lng);
+        sz += Math.sin(lat);
+        n++;
       } else {
         for (const x of a) visit(x);
       }
     };
     visit(geometry.coordinates);
-    return [(minLat + maxLat) / 2, (minLng + maxLng) / 2];
+    if (n === 0) return [0, 0];
+    const len = Math.sqrt(sx * sx + sy * sy + sz * sz) || 1;
+    const nz = sz / len;
+    const lat = Math.asin(Math.max(-1, Math.min(1, nz))) * RAD_TO_DEG;
+    const lng = Math.atan2(sy, sx) * RAD_TO_DEG;
+    return [lat, lng];
   }
 
   function tagFeature(feature, kind) {
-    const [lat, lng] = bboxCentroid(feature.geometry);
+    const [lat, lng] = sphericalCentroid(feature.geometry);
     return { ...feature, _kind: kind, _lat: lat, _lng: lng };
   }
 
@@ -1257,8 +1282,9 @@ let globe = null;
     }
   }
 
-  // Slow idle rotation
-  globe.controls().autoRotate      = true;
+  // Slow idle rotation. Skip for users who prefer reduced motion — the
+  // continuous spin can be motion-sickness-inducing.
+  globe.controls().autoRotate      = !PREFERS_REDUCED_MOTION;
   globe.controls().autoRotateSpeed = 0.4;
 
   // Stop rotation on any user interaction with the globe
@@ -1511,7 +1537,7 @@ function replayCapture(item) {
   radiusValue.textContent = String(item.radius);
   setTarget(item.lat, item.lng);
   if (globe) {
-    globe.pointOfView({ lat: item.lat, lng: item.lng, altitude: 0.06 }, 800);
+    globe.pointOfView({ lat: item.lat, lng: item.lng, altitude: 0.06 }, flightMs(800));
     setTimeout(() => {
       if (globe._refreshAfterFlight) globe._refreshAfterFlight();
     }, 900);
@@ -1541,7 +1567,7 @@ function applyShareFromHash() {
   radiusValue.textContent = String(radius);
   setTarget(lat, lng);
   if (globe) {
-    globe.pointOfView({ lat, lng, altitude: 0.06 }, 800);
+    globe.pointOfView({ lat, lng, altitude: 0.06 }, flightMs(800));
     setTimeout(() => {
       if (globe._refreshAfterFlight) globe._refreshAfterFlight();
       capture();
