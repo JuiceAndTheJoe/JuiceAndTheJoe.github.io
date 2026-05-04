@@ -662,6 +662,29 @@ body.globe-close-zoom .globe-city-label {
   display: block;
   max-width: 100%;
   height: auto;
+  cursor: zoom-in;
+}
+
+/* Tap-to-zoom: the image promotes itself to a full-viewport overlay.
+   On mobile, with the image dominating the viewport and the page
+   allowing pinch (no user-scalable=no in the meta viewport), native
+   pinch-zoom takes over for further detail. Tap or Escape to close. */
+#result-img.zoomed {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.96);
+  cursor: zoom-out;
+  /* Keep the image on a layer of its own so the corner markers and
+     scanline behind don't leak through. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 /* Corner markers */

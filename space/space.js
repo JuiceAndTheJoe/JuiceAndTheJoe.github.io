@@ -901,6 +901,23 @@ if (resultReopen)   resultReopen.addEventListener('click',   () => setResultVisi
 if (metadataClose)  metadataClose.addEventListener('click',  () => setMetadataVisible(false));
 if (metadataReopen) metadataReopen.addEventListener('click', () => setMetadataVisible(true));
 
+// Tap-to-zoom on the captured image. CSS .zoomed promotes the image to
+// a full-viewport fixed overlay with object-fit: contain — on mobile
+// the user can then pinch-zoom (the page doesn't set user-scalable=no,
+// so iOS Safari's native visual-viewport zoom kicks in on the now-
+// dominant image). Tap again to dismiss. Escape works on desktop.
+if (resultImg) {
+  resultImg.addEventListener('click', () => {
+    if (resultImg.hidden) return;
+    resultImg.classList.toggle('zoomed');
+  });
+}
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && resultImg && resultImg.classList.contains('zoomed')) {
+    resultImg.classList.remove('zoomed');
+  }
+});
+
 // On phone-sized viewports, default the controls panel to collapsed so the
 // globe fills the screen on first paint. The user opens it via the floating
 // "INPUT" pill in the bottom-right when they want to tweak target/radius
