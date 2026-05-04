@@ -882,6 +882,18 @@ if (resultReopen)   resultReopen.addEventListener('click',   () => setResultVisi
 if (metadataClose)  metadataClose.addEventListener('click',  () => setMetadataVisible(false));
 if (metadataReopen) metadataReopen.addEventListener('click', () => setMetadataVisible(true));
 
+// On phone-sized viewports, default the controls panel to collapsed so the
+// globe fills the screen on first paint. The user opens it via the floating
+// "INPUT" pill in the bottom-right when they want to tweak target/radius
+// or hit CAPTURE. Desktop and tablet keep the panel open by default.
+if (
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(max-width: 720px)').matches
+) {
+  setControlsVisible(false);
+}
+
 // ---------------------------------------------------------------------------
 // Capture
 // ---------------------------------------------------------------------------
