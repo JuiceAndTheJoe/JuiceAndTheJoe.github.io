@@ -1133,18 +1133,6 @@ body.globe-close-zoom .globe-city-label {
   body.target-locked .controls .field:not(.field-wide) {
     display: none;
   }
-  /* Drop the named presets on mobile — they wrap to 2-3 rows and pad
-     the sheet without adding much utility. Random covers the
-     "show me somewhere" flow; everything else can be reached by tapping
-     a city label or the globe. The "Presets:" label goes too since
-     only one button remains. */
-  .preset-btn:not(.preset-random),
-  .presets-label {
-    display: none;
-  }
-  .presets {
-    gap: 0;
-  }
   .capture-display {
     flex-direction: column;
   }
@@ -1202,7 +1190,12 @@ body.globe-close-zoom .globe-city-label {
   /* Hover scale doesn't apply on touch (no hover), so the resting state
      should already be readable. */
 
-  /* Slider thumb — 18 px is hard to grab with a fingertip. */
+  /* Slider thumb — 18 px is hard to grab with a fingertip. The bigger
+     thumb pokes ~10 px above the track, so add breathing room above
+     the radius slider so its label doesn't sit under the thumb. */
+  .field-wide {
+    gap: 14px;
+  }
   .field input[type='range'] {
     height: 10px;
   }
