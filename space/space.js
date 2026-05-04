@@ -906,8 +906,11 @@ if (
   setControlsVisible(false);
   const resultActions = document.querySelector('.result-actions');
   if (resultActions) {
-    if (downloadLink) resultActions.appendChild(downloadLink);
-    if (shareBtn)     resultActions.appendChild(shareBtn);
+    if (downloadLink)    resultActions.appendChild(downloadLink);
+    if (shareBtn)        resultActions.appendChild(shareBtn);
+    // Pull the INPUT reopen pill into the same row so all three sit
+    // as standalone pills at bottom-right, INPUT last (rightmost).
+    if (controlsReopen)  resultActions.appendChild(controlsReopen);
   }
 }
 

@@ -286,14 +286,6 @@
         -->
         <section id="capture-history" class="capture-history" hidden></section>
 
-        <!--
-          Mobile-only landing spot for the Download/Share buttons. JS
-          relocates the existing #download-link and #share-btn here on
-          phone-width viewports so the user can save/share without
-          re-opening the controls panel after CAPTURE collapses it.
-          Empty on desktop → hidden via :empty.
-        -->
-        <div class="result-actions"></div>
       </section>
 
       <footer class="space-footer">
@@ -307,6 +299,16 @@
         </p>
       </footer>
     </main>
+
+    <!--
+      Mobile-only docked toolbar at the bottom-right. JS relocates the
+      existing #download-link, #share-btn, and #controls-reopen into
+      this flex row on phone-width viewports so the user can act on a
+      capture (save / share) and re-open the controls panel from the
+      same horizontal band, all standalone pills. Empty on desktop —
+      hidden via :empty + the buttons stay in their default positions.
+    -->
+    <div class="result-actions"></div>
 
     <!--
       Reopen pills for collapsed panels. Mirror the panel positions so the

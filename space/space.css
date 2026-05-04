@@ -846,28 +846,63 @@ body.globe-close-zoom .globe-city-label {
 
 /* ── 14a. RESULT-PANEL ACTIONS (MOBILE) ───────────────────── */
 
-/* Mobile-only landing spot for the Download / Share buttons. JS moves
-   the existing buttons here at init on phone-width viewports so the
-   user can act on a capture without first reopening the controls
-   panel. Empty on desktop because the buttons stay in .actions.
-
-   Treated as its own panel — same dark fill as .status / .capture-history
-   — so the transparent ghost buttons inside have a contrasting backdrop
-   instead of floating over the globe canvas. */
+/* Mobile-only docked toolbar at the bottom-right. JS appends the
+   existing Download, Share, and INPUT-reopen buttons here on
+   phone-width viewports so they all sit as standalone pills in one
+   row, sharing the same baseline. The container itself has no
+   chrome — each child is a self-contained pill. Empty on desktop
+   (the buttons stay in .actions / their corner-anchored positions). */
 .result-actions {
+  position: fixed;
+  z-index: 35;
+  bottom: 12px;
+  right: 12px;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  flex: 0 0 auto;
-  padding: 10px 12px;
-  background: rgba(2,16,10,0.85);
-  border: 1px solid rgba(57,255,20,0.2);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  gap: 8px;
 }
 .result-actions:empty {
   display: none;
+}
+
+/* Inside .result-actions the Download and Share buttons should look
+   like the INPUT pill (.panel-reopen) — solid dark fill, blur, smaller
+   padding/text — instead of the larger ghost-button look they have
+   inside the desktop controls panel. */
+.result-actions .download-link,
+.result-actions .share-btn {
+  padding: 9px 14px;
+  background: rgba(2,16,10,0.88);
+  border-color: rgba(57,255,20,0.5);
+  color: rgb(57,255,20);
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.result-actions .download-link:hover,
+.result-actions .share-btn:hover {
+  background: rgba(57,255,20,0.15);
+  color: #fff;
+}
+/* Preserve the 'Copied!' green flash; flex-row sibling change can't
+   alter the .copied class which is set/cleared in JS. */
+.result-actions .share-btn.copied {
+  background: rgba(57,255,138,0.18);
+  border-color: rgba(57,255,138,0.9);
+  color: #b0f5d0;
+}
+
+/* INPUT pill is now a flex sibling inside .result-actions, not a
+   free-floating fixed-corner element — drop the corner anchor so it
+   flows in the row. The base .panel-reopen styles (padding, clip-path,
+   blur, etc.) are kept. */
+.result-actions .panel-reopen-controls {
+  position: static;
+  right: auto;
+  bottom: auto;
 }
 
 /* ── 14b. CAPTURE HISTORY ─────────────────────────────────── */
