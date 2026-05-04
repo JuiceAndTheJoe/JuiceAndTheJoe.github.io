@@ -1126,6 +1126,11 @@ let globe = null;
       el.addEventListener('click', (event) => {
         event.stopPropagation();
         setTarget(d.lat, d.lng);
+        // Surface the controls panel on label tap. On mobile it may be
+        // collapsed (initial state, or after a previous CAPTURE) and
+        // the user almost certainly wants to hit CAPTURE next. On
+        // desktop it's already visible — no-op.
+        setControlsVisible(true);
         loadDetailLayers(); // start fetching detail data immediately
         globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 0.06 }, flightMs(800));
         // Force a refresh once the flight settles.
