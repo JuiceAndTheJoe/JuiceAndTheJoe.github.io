@@ -1084,9 +1084,16 @@ body.globe-close-zoom .globe-city-label {
      pill in the bottom-right corner. dvh (dynamic viewport height) keeps
      these heights honest as iOS Safari grows/shrinks its URL bar. */
   .controls {
-    width: calc(100vw - 24px);
+    /* Anchor both sides so the panel centers itself on phone-width
+       viewports. `width: auto` + symmetric inset works regardless of
+       the desktop rule's `max-width: calc(100vw - 48px)`, which used
+       to clamp the panel narrower than its width and leave it visibly
+       off-center under the right-anchored layout. */
+    left: 12px;
     right: 12px;
     bottom: 12px;
+    width: auto;
+    max-width: none;
     /* Cap to ~70% of the visible viewport so even a fully-open controls
        sheet leaves the globe partially visible for orientation. */
     max-height: 70dvh;
