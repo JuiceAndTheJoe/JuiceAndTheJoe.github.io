@@ -1110,17 +1110,24 @@ let globe = null;
   // filter (only render polygons within angular range of the camera).
   const polyBuckets = { country: [], lake: [] };
 
-  // Unit-sphere centroid: convert each ring vertex to a 3D unit vector,
-  // average, normalize, project back to lat/lng. A plain lat/lng bbox center
-  // breaks for any feature crossing the antimeridian — Russia spans
-  // ~20°E to ~−170° (i.e. 190°E in unwrapped form), but its bbox-min/max
-  // longitudes are −170 and +180, so the bbox center comes out at +5°E
-  // (somewhere over Europe) instead of central Russia. Vector-space
-  // averaging is correct everywhere on the sphere, including poles and
-  // antimeridian crossings, at a small constant per-vertex cost.
-  function sphericalCentroid(geometry) {
+  // Spherical centroid + angular extent: convert each ring vertex to a 3D
+  // unit vector, average + normalize for the centroid, then a second pass
+  // records the max angular distance from centroid to any vertex.
+  //
+  // The centroid alone isn't enough to cull big polygons correctly — a
+  // 12° camera radius at close zoom drops Russia from any city east of
+  // ~Yekaterinburg (Russia's centroid sits in central Siberia, ~35° from
+  // Kamchatka). Padding the cull by `_extentDeg` (the polygon's own
+  // angular footprint) keeps the outline visible whenever the camera is
+  // anywhere inside or near the polygon, regardless of how far the
+  // centroid is.
+  //
+  // Vector-space averaging also handles antimeridian-crossing features
+  // (Russia, Fiji, the Aleutians) correctly — a plain lat/lng bbox center
+  // would put Russia's centroid over Europe.
+  function sphericalCentroidAndExtent(geometry) {
     let sx = 0, sy = 0, sz = 0, n = 0;
-    const visit = (a) => {
+    const accum = (a) => {
       if (typeof a[0] === 'number') {
         const lng = a[0] * DEG_TO_RAD;
         const lat = a[1] * DEG_TO_RAD;
@@ -1130,30 +1137,52 @@ let globe = null;
         sz += Math.sin(lat);
         n++;
       } else {
-        for (const x of a) visit(x);
+        for (const x of a) accum(x);
       }
     };
-    visit(geometry.coordinates);
-    if (n === 0) return [0, 0];
+    accum(geometry.coordinates);
+    if (n === 0) return { lat: 0, lng: 0, extentDeg: 0 };
     const len = Math.sqrt(sx * sx + sy * sy + sz * sz) || 1;
-    const nz = sz / len;
-    const lat = Math.asin(Math.max(-1, Math.min(1, nz))) * RAD_TO_DEG;
-    const lng = Math.atan2(sy, sx) * RAD_TO_DEG;
-    return [lat, lng];
+    const cx = sx / len, cy = sy / len, cz = sz / len;
+    const lat = Math.asin(Math.max(-1, Math.min(1, cz))) * RAD_TO_DEG;
+    const lng = Math.atan2(cy, cx) * RAD_TO_DEG;
+    // Second pass: max angle from centroid to any vertex. Track the min
+    // dot product (cos of largest angle) and convert back at the end.
+    let minDot = 1;
+    const extent = (a) => {
+      if (typeof a[0] === 'number') {
+        const vlng = a[0] * DEG_TO_RAD;
+        const vlat = a[1] * DEG_TO_RAD;
+        const vc = Math.cos(vlat);
+        const dot = cx * (vc * Math.cos(vlng))
+                  + cy * (vc * Math.sin(vlng))
+                  + cz * Math.sin(vlat);
+        if (dot < minDot) minDot = dot;
+      } else {
+        for (const x of a) extent(x);
+      }
+    };
+    extent(geometry.coordinates);
+    const extentDeg = Math.acos(Math.max(-1, Math.min(1, minDot))) * RAD_TO_DEG;
+    return { lat, lng, extentDeg };
   }
 
   function tagFeature(feature, kind) {
-    const [lat, lng] = sphericalCentroid(feature.geometry);
-    return { ...feature, _kind: kind, _lat: lat, _lng: lng };
+    const { lat, lng, extentDeg } = sphericalCentroidAndExtent(feature.geometry);
+    return { ...feature, _kind: kind, _lat: lat, _lng: lng, _extentDeg: extentDeg };
   }
 
-  // Spatial filter: only keep features whose centroid sits within radiusDeg
-  // of the camera's pointOfView. Country outlines stay always-visible since
-  // there are only ~250 of them and they're the orientation backbone.
+  // Spatial filter: keep a feature whose centroid sits within
+  // `radiusDeg + feature._extentDeg` of the camera. The extent term means
+  // any polygon whose footprint reaches the view passes — without it,
+  // big countries (Russia, USA, China) get culled when the camera sits
+  // near their edge but far from their centroid.
   function filterToView(features, centerLat, centerLng, radiusDeg) {
     if (radiusDeg >= 360) return features;
     return features.filter(
-      (f) => centralAngleDeg(centerLat, centerLng, f._lat, f._lng) < radiusDeg
+      (f) =>
+        centralAngleDeg(centerLat, centerLng, f._lat, f._lng) <
+        radiusDeg + (f._extentDeg || 0)
     );
   }
 
