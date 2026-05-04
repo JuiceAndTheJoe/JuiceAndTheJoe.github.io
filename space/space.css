@@ -1124,6 +1124,18 @@ body.globe-close-zoom .globe-city-label {
   body.target-locked .controls .field:not(.field-wide) {
     display: none;
   }
+  /* Drop the named presets on mobile — they wrap to 2-3 rows and pad
+     the sheet without adding much utility. Random covers the
+     "show me somewhere" flow; everything else can be reached by tapping
+     a city label or the globe. The "Presets:" label goes too since
+     only one button remains. */
+  .preset-btn:not(.preset-random),
+  .presets-label {
+    display: none;
+  }
+  .presets {
+    gap: 0;
+  }
   .capture-display {
     flex-direction: column;
   }
