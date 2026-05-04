@@ -865,15 +865,28 @@ if (shareBtn) shareBtn.addEventListener('click', copyShareLink);
 // .result re-uses its existing `.visible` reveal class instead of a new
 // collapsed state, so a fresh capture continues to auto-show it.
 // ---------------------------------------------------------------------------
+// The INPUT pill (controls-reopen) should only surface when the user is
+// in "globe-only" mode — neither the controls panel nor the result panel
+// is up. Showing it while the result is displayed would tease re-entering
+// input on top of an active capture; hiding it then matches the user's
+// expectation that the pill represents "no panel, just the globe."
+function syncControlsReopenVisibility() {
+  if (!controlsReopen) return;
+  const collapsed   = !!controlsPanel && controlsPanel.classList.contains('collapsed');
+  const resultShown = !!resultPanel   && resultPanel.classList.contains('visible');
+  controlsReopen.hidden = !collapsed || resultShown;
+}
+
 function setControlsVisible(visible) {
   if (!controlsPanel) return;
   controlsPanel.classList.toggle('collapsed', !visible);
-  if (controlsReopen) controlsReopen.hidden = visible;
+  syncControlsReopenVisibility();
 }
 function setResultVisible(visible) {
   if (!resultPanel) return;
   resultPanel.classList.toggle('visible', visible);
   if (resultReopen) resultReopen.hidden = visible;
+  syncControlsReopenVisibility();
 }
 function setMetadataVisible(visible) {
   if (!metadataCard) return;
