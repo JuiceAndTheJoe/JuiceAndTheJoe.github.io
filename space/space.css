@@ -1223,6 +1223,18 @@ body.globe-close-zoom .globe-city-label {
     bottom: 12px;
     top: auto;
   }
+  /* The result panel's close × sits over the .status strip (~36 px
+     tall). On touch (32×32) at the default top:8 it overflows into
+     the 12 px gap below the status. Pull it up + tighten the right
+     inset, and pad .status on the right so its message text doesn't
+     run under the ×. */
+  .result > .panel-close {
+    top: 2px;
+    right: 8px;
+  }
+  .status {
+    padding-right: 48px;
+  }
   .controls-grid {
     grid-template-columns: 1fr;
   }
