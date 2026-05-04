@@ -595,6 +595,12 @@ function setTarget(lat, lng) {
   }
   updateTargetMarker();
   dismissHeader();
+  // Mobile-only: once a target is locked, the user almost certainly
+  // doesn't need the lat/lon text inputs again — they came from a label,
+  // preset, or globe click. Drop them from the controls panel via a
+  // body class so the sheet is shorter and the radius/CAPTURE controls
+  // come up first. CSS at the (max-width: 720px) breakpoint reads it.
+  document.body.classList.add('target-locked');
 }
 
 // ---------------------------------------------------------------------------

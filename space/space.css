@@ -1116,6 +1116,14 @@ body.globe-close-zoom .globe-city-label {
   .controls-grid {
     grid-template-columns: 1fr;
   }
+  /* Once the user has locked a target (via city label, preset, history
+     replay, or sphere click), drop the lat/lon text inputs on mobile.
+     The fields are populated already and the sheet stays shorter, so
+     radius + CAPTURE come up first. JS toggles the body class in
+     setTarget(). The radius field has .field-wide so it survives. */
+  body.target-locked .controls .field:not(.field-wide) {
+    display: none;
+  }
   .capture-display {
     flex-direction: column;
   }
