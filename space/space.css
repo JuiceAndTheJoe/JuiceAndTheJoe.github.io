@@ -849,14 +849,22 @@ body.globe-close-zoom .globe-city-label {
 /* Mobile-only landing spot for the Download / Share buttons. JS moves
    the existing buttons here at init on phone-width viewports so the
    user can act on a capture without first reopening the controls
-   panel. Empty on desktop because the buttons stay in .actions. */
+   panel. Empty on desktop because the buttons stay in .actions.
+
+   Treated as its own panel — same dark fill as .status / .capture-history
+   — so the transparent ghost buttons inside have a contrasting backdrop
+   instead of floating over the globe canvas. */
 .result-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   flex: 0 0 auto;
-  padding: 4px 2px 0;
+  padding: 10px 12px;
+  background: rgba(2,16,10,0.85);
+  border: 1px solid rgba(57,255,20,0.2);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 .result-actions:empty {
   display: none;
