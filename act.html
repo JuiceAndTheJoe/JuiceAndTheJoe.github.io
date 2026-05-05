@@ -264,9 +264,62 @@
         animation: pulse 1s infinite;
         font-size: 12px;
       }
+
+      .escape-portal {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 999;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 12px;
+        background: linear-gradient(180deg, #1a0000 0%, #0a0000 100%);
+        border: 3px ridge #4a0000;
+        box-shadow: 0 0 18px #8b0000, inset 0 0 10px rgba(0,0,0,0.8);
+        animation: float 6s ease-in-out infinite;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .escape-portal img {
+        width: 60px;
+        display: block;
+        filter: drop-shadow(0 0 6px #8b0000);
+      }
+
+      .escape-portal .escape-label {
+        color: #ff0000;
+        font-family: "Papyrus", fantasy;
+        font-size: 13px;
+        letter-spacing: 2px;
+        text-shadow: 0 0 8px #ff0000, 1px 1px 2px #000;
+        margin-top: 4px;
+        animation: flicker 3s infinite;
+      }
+
+      .escape-portal:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 28px #ff0000, 0 0 50px #8b0000, inset 0 0 12px rgba(0,0,0,0.8);
+        animation: shake 0.4s infinite;
+      }
+
+      .escape-portal:hover .escape-label {
+        color: #00ff00;
+        text-shadow: 0 0 12px #00ff00;
+      }
     </style>
   </head>
   <body>
+    <!-- Escape portal: flee to the homepage -->
+    <a href="/" class="escape-portal" title="Flee to safety...">
+      <img
+        src="https://web.archive.org/web/20090729090714im_/http://www.geocities.com/tlh_08/Dungeondoor.gif"
+        alt="Escape door"
+      />
+      <span class="escape-label">~ FLEE ~</span>
+    </a>
+
     <!-- Floating ghosts -->
     <img
       src="https://web.archive.org/web/20040313112804im_/http://www.geocities.com/Area51/Corridor/5363/graveghost.gif"
