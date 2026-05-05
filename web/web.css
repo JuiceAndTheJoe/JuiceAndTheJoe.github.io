@@ -6,10 +6,14 @@
 }
 
 body {
-    background-image: url('cardbg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-color: #1a0033;
+    background-image:
+        linear-gradient(135deg, rgba(45, 10, 78, 0.65) 0%, rgba(26, 0, 51, 0.75) 100%),
+        url('cardbg.jpg');
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    background-blend-mode: multiply, normal;
     height: 90vh;
 }
 
@@ -49,7 +53,6 @@ body {
     height: 100%;
     position: absolute;
     backface-visibility: hidden;
-    border: 1px solid #ccc;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -59,17 +62,116 @@ body {
     background-color: #967d00;
 }
 
+.card-front {
+    border: 1px solid #ccc;
+}
+
 .card-back {
     transform: rotateY(180deg);
-    background-color: #0c011e;
-    color: #ffffff;
-    border-radius: 10px;
+    background:
+        radial-gradient(ellipse at top, rgba(212, 175, 55, 0.18) 0%, transparent 55%),
+        linear-gradient(155deg, #2d0a4e 0%, #1a0033 45%, #0c011e 100%);
+    color: #f5e6c4;
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.55);
+    box-shadow:
+        inset 0 0 35px rgba(212, 175, 55, 0.18),
+        0 8px 26px rgba(0, 0, 0, 0.55);
+    padding: 22px 16px;
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* Inner gold frame */
+.card-back::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* Slow shimmer when card is flipped */
+.card-back::after {
+    content: "";
+    position: absolute;
+    top: -60%;
+    left: -60%;
+    width: 220%;
+    height: 220%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.10) 0%, transparent 42%);
+    pointer-events: none;
+    transform: translate(-10%, -10%);
+}
+
+.card.flipped .card-back::after {
+    animation: shimmer 5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: translate(-12%, -12%); }
+    50% { transform: translate(12%, 12%); }
+}
+
+.card-back p {
+    margin: 4px 0;
+    font-family: "Cinzel", "Cormorant Garamond", "Times New Roman", serif;
+    font-size: 19px;
+    letter-spacing: 1.5px;
+    color: #f5e6c4;
+    text-shadow:
+        0 0 10px rgba(212, 175, 55, 0.55),
+        0 1px 2px rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 1;
+}
+
+.card-back p:first-of-type {
+    font-size: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+/* Glyph / emoji line (when present) */
+.card-back p + p {
+    font-size: 28px;
+    letter-spacing: 6px;
+    margin-top: 6px;
 }
 
 .card-back a {
-    color: white;
-    text-decoration: underline;
-    margin-top: 10px;
+    display: inline-block;
+    margin-top: 14px;
+    padding: 7px 20px;
+    color: #f5e6c4;
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.22) 0%, rgba(0, 0, 0, 0.25) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.7);
+    border-radius: 999px;
+    font-family: "Cinzel", "Times New Roman", serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, color 0.25s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.card-back a:hover {
+    color: #fff;
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.5) 0%, rgba(212, 175, 55, 0.15) 100%);
+    box-shadow:
+        0 0 22px rgba(212, 175, 55, 0.6),
+        inset 0 0 12px rgba(255, 215, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+.card-back a + a {
+    margin-top: 8px;
 }
 
 .animated-text {
