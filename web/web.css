@@ -1,3 +1,15 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    overflow-x: hidden;
+}
+
 .card-container {
     display: flex;
     justify-content: center;
@@ -253,3 +265,106 @@ body {
     transform: rotate(-360deg);
 }
 
+/* === Mobile layout === */
+@media (max-width: 768px) {
+    body {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    .home-button-container {
+        top: 8px;
+        left: 8px;
+    }
+
+    .spin-on-hover {
+        width: 64px;
+        height: 64px;
+        border-radius: 32px;
+    }
+
+    .hover-text {
+        font-size: 14px;
+    }
+
+    .card-container {
+        flex-wrap: wrap;
+        gap: 14px;
+        padding: 90px 16px 24px;
+        margin-top: 0;
+        justify-content: center;
+    }
+
+    .card {
+        width: calc(50% - 7px);
+        max-width: 220px;
+        height: auto;
+        aspect-ratio: 21 / 31;
+    }
+
+    .card-back {
+        padding: 16px 12px;
+    }
+
+    .card-back p {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+
+    .card-back p:first-of-type {
+        font-size: 17px;
+        padding-bottom: 6px;
+        margin-bottom: 6px;
+    }
+
+    .card-back p + p {
+        font-size: 22px;
+        letter-spacing: 4px;
+    }
+
+    .card-back a {
+        margin-top: 10px;
+        padding: 6px 14px;
+        font-size: 11px;
+        letter-spacing: 2px;
+    }
+
+    #text-container {
+        position: static;
+        height: auto;
+        background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.85) 40%);
+        padding: 24px 16px 28px;
+    }
+
+    .animated-text {
+        font-size: 20px;
+        margin-top: 0;
+    }
+
+    .animated-desc {
+        font-size: 15px;
+        margin-top: 12px;
+        line-height: 1.4;
+    }
+}
+
+/* Tighter for very small phones */
+@media (max-width: 380px) {
+    .card-container {
+        padding: 80px 10px 20px;
+        gap: 10px;
+    }
+
+    .card {
+        width: calc(50% - 5px);
+    }
+
+    .card-back p:first-of-type {
+        font-size: 15px;
+    }
+
+    .card-back p + p {
+        font-size: 20px;
+    }
+}

@@ -2,78 +2,212 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>About This Site - Jose Velásquez</title>
     <link rel="stylesheet" href="styles.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      html,
       body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        background-color: #1a0033;
         background-image: url("https://i.ibb.co/16Z833c/purpl098.jpg");
         background-repeat: repeat;
         background-size: auto;
+      }
+
+      body {
+        font-family: "Pixelify Sans", "Courier New", monospace;
+        color: #ffffff;
       }
 
       .about-container {
         max-width: 800px;
         margin: 50px auto;
         padding: 40px;
-        background-color: rgba(207, 207, 207, 0.648);
-        border-radius: 10px;
-        color: #333;
-        font-family: Tahoma, sans-serif;
+        background-color: rgba(14, 0, 67, 0.78);
+        border: 4px solid #a600ff;
+        border-radius: 6px;
+        box-shadow:
+          0 0 0 2px #0e0043,
+          0 10px 40px rgba(0, 0, 0, 0.5);
+        color: #ffffff;
+        font-family: "Pixelify Sans", "Courier New", monospace;
+        font-size: 22px;
+        line-height: 1.55;
+        image-rendering: pixelated;
       }
 
       .about-container h1 {
-        color: #4e0377;
-        margin-bottom: 30px;
+        font-family: "Press Start 2P", "Pixelify Sans", monospace;
+        color: #ffffff;
+        font-size: 28px;
+        margin: 0 0 30px;
         text-align: center;
+        letter-spacing: 2px;
+        text-shadow:
+          3px 3px 0 #4e0377,
+          6px 6px 0 rgba(0, 0, 0, 0.45);
       }
 
       .about-container h2 {
-        color: #0e0043;
-        margin-top: 30px;
-        margin-bottom: 15px;
-        border-bottom: 2px solid #a600ff;
+        font-family: "Press Start 2P", "Pixelify Sans", monospace;
+        color: #ffffff;
+        font-size: 18px;
+        margin-top: 36px;
+        margin-bottom: 18px;
+        border-bottom: 3px solid #a600ff;
         padding-bottom: 10px;
+        letter-spacing: 1px;
+        text-shadow: 2px 2px 0 #0e0043;
+      }
+
+      .about-container h3 {
+        color: #ffd700;
+        font-size: 24px;
+        margin-top: 24px;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 0 #0e0043;
       }
 
       .about-container p {
-        line-height: 1.6;
+        line-height: 1.55;
         margin-bottom: 15px;
+        color: #ffffff;
       }
 
       .about-container ul {
-        line-height: 1.8;
+        line-height: 1.7;
         margin-bottom: 20px;
+        padding-left: 28px;
+        color: #ffffff;
+      }
+
+      .about-container li {
+        margin-bottom: 10px;
+      }
+
+      .about-container strong {
+        color: #ffd700;
       }
 
       .about-container a {
-        color: rgb(188, 7, 143);
+        color: #10f1f9;
         text-decoration: none;
-        transition: color 0.3s ease-in-out;
+        border-bottom: 2px dotted #10f1f9;
+        transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+        word-break: break-word;
       }
 
       .about-container a:hover {
-        color: rgb(255, 0, 128);
+        color: #ff2e7e;
+        border-bottom-color: #ff2e7e;
       }
 
       .back-link {
         text-align: center;
-        margin-top: 30px;
+        margin-top: 36px;
       }
 
       .back-link a {
+        font-family: "Press Start 2P", "Pixelify Sans", monospace;
         background-color: #000000;
-        color: hotpink;
-        padding: 10px 20px;
-        border-radius: 5px;
+        color: #ffffff;
+        padding: 14px 22px;
+        border: 3px solid #a600ff;
+        border-radius: 4px;
         display: inline-block;
+        font-size: 14px;
+        letter-spacing: 1px;
+        text-shadow: 2px 2px 0 #4e0377;
+        transition:
+          background-color 0.25s ease,
+          color 0.25s ease,
+          transform 0.15s ease;
       }
 
       .back-link a:hover {
-        color: hotpink;
+        background-color: #a600ff;
+        color: #ffffff;
+        border-color: #ffd700;
+        transform: translateY(-2px);
+      }
+
+      /* Tablet */
+      @media (max-width: 768px) {
+        .about-container {
+          margin: 20px 14px;
+          padding: 22px 18px;
+          font-size: 19px;
+          border-width: 3px;
+        }
+
+        .about-container h1 {
+          font-size: 20px;
+          letter-spacing: 1px;
+          margin-bottom: 22px;
+          text-shadow:
+            2px 2px 0 #4e0377,
+            4px 4px 0 rgba(0, 0, 0, 0.45);
+        }
+
+        .about-container h2 {
+          font-size: 14px;
+          margin-top: 28px;
+          margin-bottom: 14px;
+          line-height: 1.4;
+        }
+
+        .about-container h3 {
+          font-size: 20px;
+        }
+
+        .about-container ul {
+          padding-left: 22px;
+        }
+
+        .back-link a {
+          font-size: 12px;
+          padding: 12px 18px;
+        }
+      }
+
+      /* Small phones */
+      @media (max-width: 420px) {
+        .about-container {
+          margin: 14px 10px;
+          padding: 18px 14px;
+          font-size: 17px;
+        }
+
+        .about-container h1 {
+          font-size: 16px;
+          letter-spacing: 0;
+        }
+
+        .about-container h2 {
+          font-size: 12px;
+        }
+
+        .about-container h3 {
+          font-size: 18px;
+        }
+
+        .back-link a {
+          font-size: 11px;
+          padding: 10px 14px;
+        }
       }
     </style>
   </head>
@@ -94,26 +228,27 @@
       <ul>
         <li>
           <strong>Parallax Scrolling GIF:</strong> The animated background on
-          the home page is sourced from
+          the home page was created by
           <a
-            href="https://images.squarespace-cdn.com/content/v1/551a19f8e4b0e8322a93850a/1573861378175-CUPY0J566KA5A117IIEE/Intro_Parallax.gif?format=1500w"
+            href="https://www.slynyrd.com/blog/2019/11/12/pixelblog-23-parallax-scrolling"
             target="_blank"
-            >this Squarespace-hosted resource</a
-          >. Credit to the original creator for this beautiful parallax
-          animation.
+            rel="noopener"
+            >Slynyrd</a
+          >
+          as part of his excellent
+          <em>Pixelblog #23 - Parallax Scrolling</em> tutorial. All credit for
+          the artwork and animation goes to him - go check out his pixel art
+          and tutorials!
         </li>
-      </ul>
-
-      <h3>Design Resources</h3>
-      <ul>
         <li>
-          <strong>Background Tools & Resources:</strong> Inspiration and tools,
-          widely used (as in, for example, this page) from
+          <strong>Background Tiles:</strong> Inspiration and tools, widely used
+          (as in, for example, this page) from
           <a
             href="https://hekate2.github.io/website-tools/archive/backgrounds.html"
             target="_blank"
+            rel="noopener"
             >Hekate2's Website Tools - Backgrounds Archive</a
-          >
+          >.
         </li>
         <li>
           <strong>Windows XP Icons:</strong> High-resolution Windows XP icons
@@ -121,9 +256,9 @@
           <a
             href="https://github.com/marchmountain/-Windows-XP-High-Resolution-Icon-Pack/releases/tag/02"
             target="_blank"
+            rel="noopener"
             >March Mountain's Windows XP Icon Pack (Release 02)</a
-          >
-          used in the Machine Learning section
+          >, used in the Machine Learning section.
         </li>
       </ul>
 
@@ -131,8 +266,26 @@
       <ul>
         <li>HTML5, CSS3, JavaScript</li>
         <li>
-          <a href="https://fontawesome.com/" target="_blank">Font Awesome</a>
+          <a href="https://fontawesome.com/" target="_blank" rel="noopener"
+            >Font Awesome</a
+          >
           for social media icons
+        </li>
+        <li>
+          <a
+            href="https://fonts.google.com/specimen/Pixelify+Sans"
+            target="_blank"
+            rel="noopener"
+            >Pixelify Sans</a
+          >
+          and
+          <a
+            href="https://fonts.google.com/specimen/Press+Start+2P"
+            target="_blank"
+            rel="noopener"
+            >Press Start 2P</a
+          >
+          via Google Fonts
         </li>
         <li>GitHub Pages for hosting</li>
       </ul>
