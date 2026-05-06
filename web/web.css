@@ -25,8 +25,10 @@ body {
     background-size: cover, cover;
     background-position: center, center;
     background-repeat: no-repeat, no-repeat;
+    background-attachment: fixed, fixed;
     background-blend-mode: multiply, normal;
-    height: 90vh;
+    min-height: 100vh;
+    padding-bottom: 36vh;
 }
 
 .card {
@@ -42,7 +44,7 @@ body {
     background-size: cover; /* Ensures full coverage */
     background-repeat: no-repeat;
     background-position: center;
-    border-radius: 10px;
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -74,9 +76,6 @@ body {
     background-color: #967d00;
 }
 
-.card-front {
-    border: 1px solid #ccc;
-}
 
 .card-back {
     transform: rotateY(180deg);
@@ -84,7 +83,7 @@ body {
         radial-gradient(ellipse at top, rgba(212, 175, 55, 0.18) 0%, transparent 55%),
         linear-gradient(155deg, #2d0a4e 0%, #1a0033 45%, #0c011e 100%);
     color: #f5e6c4;
-    border-radius: 12px;
+    border-radius: 15px;
     border: 1px solid rgba(212, 175, 55, 0.55);
     box-shadow:
         inset 0 0 35px rgba(212, 175, 55, 0.18),
@@ -186,13 +185,186 @@ body {
     margin-top: 8px;
 }
 
+/* === "Others" section: collapsible, smaller pills for older / lower-priority projects === */
+.others {
+    margin: 28px auto 0;
+    padding: 0 24px;
+    max-width: 1100px;
+    text-align: center;
+}
+
+/* Hide the default browser disclosure triangle */
+.others > summary {
+    list-style: none;
+}
+.others > summary::-webkit-details-marker {
+    display: none;
+}
+
+.others-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    font-family: "Cinzel", "Cormorant Garamond", "Times New Roman", serif;
+    color: #f5e6c4;
+    font-size: 18px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+    padding: 6px 18px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.08) 0%, rgba(0, 0, 0, 0.2) 100%);
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.45);
+    opacity: 0.85;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+}
+
+.others-heading:hover,
+.others-heading:focus-visible {
+    opacity: 1;
+    color: #fff;
+    box-shadow: 0 0 14px rgba(212, 175, 55, 0.45);
+    outline: none;
+}
+
+.others-toggle {
+    display: inline-block;
+    font-size: 12px;
+    transform: rotate(0deg);
+    transition: transform 0.25s ease;
+    color: rgba(245, 230, 196, 0.8);
+}
+
+.others[open] .others-toggle {
+    transform: rotate(-90deg);
+}
+
+.others-list {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* Smooth fade-in for the list when the section is expanded */
+.others[open] .others-list {
+    animation: othersFadeIn 0.35s ease-out both;
+}
+
+@keyframes othersFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* === Desktop: dock the "Other projects" toggle in the bottom-right corner === */
+@media (min-width: 769px) {
+    .others {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        margin: 0;
+        padding: 0;
+        max-width: none;
+        z-index: 20;
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-end;
+        gap: 12px;
+    }
+
+    .others-heading {
+        margin: 0;
+    }
+
+    .others-list {
+        margin: 0;
+        padding: 8px 4px;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: flex-end;
+        gap: 10px;
+        overflow: visible;
+    }
+
+    .others-list li {
+        display: block;
+    }
+
+    .others[open] .others-list {
+        animation: othersFadeInUp 0.35s ease-out both;
+    }
+
+    @keyframes othersFadeInUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+}
+
+.other-pill {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 16px 30px;
+    color: #f5e6c4;
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, rgba(0, 0, 0, 0.25) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 999px;
+    font-family: "Cinzel", "Times New Roman", serif;
+    transition: transform 0.2s ease, background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+    max-width: 420px;
+}
+
+/* Inner spans should never swallow hover/click events */
+.other-pill > * {
+    pointer-events: none;
+}
+
+.other-title {
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+.other-desc {
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    color: rgba(245, 230, 196, 0.9);
+    text-align: center;
+    line-height: 1.35;
+}
+
+.other-pill:hover {
+    color: #fff;
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.4) 0%, rgba(212, 175, 55, 0.1) 100%);
+    box-shadow: 0 0 18px rgba(212, 175, 55, 0.5);
+    transform: translateY(-2px);
+}
+
 .animated-text {
     font-size: 24px;
     text-align: center;
     margin-top: 100px;
-    animation: fadeIn 6s infinite;
-    color: white;
-    opacity: 0; /* Starts hidden */
+    color: #f5e6c4;
+    opacity: 1;
+    letter-spacing: 1px;
+    text-shadow: 0 0 14px rgba(245, 230, 196, 0.45);
+    transition: opacity 0.35s ease;
+}
+
+/* Idle "Choose your fortune..." state: gentle glow + tracking pulse,
+   text remains fully readable. */
+.animated-text.idle {
+    animation: idleGlow 3.6s ease-in-out infinite;
 }
 
 .animated-desc {
@@ -200,21 +372,23 @@ body {
     text-align: center;
     margin-top: 20px;
     color: white;
-    opacity: 0; /* Starts hidden */
-    transition: opacity 1s ease-in-out; /* Smooth fade-in */
+    opacity: 0;
+    transition: opacity 0.35s ease;
 }
 
-/* Animation for continuously fading in/out */
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    50% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-/* Animation for fading in only once */
-@keyframes fadeInOnce {
-    from { opacity: 0; }
-    to { opacity: 1; }
+@keyframes idleGlow {
+    0%, 100% {
+        text-shadow:
+            0 0 8px rgba(245, 230, 196, 0.25),
+            0 0 22px rgba(212, 175, 55, 0.10);
+        letter-spacing: 1px;
+    }
+    50% {
+        text-shadow:
+            0 0 20px rgba(245, 230, 196, 0.7),
+            0 0 38px rgba(212, 175, 55, 0.35);
+        letter-spacing: 2.5px;
+    }
 }
 
 #text-container {
@@ -271,6 +445,30 @@ body {
         height: auto;
         min-height: 100vh;
         min-height: 100dvh;
+        padding-bottom: 0;
+    }
+
+    .others {
+        margin-top: 18px;
+        padding: 0 14px;
+    }
+
+    .others-heading {
+        font-size: 15px;
+        letter-spacing: 3px;
+    }
+
+    .other-pill {
+        padding: 13px 22px;
+    }
+
+    .other-title {
+        font-size: 19px;
+        letter-spacing: 1.5px;
+    }
+
+    .other-desc {
+        font-size: 14px;
     }
 
     .home-button-container {
