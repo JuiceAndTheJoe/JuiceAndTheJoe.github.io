@@ -1,0 +1,362 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;   /* single-screen, no page scroll */
+}
+
+body {
+    height: 100vh;
+    height: 100dvh;
+    padding: 60px 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #060a07;
+    background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(0, 255, 156, 0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 120%, rgba(0, 120, 80, 0.10) 0%, transparent 55%),
+        linear-gradient(180deg, #060a07 0%, #04060500 40%, #040705 100%);
+    color: #c8f7d8;
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Consolas", monospace;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* === Terminal window === */
+.terminal {
+    width: 100%;
+    max-width: 760px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(8, 16, 11, 0.92);
+    border: 1px solid rgba(0, 255, 156, 0.28);
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.5),
+        0 18px 50px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(0, 255, 156, 0.08);
+    backdrop-filter: blur(2px);
+}
+
+.terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    background: linear-gradient(180deg, #11201a 0%, #0c170f 100%);
+    border-bottom: 1px solid rgba(0, 255, 156, 0.18);
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot-red    { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green  { background: #27c93f; }
+
+.terminal-title {
+    margin-left: 10px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: rgba(154, 230, 180, 0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.terminal-body {
+    padding: 16px 20px 18px;
+    font-size: 14.5px;
+    line-height: 1.5;
+}
+
+/* === Prompt / command lines === */
+.term-line {
+    margin: 0 0 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.prompt {
+    color: #33ff99;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.cmd {
+    color: #eafff2;
+}
+
+/* Caret that trails the command while it is being typed out */
+.cmd.typing::after {
+    content: "";
+    display: inline-block;
+    width: 9px;
+    height: 16px;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    background: #33ff99;
+    box-shadow: 0 0 10px rgba(51, 255, 153, 0.7);
+    animation: blink 1.1s steps(1) infinite;
+}
+
+.term-comment {
+    margin: 0 0 12px;
+    color: #5f9377;
+    font-size: 13px;
+}
+
+/* === Project rows (native <details>) === */
+.project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-bottom: 14px;
+}
+
+.project {
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.project > summary {
+    list-style: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    user-select: none;
+    outline: none;
+}
+.project > summary::-webkit-details-marker { display: none; }
+
+.project:hover {
+    background: rgba(0, 255, 156, 0.05);
+    border-color: rgba(0, 255, 156, 0.22);
+}
+.project > summary:focus-visible {
+    box-shadow: inset 0 0 0 1px rgba(90, 214, 255, 0.7);
+}
+.project[open] {
+    background: rgba(0, 255, 156, 0.06);
+    border-color: rgba(0, 255, 156, 0.3);
+}
+
+.proj-name {
+    color: #6fffc0;
+    font-weight: 500;
+}
+.proj-name::before {
+    content: "\25B8";   /* ▸ */
+    display: inline-block;
+    margin-right: 9px;
+    color: rgba(0, 255, 156, 0.55);
+    transition: transform 0.2s ease;
+}
+.project[open] .proj-name::before {
+    transform: rotate(90deg);
+}
+
+.badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+.badge::before { content: "["; }
+.badge::after  { content: "]"; }
+.badge.live {
+    color: #0a1a10;
+    background: #00ff9c;
+}
+.badge.wip {
+    color: #2a1a00;
+    background: #ffb454;
+}
+
+.proj-tag {
+    color: #9fc7ae;
+    font-size: 13.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Expanded body */
+.proj-body {
+    padding: 2px 14px 14px 33px;
+    animation: bodyIn 0.28s ease-out both;
+}
+.proj-body p {
+    margin: 4px 0 12px;
+    color: #bfe8cf;
+    font-size: 13.5px;
+    line-height: 1.55;
+    max-width: 62ch;
+}
+
+/* Revenue / impact highlight */
+.proj-highlight {
+    color: #ffd479 !important;
+    font-size: 13px !important;
+    margin: 0 0 12px !important;
+}
+.proj-highlight::before {
+    content: "\25B8 ";   /* ▸ */
+    color: rgba(255, 212, 121, 0.7);
+}
+
+/* Standalone terminal-style comment, kept clear of the action buttons */
+.proj-note {
+    color: #5f9377 !important;
+    font-size: 12.5px !important;
+    margin: 0 0 12px !important;
+}
+
+@keyframes bodyIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.proj-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.proj-links a {
+    color: #5ad6ff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 5px 14px;
+    border: 1px solid rgba(90, 214, 255, 0.4);
+    border-radius: 5px;
+    transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.proj-links a:hover {
+    color: #eafff2;
+    background: rgba(90, 214, 255, 0.16);
+    box-shadow: 0 0 14px rgba(90, 214, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* === Blinking cursor on the final prompt === */
+.prompt-line { margin-bottom: 0; }
+.cursor {
+    display: inline-block;
+    width: 9px;
+    height: 17px;
+    background: #33ff99;
+    box-shadow: 0 0 10px rgba(51, 255, 153, 0.7);
+    animation: blink 1.1s steps(1) infinite;
+    transform: translateY(2px);
+}
+@keyframes blink {
+    0%, 49%  { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+/* === Staggered "printing" reveal of output rows ===
+   Only hidden when JS is active; without JS the catalog shows immediately. */
+.js .reveal {
+    opacity: 0;
+}
+.js body.booted .reveal {
+    animation: printIn 0.32s ease-out forwards;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+}
+@keyframes printIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* === Home button (shared pattern from web/web.css) === */
+.home-button-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+}
+.home-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: 8px;
+}
+.spin-on-hover {
+    transition: transform 0.5s ease-in-out;
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+}
+.hover-text {
+    font-size: 16px;
+    color: #c8f7d8;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.home-link:hover .hover-text { opacity: 1; }
+.home-link:hover .spin-on-hover { transform: rotate(-360deg); }
+
+/* === Mobile === */
+@media (max-width: 768px) {
+    body {
+        padding: 78px 12px 40px;
+        align-items: stretch;
+    }
+    .terminal-body {
+        padding: 18px 14px 20px;
+        font-size: 14px;
+    }
+    .terminal-title { font-size: 11px; }
+
+    /* Stack the summary so name + badge sit above the tagline */
+    .project > summary {
+        grid-template-columns: auto 1fr;
+        gap: 8px 10px;
+    }
+    .proj-tag {
+        grid-column: 1 / -1;
+        white-space: normal;
+        font-size: 12.5px;
+        padding-left: 25px;
+    }
+    .proj-body {
+        padding: 2px 6px 14px 25px;
+    }
+
+    .home-button-container { top: 8px; left: 8px; }
+    .spin-on-hover { width: 60px; height: 60px; border-radius: 30px; }
+    .hover-text { font-size: 13px; }
+}
+
+@media (max-width: 380px) {
+    .terminal-body { font-size: 13px; }
+    .proj-links a { padding: 5px 11px; font-size: 12px; }
+}
+
+/* === Respect reduced motion === */
+@media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1 !important; }
+    body.booted .reveal { animation: none; }
+    .cursor { animation: none; opacity: 1; }
+    .proj-body { animation: none; }
+    .spin-on-hover, .home-link:hover .spin-on-hover { transition: none; }
+}

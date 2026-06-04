@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Coding &mdash; Jose Velasquez</title>
+<script>document.documentElement.className += " js";</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="agentic.css">
+<script src="agentic.js" defer></script>
+</head>
+<body>
+
+<div class="home-button-container">
+    <a href="/" class="home-link">
+        <img src="../web/knas_liten.png" alt="Return to Homepage" class="spin-on-hover">
+        <span class="hover-text">Take me back!</span>
+    </a>
+</div>
+
+<main class="terminal" aria-label="Agentic coding project catalog">
+    <div class="terminal-bar">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+        <span class="terminal-title">juice@kth: ~/agentic-coding &mdash; claude</span>
+    </div>
+
+    <div class="terminal-body">
+        <p class="term-line intro">
+            <span class="prompt">juice@kth:~$</span>
+            <span class="cmd" id="cmd" data-cmd="claude --list-projects">claude --list-projects</span>
+        </p>
+
+        <p class="term-comment reveal" style="--i: 0">
+            # projects designed &amp; built with Claude Code &mdash; click a row to expand
+        </p>
+
+        <div class="project-list">
+
+            <details class="project reveal" style="--i: 1">
+                <summary>
+                    <span class="proj-name">openevents</span>
+                    <span class="badge live">live</span>
+                    <span class="proj-tag">Open-source live events platform on Eyevinn OSC</span>
+                </summary>
+                <div class="proj-body">
+                    <p>An open-source live events platform serving real audiences &mdash; schedule, stream and manage events. Built on Eyevinn Open Source Cloud.</p>
+                    <p class="proj-highlight">Generated close to 600,000 SEK in revenue during my internship.</p>
+                    <div class="proj-links">
+                        <a href="https://stswe-sttvevents.eyevinn-openevents.auto.prod.osaas.io/" target="_blank" rel="noopener">visit &#8599;</a>
+                        <a href="https://github.com/JuiceAndTheJoe/openevents-archive" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 2">
+                <summary>
+                    <span class="proj-name">satellite-imagery</span>
+                    <span class="badge live">live</span>
+                    <span class="proj-tag">3D globe + Mapbox satellite snapshot viewer</span>
+                </summary>
+                <div class="proj-body">
+                    <p>Spin an interactive 3D globe, pick any target, and pull a static satellite image of that patch of Earth. A Cloudflare Worker proxies Mapbox and keeps the token server-side.</p>
+                    <div class="proj-links">
+                        <a href="../space/space.html">visit &#8599;</a>
+                        <a href="https://github.com/JuiceAndTheJoe/satellite-imagery" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 3">
+                <summary>
+                    <span class="proj-name">global-monitor</span>
+                    <span class="badge live">live</span>
+                    <span class="proj-tag">Real-time world map of flights, quakes &amp; satellites</span>
+                </summary>
+                <div class="proj-body">
+                    <p>A real-time geopolitical dashboard streaming flights, earthquakes, satellites, maritime traffic, weather alerts and geolocated news onto a live world map over WebSockets.</p>
+                    <p class="proj-note">// hosted on Render's free tier &mdash; the backend may take ~30s to wake on first load</p>
+                    <div class="proj-links">
+                        <a href="https://global-monitor-wgkt.onrender.com" target="_blank" rel="noopener">visit &#8599;</a>
+                        <a href="https://github.com/JuiceAndTheJoe/global-monitor" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 4">
+                <summary>
+                    <span class="proj-name">tetrizz</span>
+                    <span class="badge live">live</span>
+                    <span class="proj-tag">Brainrot-coded multiplayer Tetris on OSC</span>
+                </summary>
+                <div class="proj-body">
+                    <p>Solo and server-authoritative 1v1 versus Tetris built with Phaser + Colyseus, with a Postgres-backed leaderboard. Deployed on Eyevinn Open Source Cloud.</p>
+                    <div class="proj-links">
+                        <a href="https://rizz.apps.osaas.io" target="_blank" rel="noopener">visit &#8599;</a>
+                        <a href="https://github.com/JuiceAndTheJoe/tetrizz" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 5">
+                <summary>
+                    <span class="proj-name">kinetic-ranger</span>
+                    <span class="badge live">live</span>
+                    <span class="proj-tag">Passive RF threat-detection radar dashboard</span>
+                </summary>
+                <div class="proj-body">
+                    <p>A passive RF threat-detection prototype (DDH2026 hackathon): a FastAPI backend streams live radar simulation to a React dashboard with a threat banner and RSSI history, with optional SDR hardware support.</p>
+                    <div class="proj-links">
+                        <a href="https://drones.apps.osaas.io" target="_blank" rel="noopener">visit &#8599;</a>
+                        <a href="https://github.com/JuiceAndTheJoe/DDH2026-Kinetic-Ranger-osc" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 6">
+                <summary>
+                    <span class="proj-name">fpv-drone-sim</span>
+                    <span class="badge wip">wip</span>
+                    <span class="proj-tag">Browser-based 3D FPV quadcopter simulator</span>
+                </summary>
+                <div class="proj-body">
+                    <p>A browser-based 3D FPV quadcopter simulator playable on PC and mobile, with arcade and acro flight modes. Built with Three.js + Rapier3D and hosted on GitHub Pages.</p>
+                    <div class="proj-links">
+                        <a href="https://juiceandthejoe.github.io/fpv-drone-sim/" target="_blank" rel="noopener">visit &#8599;</a>
+                        <a href="https://github.com/JuiceAndTheJoe/fpv-drone-sim" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 7">
+                <summary>
+                    <span class="proj-name">innkeeper</span>
+                    <span class="badge wip">wip</span>
+                    <span class="proj-tag">Cozy top-down fantasy inn-renovation game</span>
+                </summary>
+                <div class="proj-body">
+                    <p>A 3/4 top-down cozy fantasy game about renovating a run-down inn &mdash; repair and decorate, hire staff, and serve guests across a tile-based world. Built solo in Unity 6 with AI assistance.</p>
+                    <div class="proj-links">
+                        <a href="https://github.com/JuiceAndTheJoe/innkeeper" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 8">
+                <summary>
+                    <span class="proj-name">voicecircle</span>
+                    <span class="badge wip">wip</span>
+                    <span class="proj-tag">Social audio/video platform with live rooms</span>
+                </summary>
+                <div class="proj-body">
+                    <p>A social audio/video platform with live rooms, voice posts and real-time interactions.</p>
+                    <div class="proj-links">
+                        <a href="https://github.com/JuiceAndTheJoe/voicecircle" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 9">
+                <summary>
+                    <span class="proj-name">booknook</span>
+                    <span class="badge wip">wip</span>
+                    <span class="proj-tag">Book review &amp; tracking app</span>
+                </summary>
+                <div class="proj-body">
+                    <p>A book review and tracking app with Firebase auth and a Google Books integration. Built with React, Express and PostgreSQL.</p>
+                    <div class="proj-links">
+                        <a href="https://github.com/JuiceAndTheJoe/booknook" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project reveal" style="--i: 10">
+                <summary>
+                    <span class="proj-name">mtrl-search</span>
+                    <span class="badge wip">wip</span>
+                    <span class="proj-tag">PDF material indexing &amp; full-text search</span>
+                </summary>
+                <div class="proj-body">
+                    <p>A Python material-indexing system that extracts text and structured article data from PDFs into a SQL database, with a Flask web UI for full-text search and browsing.</p>
+                    <div class="proj-links">
+                        <a href="https://github.com/JuiceAndTheJoe/mtrl-search" target="_blank" rel="noopener">source &#8599;</a>
+                    </div>
+                </div>
+            </details>
+
+        </div>
+
+        <p class="term-line prompt-line reveal" style="--i: 11">
+            <span class="prompt">juice@kth:~$</span>
+            <span class="cursor" aria-hidden="true"></span>
+        </p>
+    </div>
+</main>
+
+</body>
+</html>
