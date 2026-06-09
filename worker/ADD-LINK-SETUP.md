@@ -66,6 +66,29 @@ Expect `200 {"ok":true,"id":"…","title":"…"}`. The link is committed to
 New links are stored with `status: "inbox"` and empty `tags` — curate later by
 editing `links.json`.
 
+`POST /delete-link`, JSON body:
+
+| field | required | notes |
+|-------|----------|-------|
+| `id`  | yes      | The `id` of the link to remove from `links.json`. Returns 404 if no match. |
+
+Both endpoints use the same `X-Node-Secret` header and rate limit.
+
+## Adding / deleting from the board UI
+
+Once the Worker is deployed, the board itself (`/node/`) can add and delete
+clues — no need for `add.html`:
+
+- Click **🔒 admin** (bottom-right) and paste your `NODE_SECRET` once (stored in
+  that browser's `localStorage`, same as `add.html`).
+- **➕ new clue** opens an add form; each clue's detail overlay gets a **remove**
+  button. Both call the Worker, which commits to `links.json`.
+- The board updates optimistically; the live site catches up on the next Pages
+  rebuild (~1–2 min). **🔓 lock** clears the key.
+
+Visitors without the key only ever see a read-only board — the Worker rejects any
+add/delete lacking the correct `X-Node-Secret`.
+
 ## Behaviour / safeguards
 
 - **401** if `X-Node-Secret` is missing or wrong.

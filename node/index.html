@@ -98,6 +98,22 @@
             <a class="overlay-visit" id="ov-visit" target="_blank" rel="noopener">Visit &#8599;</a>
             <span class="overlay-date" id="ov-date"></span>
         </div>
+        <button class="overlay-delete" id="ov-delete" type="button" hidden>&#128465; remove clue</button>
+    </div>
+</div>
+
+<!-- Admin bar — only acts on add/delete once unlocked with the Node key -->
+<div class="admin-bar" id="admin-bar">
+    <button class="admin-btn" id="admin-new" type="button" hidden>&#10133; new clue</button>
+    <button class="admin-btn admin-lock" id="admin-toggle" type="button">&#128274; admin</button>
+</div>
+
+<!-- Admin modal — key entry, then the add-clue form -->
+<div class="overlay" id="admin" hidden>
+    <div class="overlay-card admin-card" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+        <button class="overlay-close" id="admin-close" aria-label="Close">&times;</button>
+        <h2 class="overlay-title" id="admin-title"></h2>
+        <div id="admin-body"></div>
     </div>
 </div>
 

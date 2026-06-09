@@ -152,6 +152,9 @@ export default {
     if (req.method === 'POST' && u.pathname === '/add-link') {
       return handleAddLink(req, env, cors);
     }
+    if (req.method === 'POST' && u.pathname === '/delete-link') {
+      return handleDeleteLink(req, env, cors);
+    }
 
     if (req.method !== 'GET') {
       return jsonError('Method not allowed', 405, cors);
@@ -347,7 +350,43 @@ async function handleAddLink(req, env, cors) {
     return jsonError('GitHub write failed: ' + err.message, 502, cors);
   }
 
-  return new Response(JSON.stringify({ ok: true, id: link.id, title: link.title }), {
+  return new Response(JSON.stringify({ ok: true, id: link.id, title: link.title, link }), {
+    status: 200,
+    headers: { ...cors, 'Content-Type': 'application/json' },
+  });
+}
+
+// ============================================================
+// The Node — POST /delete-link
+// Body: { id }. Removes the matching link from node/links.json.
+// ============================================================
+async function handleDeleteLink(req, env, cors) {
+  if (!env.NODE_SECRET || req.headers.get('X-Node-Secret') !== env.NODE_SECRET) {
+    return jsonError('Unauthorized', 401, cors);
+  }
+
+  const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!(await bumpRateLimit('add', ip, ADD_PER_IP_PER_MIN))) {
+    return jsonError('Rate limited — slow down', 429, cors);
+  }
+
+  let payload;
+  try { payload = await req.json(); }
+  catch { return jsonError('Body must be JSON', 400, cors); }
+
+  const id = String(payload.id || '').trim();
+  if (!id) return jsonError('Provide a link id', 400, cors);
+
+  if (!env.GITHUB_PAT) return jsonError('Server missing GITHUB_PAT', 500, cors);
+
+  try {
+    await deleteLinkFromRepo(env, id);
+  } catch (err) {
+    if (err.message === 'not found') return jsonError('No link with that id', 404, cors);
+    return jsonError('GitHub write failed: ' + err.message, 502, cors);
+  }
+
+  return new Response(JSON.stringify({ ok: true, id }), {
     status: 200,
     headers: { ...cors, 'Content-Type': 'application/json' },
   });
@@ -416,36 +455,50 @@ function decodeEntities(s) {
     .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)));
 }
 
-// Read node/links.json, push the new link, write it back. One GET (for the
+// node/links.json read/write via the GitHub Contents API. One GET (for the
 // blob SHA) + one PUT, both authenticated with the fine-grained PAT.
-async function appendLinkToRepo(env, link) {
-  const api = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`;
-  const ghHeaders = {
+const GH_API = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`;
+function ghHeaders(env) {
+  return {
     'Authorization': `Bearer ${env.GITHUB_PAT}`,
     'Accept': 'application/vnd.github+json',
     'User-Agent': 'TheNodeBot/1.0',
     'X-GitHub-Api-Version': '2022-11-28',
   };
-
-  const getRes = await fetch(`${api}?ref=${GH_BRANCH}`, { headers: ghHeaders });
-  if (!getRes.ok) throw new Error('read ' + getRes.status);
-  const file = await getRes.json();
-
-  const data = JSON.parse(b64ToText(file.content));
-  if (!Array.isArray(data.links)) data.links = [];
-  data.links.push(link);
-
-  const putRes = await fetch(api, {
+}
+async function ghReadLinks(env) {
+  const res = await fetch(`${GH_API}?ref=${GH_BRANCH}`, { headers: ghHeaders(env) });
+  if (!res.ok) throw new Error('read ' + res.status);
+  const file = await res.json();
+  return { sha: file.sha, data: JSON.parse(b64ToText(file.content)) };
+}
+async function ghWriteLinks(env, data, sha, message) {
+  const res = await fetch(GH_API, {
     method: 'PUT',
-    headers: { ...ghHeaders, 'Content-Type': 'application/json' },
+    headers: { ...ghHeaders(env), 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      message: `node: pin "${link.title}"`,
+      message,
       content: textToB64(JSON.stringify(data, null, 2) + '\n'),
-      sha: file.sha,
+      sha,
       branch: GH_BRANCH,
     }),
   });
-  if (!putRes.ok) throw new Error('write ' + putRes.status);
+  if (!res.ok) throw new Error('write ' + res.status);
+}
+
+async function appendLinkToRepo(env, link) {
+  const { sha, data } = await ghReadLinks(env);
+  if (!Array.isArray(data.links)) data.links = [];
+  data.links.push(link);
+  await ghWriteLinks(env, data, sha, `node: pin "${link.title}"`);
+}
+
+async function deleteLinkFromRepo(env, id) {
+  const { sha, data } = await ghReadLinks(env);
+  const before = Array.isArray(data.links) ? data.links.length : 0;
+  data.links = (data.links || []).filter((l) => l.id !== id);
+  if (data.links.length === before) throw new Error('not found');
+  await ghWriteLinks(env, data, sha, `node: remove ${id}`);
 }
 
 // UTF-8-safe base64 helpers — GitHub stores file content as base64 of the

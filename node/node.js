@@ -10,6 +10,8 @@
 
   const GAP = 26;
   const STATUS_KEY = "node_status";
+  const SECRET_KEY = "node_secret";
+  const ENDPOINT = "https://satellite-proxy.esvela02.workers.dev";
   const MOBILE = () => window.matchMedia("(max-width: 720px)").matches;
 
   const els = {
@@ -35,8 +37,16 @@
       visit: document.getElementById("ov-visit"),
       date:  document.getElementById("ov-date"),
       close: document.getElementById("ov-close"),
+      del:   document.getElementById("ov-delete"),
       statusBtns: [...document.querySelectorAll(".status-btn")],
     },
+    adminBar:    document.getElementById("admin-bar"),
+    adminNew:    document.getElementById("admin-new"),
+    adminToggle: document.getElementById("admin-toggle"),
+    admin:       document.getElementById("admin"),
+    adminClose:  document.getElementById("admin-close"),
+    adminTitle:  document.getElementById("admin-title"),
+    adminBody:   document.getElementById("admin-body"),
   };
 
   let LINKS = [];
@@ -290,6 +300,7 @@
       chip.addEventListener("click", () => { setActiveTag(chip.dataset.tag); closeOverlay(); }));
     o.visit.href = link.url;
     o.date.textContent = link.dateAdded ? "pinned " + fmtDate(link.dateAdded) : "";
+    o.del.hidden = !isAdmin();
     syncOverlayStatus(getStatus(link));
     els.overlay.hidden = false;
     o.close.focus();
@@ -309,6 +320,151 @@
     refresh();
   }
 
+  /* ---------- admin: add / delete via the Worker ---------- */
+
+  function getSecret() { return localStorage.getItem(SECRET_KEY); }
+  function isAdmin() { return !!getSecret(); }
+
+  function updateAdminUI() {
+    const admin = isAdmin();
+    els.adminBar.classList.toggle("unlocked", admin);
+    els.adminNew.hidden = !admin;
+    els.adminToggle.innerHTML = admin ? "&#128275; lock" : "&#128274; admin";
+    if (els.ov.del && !els.overlay.hidden) els.ov.del.hidden = !admin;
+  }
+
+  function closeAdminModal() { els.admin.hidden = true; els.adminBody.innerHTML = ""; }
+
+  function openAdminModal(mode) {
+    if (mode === "key") {
+      els.adminTitle.textContent = "Admin access";
+      els.adminBody.innerHTML = `
+        <p class="admin-hint">Enter the Node key to add &amp; remove clues from this device.
+          It is stored only in this browser &mdash; never in the page or repo.</p>
+        <label for="ak">Node key</label>
+        <input type="password" id="ak" autocomplete="off" placeholder="the NODE_SECRET value">
+        <button class="admin-submit" id="ak-save" type="button">Unlock</button>
+        <p class="admin-status" id="admin-status"></p>`;
+      els.admin.hidden = false;
+      const inp = document.getElementById("ak");
+      inp.focus();
+      const save = () => {
+        const v = inp.value.trim();
+        if (!v) return;
+        localStorage.setItem(SECRET_KEY, v);
+        updateAdminUI();
+        closeAdminModal();
+      };
+      document.getElementById("ak-save").addEventListener("click", save);
+      inp.addEventListener("keydown", (e) => { if (e.key === "Enter") save(); });
+    } else {
+      els.adminTitle.textContent = "Pin a new clue";
+      const opts = Object.entries(CATS)
+        .map(([id, c]) => `<option value="${id}">${escapeHtml(c.label)}</option>`).join("");
+      els.adminBody.innerHTML = `
+        <label for="au">Link URL</label>
+        <input type="url" id="au" inputmode="url" autocapitalize="off" placeholder="https://…">
+        <label for="acat">Pin to</label>
+        <select id="acat">${opts}</select>
+        <label for="anote">Note <span style="opacity:.6">(optional)</span></label>
+        <textarea id="anote" placeholder="why is this worth pinning?"></textarea>
+        <button class="admin-submit" id="aadd" type="button">Pin it &#128204;</button>
+        <p class="admin-status" id="admin-status"></p>`;
+      els.admin.hidden = false;
+      document.getElementById("au").focus();
+      document.getElementById("aadd").addEventListener("click", submitNewClue);
+    }
+  }
+
+  async function submitNewClue() {
+    const secret = getSecret();
+    if (!secret) { openAdminModal("key"); return; }
+    const url = document.getElementById("au").value.trim();
+    const status = document.getElementById("admin-status");
+    const btn = document.getElementById("aadd");
+    if (!/^https?:\/\//i.test(url)) {
+      status.className = "admin-status err"; status.textContent = "Enter a valid http(s) URL.";
+      return;
+    }
+    btn.disabled = true; status.className = "admin-status"; status.textContent = "Pinning…";
+    try {
+      const res = await fetch(ENDPOINT + "/add-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Node-Secret": secret },
+        body: JSON.stringify({
+          url,
+          category: document.getElementById("acat").value,
+          note: document.getElementById("anote").value.trim(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        status.className = "admin-status err"; status.textContent = "Key rejected. Unlock again.";
+        localStorage.removeItem(SECRET_KEY); updateAdminUI();
+      } else if (!res.ok) {
+        status.className = "admin-status err"; status.textContent = "Failed: " + (data.error || res.status);
+      } else {
+        if (data.link) insertLink(data.link);
+        status.className = "admin-status ok";
+        status.innerHTML = `Pinned &ldquo;${escapeHtml(data.title || "link")}&rdquo;! ` +
+          `Committed &mdash; the live site catches up in ~1&ndash;2 min.`;
+        document.getElementById("au").value = ""; document.getElementById("anote").value = "";
+      }
+    } catch (e) {
+      status.className = "admin-status err"; status.textContent = "Network error: " + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function deleteCurrentClue() {
+    if (!currentLink) return;
+    const secret = getSecret();
+    if (!secret) { openAdminModal("key"); return; }
+    if (!confirm(`Remove "${currentLink.title}" from the board? This commits to the repo.`)) return;
+    const id = currentLink.id;
+    const btn = els.ov.del;
+    btn.disabled = true; const prev = btn.innerHTML; btn.textContent = "removing…";
+    try {
+      const res = await fetch(ENDPOINT + "/delete-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Node-Secret": secret },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        alert("Key rejected. Unlock again."); localStorage.removeItem(SECRET_KEY); updateAdminUI();
+      } else if (!res.ok) {
+        alert("Delete failed: " + (data.error || res.status));
+      } else {
+        removeLink(id);
+        closeOverlay();
+      }
+    } catch (e) {
+      alert("Network error: " + e.message);
+    } finally {
+      btn.disabled = false; btn.innerHTML = prev;
+    }
+  }
+
+  // Optimistic board updates so add/delete feel instant (the repo + live
+  // Pages copy catch up on the next rebuild).
+  function insertLink(link) {
+    if (LINKS.some((l) => l.id === link.id)) return;
+    LINKS.push(link);
+    if (!CATS[link.category]) activeCats.add(link.category);
+    els.cards.appendChild(buildCard(link, 0));
+    applySort();
+    refresh();
+  }
+  function removeLink(id) {
+    LINKS = LINKS.filter((l) => l.id !== id);
+    const card = cardById.get(id);
+    if (card) { card.remove(); cardById.delete(id); }
+    delete statusOverrides[id];
+    refresh();
+  }
+
   /* ---------- orchestration ---------- */
 
   function refresh() { applyVisibility(); layout(); }
@@ -319,9 +475,22 @@
   async function init() {
     els.ov.close.addEventListener("click", closeOverlay);
     els.overlay.addEventListener("click", (e) => { if (e.target === els.overlay) closeOverlay(); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeOverlay(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { closeOverlay(); closeAdminModal(); }
+    });
     els.ov.statusBtns.forEach((btn) =>
       btn.addEventListener("click", () => { if (currentLink) setStatus(currentLink, btn.dataset.status); }));
+    els.ov.del.addEventListener("click", deleteCurrentClue);
+
+    // Admin: unlock/lock + add-clue modal.
+    els.adminToggle.addEventListener("click", () => {
+      if (isAdmin()) { localStorage.removeItem(SECRET_KEY); updateAdminUI(); }
+      else openAdminModal("key");
+    });
+    els.adminNew.addEventListener("click", () => openAdminModal("add"));
+    els.adminClose.addEventListener("click", closeAdminModal);
+    els.admin.addEventListener("click", (e) => { if (e.target === els.admin) closeAdminModal(); });
+    updateAdminUI();
 
     els.search.addEventListener("input", () => { query = els.search.value.trim().toLowerCase(); refresh(); });
     els.sort.addEventListener("change", () => { sortMode = els.sort.value; applySort(); refresh(); });
