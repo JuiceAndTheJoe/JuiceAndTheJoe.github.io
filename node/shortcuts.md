@@ -25,11 +25,16 @@ Builds a "Add to The Node" action that appears in Safari's Share sheet. The
    keep **URLs** (and **Safari web pages**) on.
 3. Add action **Get URLs from Input** (its input = *Shortcut Input*). This pulls
    the shared page URL.
-4. *(Optional category picker)* Add **Choose from Menu** with items
-   `Inbox`, `Inspiration`, `Employers`, `Social`, `Thesis`. In each branch set a
-   **Text** action to the matching id (`inbox`, `inspiration`, `employers`,
-   `social`, `thesis`) and store it in a variable named **Category**. Skip this to
-   always use `inbox`.
+4. *(Category dropdown — recommended)* Add a pick-list so you choose the board
+   each time:
+   - Add action **List** → *Add new item* for each of these exact category ids
+     (one per line): `inbox`, `social`, `employers`, `inspiration`, `thesis`.
+   - Add action **Choose from List** → input = the **List** above; set
+     **Prompt** to `Pin to which board?`; leave *Select Multiple* off. Its output
+     is the **Chosen Item** variable.
+   - Skip this step to always use `inbox`.
+   - Use the **ids** as the list items — that's what the Worker keys on. (An
+     unknown value would just fall back to `inbox`, never an invisible card.)
 5. Add action **Get Contents of URL**:
    - **URL:** `https://satellite-proxy.esvela02.workers.dev/add-link`
    - Expand **Show More**:
@@ -39,7 +44,8 @@ Builds a "Add to The Node" action that appears in Safari's Share sheet. The
        - `Content-Type` → `application/json`
      - **Request Body:** **JSON**, with fields:
        - `url` (Text) → the **URLs** variable from step 3
-       - `category` (Text) → the **Category** variable (or just type `inbox`)
+       - `category` (Text) → the **Chosen Item** variable from step 4
+         (or just type `inbox` if you skipped the dropdown)
        - `note` (Text) → leave empty, or insert **Ask Each Time**
 6. *(Nice feedback)* Add **Get Dictionary Value** → `title` from the
    *Contents of URL* result, then **Show Notification** with text
