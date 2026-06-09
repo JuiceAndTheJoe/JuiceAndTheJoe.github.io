@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Node &mdash; Jose Velásquez</title>
+<meta name="description" content="The Node — a detective evidence board of links, projects, employers and inspirations.">
+<script>document.documentElement.className += " js";</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Special+Elite&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="node.css">
+<script src="node.js" defer></script>
+</head>
+<body>
+
+<div class="home-button-container">
+    <a href="/" class="home-link">
+        <img src="../web/knas_liten.png" alt="Return to Homepage" class="spin-on-hover">
+        <span class="hover-text">Take me back!</span>
+    </a>
+</div>
+
+<main class="board-wrap" aria-label="The Node evidence board">
+
+    <header class="case-header">
+        <div class="case-stamp">CASE&nbsp;#001</div>
+        <h1 class="case-title">THE&nbsp;NODE</h1>
+        <p class="case-sub">// the starting point for everything &mdash; pin a clue, follow the thread</p>
+    </header>
+
+    <div class="toolbar" role="search">
+        <label class="search-field">
+            <span class="search-icon" aria-hidden="true">&#128270;</span>
+            <input
+                type="search"
+                id="search"
+                placeholder="search the case files&hellip;"
+                autocomplete="off"
+                aria-label="Search links">
+        </label>
+        <div class="filters" id="filters" aria-label="Filter by category">
+            <!-- category filter pins injected by node.js -->
+        </div>
+        <div class="controls">
+            <label class="ctrl-sort">
+                <span>sort</span>
+                <select id="sort" aria-label="Sort links">
+                    <option value="recent">newest first</option>
+                    <option value="oldest">oldest first</option>
+                    <option value="az">A&ndash;Z</option>
+                </select>
+            </label>
+            <button class="ctrl-toggle" id="hideDone" type="button" aria-pressed="false">
+                hide closed
+            </button>
+        </div>
+    </div>
+
+    <div class="activetag" id="activetag" hidden>
+        following thread:
+        <button type="button" id="activetag-clear" class="activetag-chip"></button>
+    </div>
+
+    <div class="board" id="board">
+        <svg class="thread-layer" id="threads" aria-hidden="true"
+             xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="cards" id="cards">
+            <!-- clue cards injected by node.js -->
+        </div>
+        <p class="board-empty" id="empty" hidden>No clues match &mdash; case cold. Try another search.</p>
+        <p class="board-loading" id="loading">unsealing the case files&hellip;</p>
+    </div>
+
+    <footer class="case-footer">
+        <span id="count" class="case-count"></span>
+        <span class="case-meta">Pinned to the board &middot; tap a card to investigate</span>
+    </footer>
+
+</main>
+
+<!-- Detail overlay (a single reused "evidence close-up") -->
+<div class="overlay" id="overlay" hidden>
+    <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="ov-title">
+        <button class="overlay-close" id="ov-close" aria-label="Close">&times;</button>
+        <img class="overlay-photo" id="ov-photo" alt="">
+        <span class="overlay-cat" id="ov-cat"></span>
+        <h2 class="overlay-title" id="ov-title"></h2>
+        <p class="overlay-desc" id="ov-desc"></p>
+        <div class="overlay-tags" id="ov-tags"></div>
+        <div class="overlay-status" role="group" aria-label="Investigation status">
+            <span class="overlay-status-label">status:</span>
+            <button type="button" class="status-btn" data-status="inbox">inbox</button>
+            <button type="button" class="status-btn" data-status="active">active</button>
+            <button type="button" class="status-btn" data-status="done">closed</button>
+        </div>
+        <div class="overlay-foot">
+            <a class="overlay-visit" id="ov-visit" target="_blank" rel="noopener">Visit &#8599;</a>
+            <span class="overlay-date" id="ov-date"></span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

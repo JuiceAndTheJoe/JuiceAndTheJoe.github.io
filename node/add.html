@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pin a Clue &mdash; The Node</title>
+<meta name="description" content="Add a link to The Node from anywhere.">
+<meta name="theme-color" content="#c79a5b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Add to The Node">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="../web/knas_liten.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Special+Elite&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cork:#c79a5b; --cork-dark:#a97e44; --cork-edge:#6f4e22;
+    --paper:#f7f1e1; --paper-edge:#e7ddc4; --ink:#2a2118;
+    --thread:#c5172e; --pin:#d63d3d;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; min-height:100%; }
+  body {
+    font-family:"Special Elite","Courier New",monospace; color:var(--ink);
+    background-color:var(--cork);
+    background-image:
+      radial-gradient(circle at 18% 22%, rgba(255,255,255,0.10) 0 2px, transparent 3px),
+      radial-gradient(circle at 62% 48%, rgba(0,0,0,0.10) 0 2px, transparent 3px),
+      radial-gradient(circle at 50% 35%, var(--cork) 0%, var(--cork-dark) 70%, var(--cork-edge) 130%);
+    background-size:23px 23px,29px 29px,100% 100%;
+    background-attachment:fixed;
+    display:flex; flex-direction:column; align-items:center;
+    padding:calc(28px + env(safe-area-inset-top)) 18px 40px;
+  }
+  a { color:var(--thread); }
+  .home { position:fixed; top:14px; left:14px; }
+  .home img { width:48px; filter:drop-shadow(2px 3px 2px rgba(0,0,0,0.4)); }
+  h1 {
+    font-family:"Permanent Marker",cursive; font-size:2rem; margin:6px 0 2px;
+    color:#1c140c; transform:rotate(-1.4deg);
+    text-shadow:2px 2px 0 rgba(255,255,255,0.18), 4px 5px 6px rgba(0,0,0,0.3);
+  }
+  .sub { font-size:0.9rem; opacity:0.82; margin:0 0 20px; text-align:center; }
+
+  .card {
+    width:min(440px,100%); background:var(--paper); border:1px solid var(--paper-edge);
+    padding:22px 20px 24px; box-shadow:3px 6px 14px rgba(0,0,0,0.34);
+    position:relative; transform:rotate(-0.5deg);
+  }
+  .card::before {
+    content:""; position:absolute; top:-10px; left:50%; width:20px; height:20px;
+    margin-left:-10px; border-radius:50%;
+    background:radial-gradient(circle at 34% 28%, #fff 0 2px, var(--pin) 45%, rgba(0,0,0,0.55) 130%);
+    box-shadow:1px 2px 4px rgba(0,0,0,0.55);
+  }
+  label { display:block; font-family:"Patrick Hand",cursive; font-size:1.05rem; margin:14px 0 5px; }
+  input, textarea, select {
+    width:100%; font-family:"Special Elite",monospace; font-size:16px; /* >=16px: no iOS zoom */
+    color:var(--ink); background:#fffdf6; border:1px solid var(--paper-edge);
+    border-radius:3px; padding:11px 12px;
+  }
+  textarea { resize:vertical; min-height:60px; }
+  input:focus, textarea:focus, select:focus { outline:2px solid var(--thread); outline-offset:1px; }
+  button {
+    margin-top:20px; width:100%; cursor:pointer;
+    font-family:"Permanent Marker",cursive; font-size:1.2rem;
+    background:var(--thread); color:#fff; border:0; border-radius:3px; padding:13px;
+    box-shadow:2px 3px 7px rgba(0,0,0,0.34); transition:transform .14s ease, opacity .14s ease;
+  }
+  button:hover { transform:translateY(-2px); }
+  button:disabled { opacity:.55; cursor:wait; transform:none; }
+
+  .status { margin-top:16px; min-height:1.4em; font-size:0.95rem; }
+  .status.ok { color:#2e7d32; }
+  .status.err { color:var(--thread); }
+  .status a { font-family:"Permanent Marker",cursive; }
+
+  .keyrow { margin-top:18px; font-size:0.78rem; opacity:0.75; text-align:center; }
+  .keyrow button { display:inline; width:auto; margin:0; padding:0; background:none; color:var(--thread);
+    box-shadow:none; font-family:"Special Elite",monospace; font-size:0.78rem; text-decoration:underline; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+
+<a class="home" href="/node/" aria-label="Back to The Node">
+  <img src="../web/knas_liten.png" alt="The Node">
+</a>
+
+<h1>Pin a Clue</h1>
+<p class="sub">// drop a link onto The Node from anywhere</p>
+
+<!-- Key gate: shown until a NODE_SECRET is stored locally on this device -->
+<div class="card hidden" id="gate">
+  <p style="margin-top:0">First time on this device? Paste your <strong>Node key</strong> to unlock adding.
+     It is stored only in this browser&rsquo;s local storage &mdash; never in the page or the repo.</p>
+  <label for="keyInput">Node key</label>
+  <input type="password" id="keyInput" autocomplete="off" placeholder="the NODE_SECRET value">
+  <button id="saveKey">Unlock</button>
+</div>
+
+<!-- Add form -->
+<div class="card hidden" id="form">
+  <label for="url">Link URL</label>
+  <input type="url" id="url" inputmode="url" autocapitalize="off" autocorrect="off"
+         placeholder="https://&hellip;" required>
+
+  <label for="category">Pin to</label>
+  <select id="category"><option value="inbox">Inbox</option></select>
+
+  <label for="note">Note <span style="opacity:.6">(optional)</span></label>
+  <textarea id="note" placeholder="why is this worth pinning?"></textarea>
+
+  <button id="submit">Pin it &#128204;</button>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+  <p class="keyrow">key stored on this device &middot; <button id="forgetKey" type="button">forget key</button></p>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const ENDPOINT = "https://satellite-proxy.esvela02.workers.dev/add-link";
+  const KEY = "node_secret";
+  const FALLBACK_CATS = [
+    ["inbox","Inbox"], ["social","Social Media"], ["employers","Prospective Employers"],
+    ["inspiration","Inspirational Projects"], ["thesis","Thesis / Summer Jobs"]
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const gate = $("gate"), form = $("form");
+
+  function showForm() { gate.classList.add("hidden"); form.classList.remove("hidden"); }
+  function showGate() { form.classList.add("hidden"); gate.classList.remove("hidden"); $("keyInput").focus(); }
+
+  // Populate category dropdown from links.json (single source of truth),
+  // falling back to a static list if the fetch fails.
+  async function loadCats() {
+    let cats = FALLBACK_CATS;
+    try {
+      const r = await fetch("links.json", { cache: "no-cache" });
+      if (r.ok) {
+        const d = await r.json();
+        if (Array.isArray(d.categories) && d.categories.length)
+          cats = d.categories.map((c) => [c.id, c.label]);
+      }
+    } catch { /* use fallback */ }
+    const sel = $("category");
+    sel.innerHTML = cats.map(([id, label]) =>
+      `<option value="${id}">${label}</option>`).join("");
+  }
+
+  // Prefill URL if launched via share target / ?url= query.
+  function prefillFromQuery() {
+    const p = new URLSearchParams(location.search);
+    const shared = p.get("url") || p.get("text") || "";
+    if (shared) {
+      const m = shared.match(/https?:\/\/\S+/);
+      if (m) $("url").value = m[0];
+    }
+  }
+
+  $("saveKey").addEventListener("click", () => {
+    const v = $("keyInput").value.trim();
+    if (!v) return;
+    localStorage.setItem(KEY, v);
+    $("keyInput").value = "";
+    showForm();
+  });
+  $("forgetKey").addEventListener("click", () => {
+    localStorage.removeItem(KEY);
+    showGate();
+  });
+
+  $("submit").addEventListener("click", async () => {
+    const status = $("status");
+    const url = $("url").value.trim();
+    const secret = localStorage.getItem(KEY);
+    if (!secret) { showGate(); return; }
+    if (!/^https?:\/\//i.test(url)) {
+      status.className = "status err"; status.textContent = "Enter a valid http(s) URL.";
+      return;
+    }
+    const btn = $("submit");
+    btn.disabled = true;
+    status.className = "status"; status.textContent = "Pinning…";
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Node-Secret": secret },
+        body: JSON.stringify({
+          url,
+          note: $("note").value.trim(),
+          category: $("category").value,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        status.className = "status err";
+        status.textContent = "Key rejected. Re-enter it.";
+        localStorage.removeItem(KEY); showGate();
+      } else if (!res.ok) {
+        status.className = "status err";
+        status.textContent = "Failed: " + (data.error || res.status);
+      } else {
+        status.className = "status ok";
+        status.innerHTML = `Pinned &ldquo;${(data.title || "link").replace(/</g,"&lt;")}&rdquo;! ` +
+          `Live on <a href="/node/">The Node</a> in ~1–2 min.`;
+        $("url").value = ""; $("note").value = "";
+      }
+    } catch (e) {
+      status.className = "status err";
+      status.textContent = "Network error: " + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  loadCats();
+  prefillFromQuery();
+  if (localStorage.getItem(KEY)) showForm(); else showGate();
+})();
+</script>
+
+</body>
+</html>

@@ -56,11 +56,22 @@ function corsHeaders(origin) {
   const allowed = ALLOWED_ORIGINS.has(origin);
   return {
     'Access-Control-Allow-Origin': allowed ? origin : 'null',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Node-Secret',
     'Vary': 'Origin',
   };
 }
+
+// --- "The Node" add-link endpoint config ---
+// POST /add-link appends a pinned link to node/links.json in the site repo.
+// The GitHub PAT and the shared NODE_SECRET both live as Worker secrets:
+//   wrangler secret put GITHUB_PAT     (fine-grained, this repo, Contents R/W)
+//   wrangler secret put NODE_SECRET    (random string; the caller echoes it)
+const GH_OWNER  = 'JuiceAndTheJoe';
+const GH_REPO   = 'JuiceAndTheJoe.github.io';
+const GH_BRANCH = 'main';
+const GH_PATH   = 'node/links.json';
+const ADD_PER_IP_PER_MIN = 5;
 
 // `<img src>` requests don't send an Origin header — only Referer. Accept
 // either as proof that the call is coming from one of our pages.
@@ -132,6 +143,16 @@ export default {
     if (req.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: cors });
     }
+
+    const u = new URL(req.url);
+
+    // The Node add-link endpoint. Auth is the shared NODE_SECRET (not origin),
+    // so it must run BEFORE the GET-only / allowed-origin gates — the iOS
+    // Shortcut sends neither Origin nor Referer.
+    if (req.method === 'POST' && u.pathname === '/add-link') {
+      return handleAddLink(req, env, cors);
+    }
+
     if (req.method !== 'GET') {
       return jsonError('Method not allowed', 405, cors);
     }
@@ -139,7 +160,6 @@ export default {
       return jsonError('Forbidden origin', 403, cors);
     }
 
-    const u = new URL(req.url);
     const tileMatch = u.pathname.match(TILE_PATH_RE);
     if (tileMatch) {
       return handleTile(req, env, ctx, cors, tileMatch);
@@ -267,4 +287,177 @@ async function handleTile(req, env, ctx, cors, [, zStr, xStr, yStr]) {
   out.set('Content-Type', contentType);
   out.set('Cache-Control', 'public, max-age=31536000, immutable');
   return new Response(body, { status: 200, headers: out });
+}
+
+// ============================================================
+// The Node — POST /add-link
+// Body: { url, note?, category? }. Fetches the target page, scrapes
+// title/description/og:image, then appends a link object to
+// node/links.json via the GitHub Contents API (read SHA → push → write).
+// ============================================================
+async function handleAddLink(req, env, cors) {
+  if (!env.NODE_SECRET || req.headers.get('X-Node-Secret') !== env.NODE_SECRET) {
+    return jsonError('Unauthorized', 401, cors);
+  }
+
+  const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!(await bumpRateLimit('add', ip, ADD_PER_IP_PER_MIN))) {
+    return jsonError('Rate limited — slow down', 429, cors);
+  }
+
+  let payload;
+  try {
+    payload = await req.json();
+  } catch {
+    return jsonError('Body must be JSON', 400, cors);
+  }
+
+  let target;
+  try {
+    target = new URL(String(payload.url || '').trim());
+    if (!/^https?:$/.test(target.protocol)) throw new Error('bad protocol');
+  } catch {
+    return jsonError('Provide a valid http(s) url', 400, cors);
+  }
+
+  // Server-config guard — checked after the request is validated so a
+  // malformed call still gets a 400, not a 500.
+  if (!env.GITHUB_PAT) {
+    return jsonError('Server missing GITHUB_PAT', 500, cors);
+  }
+
+  const meta = await scrapeMeta(target);
+
+  const link = {
+    id: crypto.randomUUID(),
+    url: target.href,
+    title: meta.title || target.hostname.replace(/^www\./, ''),
+    description: (payload.note && String(payload.note).trim()) || meta.description || '',
+    category: typeof payload.category === 'string' && payload.category ? payload.category : 'inbox',
+    tags: [],
+    status: 'inbox',
+    favicon: `https://www.google.com/s2/favicons?domain=${target.hostname}&sz=64`,
+    ogImage: meta.ogImage || null,
+    dateAdded: new Date().toISOString(),
+  };
+
+  try {
+    await appendLinkToRepo(env, link);
+  } catch (err) {
+    return jsonError('GitHub write failed: ' + err.message, 502, cors);
+  }
+
+  return new Response(JSON.stringify({ ok: true, id: link.id, title: link.title }), {
+    status: 200,
+    headers: { ...cors, 'Content-Type': 'application/json' },
+  });
+}
+
+// Fetch the target page and pull title / description / og:image out of the
+// HTML. Best-effort: any failure just yields empty fields and the link is
+// still added (with a favicon and the URL).
+async function scrapeMeta(target) {
+  const out = { title: '', description: '', ogImage: '' };
+  try {
+    const res = await fetch(target.href, {
+      headers: { 'User-Agent': 'TheNodeBot/1.0 (+https://juiceandthejoe.github.io)' },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return out;
+    const type = res.headers.get('Content-Type') || '';
+    if (!type.includes('text/html')) return out;
+    // Only need the <head>; cap the read so a huge page can't blow memory.
+    const html = (await res.text()).slice(0, 200000);
+
+    out.title =
+      metaContent(html, 'og:title') ||
+      metaContent(html, 'twitter:title') ||
+      tagText(html, 'title');
+    out.description =
+      metaContent(html, 'og:description') ||
+      metaContent(html, 'twitter:description') ||
+      metaNamed(html, 'description');
+    const img =
+      metaContent(html, 'og:image') ||
+      metaContent(html, 'twitter:image');
+    if (img) {
+      try { out.ogImage = new URL(img, target.href).href; } catch { /* ignore */ }
+    }
+  } catch { /* network/timeout — best-effort */ }
+  out.title = decodeEntities(out.title).trim().slice(0, 160);
+  out.description = decodeEntities(out.description).trim().slice(0, 280);
+  return out;
+}
+
+function metaContent(html, prop) {
+  // Matches <meta property="og:title" content="..."> in either attr order.
+  const re = new RegExp(
+    '<meta[^>]+(?:property|name)=["\']' + escapeRe(prop) +
+    '["\'][^>]*content=["\']([^"\']*)["\']', 'i');
+  const m = html.match(re);
+  if (m) return m[1];
+  const re2 = new RegExp(
+    '<meta[^>]+content=["\']([^"\']*)["\'][^>]*(?:property|name)=["\']' +
+    escapeRe(prop) + '["\']', 'i');
+  const m2 = html.match(re2);
+  return m2 ? m2[1] : '';
+}
+function metaNamed(html, name) { return metaContent(html, name); }
+function tagText(html, tag) {
+  const m = html.match(new RegExp('<' + tag + '[^>]*>([^<]*)</' + tag + '>', 'i'));
+  return m ? m[1] : '';
+}
+function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function decodeEntities(s) {
+  return String(s)
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)));
+}
+
+// Read node/links.json, push the new link, write it back. One GET (for the
+// blob SHA) + one PUT, both authenticated with the fine-grained PAT.
+async function appendLinkToRepo(env, link) {
+  const api = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`;
+  const ghHeaders = {
+    'Authorization': `Bearer ${env.GITHUB_PAT}`,
+    'Accept': 'application/vnd.github+json',
+    'User-Agent': 'TheNodeBot/1.0',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+
+  const getRes = await fetch(`${api}?ref=${GH_BRANCH}`, { headers: ghHeaders });
+  if (!getRes.ok) throw new Error('read ' + getRes.status);
+  const file = await getRes.json();
+
+  const data = JSON.parse(b64ToText(file.content));
+  if (!Array.isArray(data.links)) data.links = [];
+  data.links.push(link);
+
+  const putRes = await fetch(api, {
+    method: 'PUT',
+    headers: { ...ghHeaders, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: `node: pin "${link.title}"`,
+      content: textToB64(JSON.stringify(data, null, 2) + '\n'),
+      sha: file.sha,
+      branch: GH_BRANCH,
+    }),
+  });
+  if (!putRes.ok) throw new Error('write ' + putRes.status);
+}
+
+// UTF-8-safe base64 helpers — GitHub stores file content as base64 of the
+// UTF-8 bytes, and titles can carry non-ASCII (e.g. "Velásquez").
+function b64ToText(b64) {
+  const bin = atob(b64.replace(/\n/g, ''));
+  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+function textToB64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
 }

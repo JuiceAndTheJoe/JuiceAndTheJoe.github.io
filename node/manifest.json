@@ -1,0 +1,19 @@
+{
+  "name": "Add to The Node",
+  "short_name": "Pin a Clue",
+  "description": "Pin a link to The Node evidence board from anywhere.",
+  "start_url": "/node/add.html",
+  "scope": "/node/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#c79a5b",
+  "theme_color": "#c79a5b",
+  "icons": [
+    {
+      "src": "../web/knas_liten.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
