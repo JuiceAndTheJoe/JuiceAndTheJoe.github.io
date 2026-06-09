@@ -177,6 +177,18 @@
       "favicon": "https://www.google.com/s2/favicons?domain=juiceandthejoe.github.io&sz=64",
       "ogImage": null,
       "dateAdded": "2026-06-09T14:34:51.212Z"
+    },
+    {
+      "id": "6af26e66-2ab8-4993-9c12-88bc7109a400",
+      "url": "https://rd.nytimes.com/jobs/",
+      "title": "Join R&D at The New York Times",
+      "description": "for summer 202",
+      "category": "Thesis/Summer Jobs",
+      "tags": [],
+      "status": "inbox",
+      "favicon": "https://www.google.com/s2/favicons?domain=rd.nytimes.com&sz=64",
+      "ogImage": "https://images.prismic.io/nytrd-v2/fbfd94c6-9209-48f5-8b47-4c65b11ca8ea_pc3.jpg?auto=compress%2Cformat&amp;rect=0%2C19%2C1600%2C867&amp;w=1200&amp;h=650&amp;fit=max",
+      "dateAdded": "2026-06-09T14:36:51.540Z"
     }
   ]
 }
