@@ -489,6 +489,12 @@ async function ghWriteLinks(env, data, sha, message) {
 async function appendLinkToRepo(env, link) {
   const { sha, data } = await ghReadLinks(env);
   if (!Array.isArray(data.links)) data.links = [];
+  // Validate category against the file's known ids; an unknown value (e.g. a
+  // label like "Thesis/Summer Jobs" instead of the id "thesis") would make the
+  // card unreachable on the board, so fall back to inbox. Mutating link here
+  // also corrects the object returned to the caller for its optimistic render.
+  const validCats = Array.isArray(data.categories) ? data.categories.map((c) => c.id) : [];
+  if (!validCats.includes(link.category)) link.category = 'inbox';
   data.links.push(link);
   await ghWriteLinks(env, data, sha, `node: pin "${link.title}"`);
 }
