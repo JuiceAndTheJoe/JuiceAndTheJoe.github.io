@@ -34,12 +34,7 @@
       "title": "Life at Spotify — Careers",
       "description": "Stockholm audio giant. Dream-tier for a media-tech engineer who also makes music.",
       "category": "employers",
-      "tags": [
-        "media",
-        "stockholm",
-        "music",
-        "career"
-      ],
+      "tags": ["media", "stockholm", "music", "career"],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=lifeatspotify.com&sz=64",
       "ogImage": null,
@@ -51,10 +46,7 @@
       "title": "pepepepebrick (Instagram)",
       "description": "Endlessly inspiring brick/build art. The original spark for this whole board.",
       "category": "inspiration",
-      "tags": [
-        "creative",
-        "art"
-      ],
+      "tags": ["creative", "art"],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=instagram.com&sz=64",
       "ogImage": null,
@@ -66,11 +58,7 @@
       "title": "Bartosz Ciechanowski — Interactive explainers",
       "description": "The gold standard for interactive, hand-built explanations. Aspirational craft.",
       "category": "inspiration",
-      "tags": [
-        "web",
-        "creative",
-        "code"
-      ],
+      "tags": ["web", "creative", "code"],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=ciechanowski.me&sz=64",
       "ogImage": null,
@@ -82,10 +70,7 @@
       "title": "Platsbanken — Summer jobs",
       "description": "Sweden's job bank. Filter for summer / part-time engineering gigs.",
       "category": "thesis",
-      "tags": [
-        "career",
-        "thesis"
-      ],
+      "tags": ["career", "thesis"],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=arbetsformedlingen.se&sz=64",
       "ogImage": null,
@@ -97,11 +82,7 @@
       "title": "FOI — Careers, internships & degree projects",
       "description": "Swedish Defence Research Agency. Summer internships and master-thesis (exjobb) projects in defence and security research.",
       "category": "thesis",
-      "tags": [
-        "defense",
-        "research",
-        "thesis"
-      ],
+      "tags": ["defense", "research", "thesis"],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=foi.se&sz=64",
       "ogImage": null,
@@ -113,10 +94,7 @@
       "title": "FMV — Work with us (exjobb & internships)",
       "description": "Swedish Defence Materiel Administration. Master-thesis placements and summer internships across systems and engineering.",
       "category": "thesis",
-      "tags": [
-        "defense",
-        "thesis"
-      ],
+      "tags": ["defense", "thesis"],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=fmv.se&sz=64",
       "ogImage": null,
@@ -128,11 +106,7 @@
       "title": "Saab — Students & Graduates",
       "description": "Thesis work, summer internships and graduate programmes in defence and aerospace tech.",
       "category": "thesis",
-      "tags": [
-        "defense",
-        "tech",
-        "thesis"
-      ],
+      "tags": ["defense", "tech", "thesis"],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=saab.com&sz=64",
       "ogImage": null,
@@ -144,11 +118,7 @@
       "title": "Ericsson — Students & Graduates",
       "description": "Internships and master-thesis opportunities in telecom, 5G and large-scale systems.",
       "category": "thesis",
-      "tags": [
-        "tech",
-        "stockholm",
-        "thesis"
-      ],
+      "tags": ["tech", "stockholm", "thesis"],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=ericsson.com&sz=64",
       "ogImage": null,
