@@ -32,4 +32,5 @@ source, and build configuration inside its directory. For standalone HTML
 projects, use `index.html` as the entry point. Keep generated static output for
 build-based projects in their own `dist/` directory.
 
-Add a collection page or site navigation link separately when ready.
+The collection page is `index.html`. Add a direct project link there when adding
+a project. Add a main-site navigation link separately when ready.
