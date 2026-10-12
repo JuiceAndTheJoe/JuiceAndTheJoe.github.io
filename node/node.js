@@ -13,6 +13,10 @@
   const SECRET_KEY = "node_secret";
   const ENDPOINT = "https://satellite-proxy.esvela02.workers.dev";
   const MOBILE = () => window.matchMedia("(max-width: 720px)").matches;
+  // Status is its own axis (new → active → closed), kept distinct from the
+  // "Loose Ends" category so the word "inbox" no longer means two things.
+  const STATUS_LABEL = { inbox: "new", active: "active", done: "closed" };
+  const FALLBACK_COLOR = "#7d6f50";
 
   const els = {
     board:     document.getElementById("board"),
@@ -106,7 +110,7 @@
   /* ---------- build DOM ---------- */
 
   function buildCard(link, index) {
-    const cat = CATS[link.category] || { color: "#d63d3d", label: link.category };
+    const cat = CATS[link.category] || { color: FALLBACK_COLOR, label: link.category };
     const h = hash(link.id);
 
     const card = document.createElement("article");
@@ -125,7 +129,6 @@
     const imgSrc = link.ogImage || link.favicon || "";
     const isIcon = !link.ogImage;
     card.innerHTML = `
-      <span class="card-fresh">just pinned</span>
       <img class="card-photo${isIcon ? " is-icon" : ""}" src="${imgSrc}" alt="" loading="lazy"
            onerror="this.classList.add('is-icon');this.src='${link.favicon || ""}'">
       <span class="card-stamp"></span>
@@ -147,9 +150,7 @@
     card.classList.toggle("is-done", status === "done");
     const stamp = card.querySelector(".card-stamp");
     stamp.className = "card-stamp " + status;
-    stamp.textContent = status === "done" ? "closed" : status;
-    const fresh = card.querySelector(".card-fresh");
-    if (fresh) fresh.style.display = status === "inbox" ? "" : "none";
+    stamp.textContent = STATUS_LABEL[status] || status;
   }
 
   function buildFilters() {
@@ -160,7 +161,7 @@
       btn.type = "button";
       btn.textContent = cat.label;
       btn.dataset.cat = id;
-      btn.setAttribute("aria-pressed", "true");
+      btn.setAttribute("aria-pressed", activeCats.has(id) ? "true" : "false");
       btn.style.setProperty("--dot", cat.color);
       btn.style.setProperty("--tilt", (i % 2 ? 1.2 : -1.2) + "deg");
       btn.addEventListener("click", () => {
@@ -282,7 +283,7 @@
 
   function openOverlay(link) {
     currentLink = link;
-    const cat = CATS[link.category] || { color: "#d63d3d", label: link.category };
+    const cat = CATS[link.category] || { color: FALLBACK_COLOR, label: link.category };
     const o = els.ov;
     const imgSrc = link.ogImage || link.favicon || "";
     o.photo.src = imgSrc;
@@ -452,7 +453,12 @@
   function insertLink(link) {
     if (LINKS.some((l) => l.id === link.id)) return;
     LINKS.push(link);
-    if (!CATS[link.category]) activeCats.add(link.category);
+    if (!CATS[link.category]) {
+      // Unseen category: register it so it gets a filter pin and a real accent.
+      CATS[link.category] = { label: link.category, color: FALLBACK_COLOR };
+      activeCats.add(link.category);
+      buildFilters();
+    }
     els.cards.appendChild(buildCard(link, 0));
     applySort();
     refresh();

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petal Wheel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EDF4E8;
+    --bg-panel: #FBFBF6;
+    --forest: #223B27;
+    --forest-soft: #3C5F41;
+    --green-mid: #4F7A55;
+    --green-soft: #86AE85;
+    --sage: #C3DCB9;
+    --sage-pale: #E4EEDD;
+    --blush: #F2B9C4;
+    --blush-deep: #E28A9B;
+    --gold: #DFA94E;
+    --cream: #FCFAF1;
+    --ink: #1C2A1F;
+    --shadow: rgba(34, 59, 39, 0.16);
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Quicksand', 'Trebuchet MS', sans-serif;
+  }
+
+  *{ box-sizing: border-box; }
+  html, body{ height: 100%; }
+  body{
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    background-image:
+      radial-gradient(circle at 8% 12%, var(--sage-pale) 0%, transparent 40%),
+      radial-gradient(circle at 95% 85%, var(--sage-pale) 0%, transparent 38%);
+  }
+  button{ font-family: inherit; }
+  textarea, input{ font-family: inherit; }
+  ::selection{ background: var(--blush); color: var(--forest); }
+
+  :focus-visible{
+    outline: 3px solid var(--gold);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Flower motif (reusable inline SVG) ---------- */
+  .flower{ display:block; }
+  .flower .petal{ fill: var(--blush); }
+  .flower .petal-alt{ fill: var(--blush-deep); }
+  .flower .center{ fill: var(--gold); }
+
+  .corner-bloom{
+    position: fixed;
+    width: 220px;
+    height: 220px;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .corner-bloom.top-left{ top: -60px; left: -60px; transform: rotate(-15deg); }
+  .corner-bloom.bottom-right{ bottom: -70px; right: -50px; transform: rotate(25deg); }
+
+  /* ---------- Layout ---------- */
+  .app{
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 240px 1fr 300px;
+    min-height: 100vh;
+  }
+
+  .sidebar{
+    background: var(--forest);
+    color: var(--sage-pale);
+    padding: 28px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .brand{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 6px;
+  }
+  .brand .flower{ width: 30px; height: 30px; flex-shrink: 0; }
+  .brand h1{
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.2px;
+    color: var(--cream);
+  }
+
+  .new-wheel-btn{
+    background: var(--green-mid);
+    color: var(--cream);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 11px 14px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.12s ease;
+  }
+  .new-wheel-btn:hover{ background: var(--green-soft); color: var(--forest); }
+  .new-wheel-btn:active{ transform: scale(0.98); }
+
+  .wheel-list{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+  }
+  .wheel-list-item{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .wheel-list-item:hover{ background: rgba(255,255,255,0.08); }
+  .wheel-list-item.active{ background: var(--sage-pale); color: var(--forest); }
+  .wheel-list-item .name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.93rem;
+  }
+  .wheel-list-item .count{
+    font-size: 0.78rem;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+  .wheel-list-item.active .count{ opacity: 0.55; }
+  .icon-btn{
+    background: none;
+    border: none;
+    color: inherit;
+    opacity: 0.55;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .icon-btn:hover{ opacity: 1; background: rgba(0,0,0,0.08); }
+
+  .sidebar-empty{
+    font-size: 0.85rem;
+    opacity: 0.7;
+    line-height: 1.5;
+    padding: 6px 4px;
+  }
+
+  /* ---------- Stage ---------- */
+  .stage{
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .stage-header{
+    width: 100%;
+    max-width: 620px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .wheel-title-input{
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--forest);
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 4px 8px;
+    width: 100%;
+    min-width: 0;
+  }
+  .wheel-title-input:hover{ border-color: var(--sage); }
+  .wheel-title-input:focus{ border-color: var(--green-soft); background: var(--bg-panel); }
+
+  .delete-wheel-btn{
+    background: transparent;
+    border: 1.5px solid var(--blush-deep);
+    color: var(--blush-deep);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .delete-wheel-btn:hover{ background: var(--blush-deep); color: var(--cream); }
+
+  .wheel-stage{
+    position: relative;
+    width: min(70vh, 460px);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wheel-ring{
+    position: absolute;
+    inset: -18px;
+    border-radius: 50%;
+    background: var(--cream);
+    box-shadow: 0 22px 45px var(--shadow), inset 0 0 0 2px var(--sage);
+    z-index: 0;
+  }
+
+  .wheel-disc{
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 0 6px var(--cream), 0 0 0 8px var(--sage);
+    transform: rotate(0deg);
+    transition: transform 4.6s cubic-bezier(0.15, 0.65, 0.1, 1);
+    z-index: 1;
+  }
+  .wheel-disc.no-transition{ transition: none !important; }
+  .wheel-disc canvas{ display: block; width: 100%; height: 100%; }
+
+  .pointer{
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 34px;
+    height: 40px;
+    z-index: 3;
+    filter: drop-shadow(0 4px 6px var(--shadow));
+  }
+
+  .hub{
+    position: absolute;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--forest);
+    color: var(--cream);
+    border: 4px solid var(--cream);
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 8px 18px var(--shadow);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .hub:hover:not(:disabled){ background: var(--green-mid); transform: translate(-50%,-50%) scale(1.04); }
+  .hub:disabled{ opacity: 0.7; cursor: not-allowed; }
+  .hub-petals{
+    position: absolute;
+    width: 128px;
+    height: 128px;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .stage-hint{
+    font-size: 0.9rem;
+    color: var(--forest-soft);
+    text-align: center;
+    max-width: 420px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Entries panel ---------- */
+  .entries-panel{
+    background: var(--bg-panel);
+    border-left: 1px solid var(--sage);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+  .entries-panel h2{
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--forest);
+  }
+  .entries-panel p.helper{
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--forest-soft);
+    line-height: 1.4;
+  }
+  .entries-textarea{
+    flex: 1;
+    min-height: 260px;
+    resize: none;
+    border: 1.5px solid var(--sage);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    background: var(--cream);
+    color: var(--ink);
+  }
+  .entries-textarea:focus{ border-color: var(--green-soft); }
+  .entries-textarea:disabled{ background: var(--sage-pale); color: var(--forest-soft); }
+  .entry-count{
+    font-size: 0.8rem;
+    color: var(--forest-soft);
+    text-align: right;
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 42, 31, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .modal-overlay.hidden{ display: none; }
+
+  .modal{
+    position: relative;
+    background: var(--cream);
+    border-radius: 26px;
+    padding: 46px 40px 36px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 30px 60px rgba(28,42,31,0.35);
+    overflow: visible;
+  }
+  .modal-bloom{
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    top: -34px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .modal-label{
+    margin: 18px 0 6px;
+    font-size: 0.95rem;
+    color: var(--forest-soft);
+  }
+  .modal h2{
+    font-family: var(--serif);
+    font-size: 2rem;
+    margin: 0 0 26px;
+    color: var(--forest);
+    word-break: break-word;
+  }
+  .modal-actions{
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .modal-actions button{
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.15s ease;
+  }
+  .modal-actions button:active{ transform: scale(0.97); }
+  #continueBtn{ background: var(--green-mid); color: var(--cream); }
+  #continueBtn:hover{ background: var(--green-soft); color: var(--forest); }
+  #removeBtn{ background: transparent; color: var(--blush-deep); border: 1.5px solid var(--blush-deep) !important; }
+  #removeBtn:hover{ background: var(--blush-deep); color: var(--cream); }
+
+  /* ---------- Petal confetti ---------- */
+  .petal-fall{
+    position: fixed;
+    top: -20px;
+    border-radius: 60% 0 60% 0;
+    pointer-events: none;
+    z-index: 60;
+    animation: petal-drop linear forwards;
+  }
+  @keyframes petal-drop{
+    to{ transform: translateY(110vh) rotate(var(--spin)); opacity: 0.15; }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{
+      flex-direction: row;
+      align-items: center;
+      overflow-x: auto;
+      padding: 16px;
+    }
+    .wheel-list{ flex-direction: row; overflow-x: auto; }
+    .wheel-list-item{ flex-shrink: 0; }
+    .entries-panel{ border-left: none; border-top: 1px solid var(--sage); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .wheel-disc{ transition: none; }
+    .petal-fall{ animation: none; display: none; }
+  }
+</style>
+</head>
+<body>
+
+<svg class="corner-bloom top-left flower" viewBox="0 0 100 100" aria-hidden="true">
+  <g>
+    <ellipse class="petal" cx="50" cy="25" rx="14" ry="24" transform="rotate(0 50 50)"/>
+    <ellipse class="petal-alt" cx="50" cy="25" rx="14" ry="24" transform="rotate(60 50 50)"/>
+    <ellipse class="petal" cx="50" cy="25" rx="14" ry="24" transform="rotate(120 50 50)"/>
+    <ellipse class="petal-alt" cx="50" cy="25" rx="14" ry="24" transform="rotate(180 50 50)"/>
+    <ellipse class="petal" cx="50" cy="25" rx="14" ry="24" transform="rotate(240 50 50)"/>
+    <ellipse class="petal-alt" cx="50" cy="25" rx="14" ry="24" transform="rotate(300 50 50)"/>
+    <circle class="center" cx="50" cy="50" r="11"/>
+  </g>
+</svg>
+<svg class="corner-bloom bottom-right flower" viewBox="0 0 100 100" aria-hidden="true">
+  <g>
+    <ellipse class="petal" cx="50" cy="25" rx="14" ry="24" transform="rotate(0 50 50)"/>
+    <ellipse class="petal-alt" cx="50" cy="25" rx="14" ry="24" transform="rotate(60 50 50)"/>
+    <ellipse class="petal" cx="50" cy="25" rx="14" ry="24" transform="rotate(120 50 50)"/>
+    <ellipse class="petal-alt" cx="50" cy="25" rx="14" ry="24" transform="rotate(180 50 50)"/>
+    <ellipse class="petal" cx="50" cy="25" rx="14" ry="24" transform="rotate(240 50 50)"/>
+    <ellipse class="petal-alt" cx="50" cy="25" rx="14" ry="24" transform="rotate(300 50 50)"/>
+    <circle class="center" cx="50" cy="50" r="11"/>
+  </g>
+</svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <svg class="flower" viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="petal" cx="50" cy="25" rx="16" ry="25" transform="rotate(0 50 50)"/>
+        <ellipse class="petal-alt" cx="50" cy="25" rx="16" ry="25" transform="rotate(72 50 50)"/>
+        <ellipse class="petal" cx="50" cy="25" rx="16" ry="25" transform="rotate(144 50 50)"/>
+        <ellipse class="petal-alt" cx="50" cy="25" rx="16" ry="25" transform="rotate(216 50 50)"/>
+        <ellipse class="petal" cx="50" cy="25" rx="16" ry="25" transform="rotate(288 50 50)"/>
+        <circle class="center" cx="50" cy="50" r="13"/>
+      </svg>
+      <h1>Petal Wheel</h1>
+    </div>
+    <button class="new-wheel-btn" id="newWheelBtn">+ New wheel</button>
+    <ul class="wheel-list" id="wheelList"></ul>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-header">
+      <input class="wheel-title-input" id="wheelTitleInput" maxlength="60" aria-label="Wheel name">
+      <button class="delete-wheel-btn" id="deleteWheelBtn">Delete wheel</button>
+    </div>
+
+    <div class="wheel-stage">
+      <div class="wheel-ring"></div>
+      <svg class="pointer" viewBox="0 0 34 40" aria-hidden="true">
+        <path d="M17 40 L2 10 Q17 -6 32 10 Z" fill="#DFA94E" stroke="#223B27" stroke-width="2"/>
+      </svg>
+      <div class="wheel-disc" id="wheelDisc">
+        <canvas id="wheelCanvas"></canvas>
+      </div>
+      <svg class="hub-petals flower" viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="petal" cx="50" cy="14" rx="9" ry="15" transform="rotate(0 50 50)"/>
+        <ellipse class="petal-alt" cx="50" cy="14" rx="9" ry="15" transform="rotate(45 50 50)"/>
+        <ellipse class="petal" cx="50" cy="14" rx="9" ry="15" transform="rotate(90 50 50)"/>
+        <ellipse class="petal-alt" cx="50" cy="14" rx="9" ry="15" transform="rotate(135 50 50)"/>
+        <ellipse class="petal" cx="50" cy="14" rx="9" ry="15" transform="rotate(180 50 50)"/>
+        <ellipse class="petal-alt" cx="50" cy="14" rx="9" ry="15" transform="rotate(225 50 50)"/>
+        <ellipse class="petal" cx="50" cy="14" rx="9" ry="15" transform="rotate(270 50 50)"/>
+        <ellipse class="petal-alt" cx="50" cy="14" rx="9" ry="15" transform="rotate(315 50 50)"/>
+      </svg>
+      <button class="hub" id="spinBtn" style="left:50%; top:50%; transform: translate(-50%,-50%);">Spin</button>
+    </div>
+
+    <p class="stage-hint" id="stageHint"></p>
+  </main>
+
+  <section class="entries-panel">
+    <h2>Entries</h2>
+    <p class="helper">One entry per line. The wheel updates as you type.</p>
+    <textarea class="entries-textarea" id="entriesText" placeholder="Pizza&#10;Tacos&#10;Sushi&#10;Salad"></textarea>
+    <div class="entry-count" id="entryCount"></div>
+  </section>
+</div>
+
+<div class="modal-overlay hidden" id="winnerModal" role="dialog" aria-modal="true" aria-labelledby="winnerName">
+  <div class="modal">
+    <svg class="modal-bloom flower" viewBox="0 0 100 100" aria-hidden="true">
+      <ellipse class="petal" cx="50" cy="25" rx="15" ry="24" transform="rotate(0 50 50)"/>
+      <ellipse class="petal-alt" cx="50" cy="25" rx="15" ry="24" transform="rotate(60 50 50)"/>
+      <ellipse class="petal" cx="50" cy="25" rx="15" ry="24" transform="rotate(120 50 50)"/>
+      <ellipse class="petal-alt" cx="50" cy="25" rx="15" ry="24" transform="rotate(180 50 50)"/>
+      <ellipse class="petal" cx="50" cy="25" rx="15" ry="24" transform="rotate(240 50 50)"/>
+      <ellipse class="petal-alt" cx="50" cy="25" rx="15" ry="24" transform="rotate(300 50 50)"/>
+      <circle class="center" cx="50" cy="50" r="12"/>
+    </svg>
+    <p class="modal-label">The wheel has chosen</p>
+    <h2 id="winnerName">—</h2>
+    <div class="modal-actions">
+      <button id="continueBtn">Keep in wheel</button>
+      <button id="removeBtn">Remove from wheel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmMessage">
+  <div class="modal">
+    <p class="modal-label">Are you sure?</p>
+    <h2 id="confirmMessage" style="font-size:1.3rem;">Delete this wheel?</h2>
+    <div class="modal-actions">
+      <button id="confirmCancelBtn" style="background: var(--sage-pale); color: var(--forest);">Cancel</button>
+      <button id="confirmOkBtn" style="background: var(--blush-deep); color: var(--cream);">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "petalWheel.state.v1";
+  var PALETTE = ["#2F5233","#4C7A52","#6B9971","#8FBB8B","#B9D6AE","#DFA94E","#F2B9C4","#7A9D54","#3F6B4F","#A8C69F"];
+
+  function uid(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "id-" + Math.random().toString(36).slice(2) + Date.now();
+  }
+
+  function defaultState(){
+    var w = {
+      id: uid(),
+      name: "Märtha's wheel",
+      entries: ["Pizza", "Tacos", "Sushi", "Salad", "Burgers", "Ramen"]
+    };
+    return { wheels: [w], activeId: w.id };
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      if (!parsed.wheels || !parsed.wheels.length) return defaultState();
+      return parsed;
+    }catch(e){
+      return defaultState();
+    }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ /* storage unavailable */ }
+  }
+
+  var state = loadState();
+
+  // ---------- DOM refs ----------
+  var wheelListEl = document.getElementById("wheelList");
+  var newWheelBtn = document.getElementById("newWheelBtn");
+  var wheelTitleInput = document.getElementById("wheelTitleInput");
+  var deleteWheelBtn = document.getElementById("deleteWheelBtn");
+  var entriesText = document.getElementById("entriesText");
+  var entryCount = document.getElementById("entryCount");
+  var stageHint = document.getElementById("stageHint");
+  var spinBtn = document.getElementById("spinBtn");
+  var wheelDisc = document.getElementById("wheelDisc");
+  var canvas = document.getElementById("wheelCanvas");
+  var ctx = canvas.getContext("2d");
+  var winnerModal = document.getElementById("winnerModal");
+  var winnerName = document.getElementById("winnerName");
+  var continueBtn = document.getElementById("continueBtn");
+  var removeBtn = document.getElementById("removeBtn");
+  var confirmModal = document.getElementById("confirmModal");
+  var confirmMessage = document.getElementById("confirmMessage");
+  var confirmCancelBtn = document.getElementById("confirmCancelBtn");
+  var confirmOkBtn = document.getElementById("confirmOkBtn");
+
+  function askConfirm(message, onConfirm){
+    confirmMessage.textContent = message;
+    confirmModal.classList.remove("hidden");
+
+    function cleanup(){
+      confirmModal.classList.add("hidden");
+      confirmOkBtn.removeEventListener("click", onOk);
+      confirmCancelBtn.removeEventListener("click", onCancel);
+    }
+    function onOk(){ cleanup(); onConfirm(); }
+    function onCancel(){ cleanup(); }
+    confirmOkBtn.addEventListener("click", onOk);
+    confirmCancelBtn.addEventListener("click", onCancel);
+  }
+
+  var totalRotation = 0;
+  var spinning = false;
+  var pendingWinnerIndex = -1;
+
+  function getActiveWheel(){
+    var found = state.wheels.filter(function(w){ return w.id === state.activeId; })[0];
+    return found || state.wheels[0];
+  }
+
+  // ---------- Sidebar ----------
+  function renderSidebar(){
+    wheelListEl.innerHTML = "";
+    if (!state.wheels.length){
+      var empty = document.createElement("div");
+      empty.className = "sidebar-empty";
+      empty.textContent = "No wheels yet. Create one to get started.";
+      wheelListEl.appendChild(empty);
+      return;
+    }
+    state.wheels.forEach(function(w){
+      var li = document.createElement("li");
+      li.className = "wheel-list-item" + (w.id === state.activeId ? " active" : "");
+      var nameSpan = document.createElement("span");
+      nameSpan.className = "name";
+      nameSpan.textContent = w.name || "Untitled wheel";
+      var countSpan = document.createElement("span");
+      countSpan.className = "count";
+      countSpan.textContent = w.entries.length;
+      li.appendChild(nameSpan);
+      li.appendChild(countSpan);
+      li.addEventListener("click", function(){
+        state.activeId = w.id;
+        saveState();
+        renderAll();
+      });
+      wheelListEl.appendChild(li);
+    });
+  }
+
+  // ---------- Stage / entries ----------
+  function renderStageHeader(){
+    var w = getActiveWheel();
+    wheelTitleInput.value = w ? w.name : "";
+    var hasWheel = !!w;
+    wheelTitleInput.disabled = !hasWheel;
+    deleteWheelBtn.disabled = !hasWheel;
+  }
+
+  function renderEntriesPanel(){
+    var w = getActiveWheel();
+    var text = w ? w.entries.join("\n") : "";
+    if (document.activeElement !== entriesText) entriesText.value = text;
+    entriesText.disabled = !w || spinning;
+    var n = w ? w.entries.length : 0;
+    entryCount.textContent = n + (n === 1 ? " entry" : " entries");
+  }
+
+  function updateHint(){
+    var w = getActiveWheel();
+    if (!w){
+      stageHint.textContent = "Create a wheel from the sidebar to begin.";
+      spinBtn.disabled = true;
+      return;
+    }
+    if (w.entries.length < 2){
+      stageHint.textContent = "Add at least two entries to spin the wheel.";
+      spinBtn.disabled = true;
+    } else {
+      stageHint.textContent = "Tap the wheel to give it a spin.";
+      spinBtn.disabled = spinning;
+    }
+  }
+
+  // ---------- Canvas drawing ----------
+  function resizeCanvas(){
+    var rect = wheelDisc.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    var size = Math.max(rect.width, rect.height);
+    if (size < 10) return;
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawWheel();
+  }
+
+  function truncateLabel(label, maxWidth, font){
+    ctx.font = font;
+    if (ctx.measureText(label).width <= maxWidth) return label;
+    var truncated = label;
+    while (truncated.length > 1 && ctx.measureText(truncated + "…").width > maxWidth){
+      truncated = truncated.slice(0, -1);
+    }
+    return truncated + "…";
+  }
+
+  function luminance(hex){
+    var c = hex.replace("#", "");
+    var r = parseInt(c.substr(0,2),16) / 255;
+    var g = parseInt(c.substr(2,2),16) / 255;
+    var b = parseInt(c.substr(4,2),16) / 255;
+    return 0.299*r + 0.587*g + 0.114*b;
+  }
+
+  function drawWheel(){
+    var w = getActiveWheel();
+    var entries = w ? w.entries : [];
+    var size = canvas.width / (window.devicePixelRatio || 1);
+    var cx = size / 2;
+    var cy = size / 2;
+    var radius = size / 2;
+
+    ctx.clearRect(0, 0, size, size);
+
+    if (!entries.length){
+      ctx.fillStyle = "#FBF8EF";
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#3C5F41";
+      ctx.font = "600 16px Quicksand, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Add entries to build", cx, cy - 8);
+      ctx.fillText("your wheel", cx, cy + 14);
+      return;
+    }
+
+    var n = entries.length;
+    var sliceAngle = (Math.PI * 2) / n;
+    var startOffset = -Math.PI / 2;
+    var fontSize = n > 16 ? 13 : n > 10 ? 15 : n > 6 ? 18 : 21;
+
+    for (var i = 0; i < n; i++){
+      var start = startOffset + i * sliceAngle;
+      var end = start + sliceAngle;
+      var color = PALETTE[i % PALETTE.length];
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, start, end);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = "#FBF8EF";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      var mid = start + sliceAngle / 2;
+      var textColor = luminance(color) > 0.55 ? "#223B27" : "#FCFAF1";
+      var font = "600 " + fontSize + "px Quicksand, sans-serif";
+      var maxWidth = radius - 40;
+      var label = truncateLabel(entries[i], maxWidth, font);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(mid);
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = textColor;
+      ctx.font = font;
+      ctx.fillText(label, radius - 18, 0);
+      ctx.restore();
+    }
+  }
+
+  // ---------- Entry editing ----------
+  entriesText.addEventListener("input", function(){
+    var w = getActiveWheel();
+    if (!w) return;
+    w.entries = entriesText.value.split("\n").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    saveState();
+    drawWheel();
+    updateHint();
+    renderSidebarCounts();
+  });
+
+  function renderSidebarCounts(){
+    var items = wheelListEl.querySelectorAll(".wheel-list-item");
+    state.wheels.forEach(function(w, idx){
+      var el = items[idx];
+      if (el) el.querySelector(".count").textContent = w.entries.length;
+    });
+  }
+
+  wheelTitleInput.addEventListener("input", function(){
+    var w = getActiveWheel();
+    if (!w) return;
+    w.name = wheelTitleInput.value;
+    saveState();
+    renderSidebar();
+  });
+
+  // ---------- Wheel management ----------
+  newWheelBtn.addEventListener("click", function(){
+    var w = { id: uid(), name: "New wheel", entries: ["Option 1", "Option 2", "Option 3"] };
+    state.wheels.push(w);
+    state.activeId = w.id;
+    saveState();
+    renderAll();
+    wheelTitleInput.focus();
+    wheelTitleInput.select();
+  });
+
+  deleteWheelBtn.addEventListener("click", function(){
+    var w = getActiveWheel();
+    if (!w) return;
+    askConfirm('Delete "' + (w.name || "Untitled wheel") + '"? This cannot be undone.', function(){
+      state.wheels = state.wheels.filter(function(x){ return x.id !== w.id; });
+      if (state.wheels.length){
+        state.activeId = state.wheels[0].id;
+      } else {
+        state.activeId = null;
+      }
+      saveState();
+      resetRotation();
+      renderAll();
+    });
+  });
+
+  function resetRotation(){
+    totalRotation = 0;
+    wheelDisc.classList.add("no-transition");
+    wheelDisc.style.transform = "rotate(0deg)";
+    void wheelDisc.offsetWidth;
+    wheelDisc.classList.remove("no-transition");
+  }
+
+  // ---------- Spin logic ----------
+  function computeWinningIndex(rotationDeg, n){
+    var sliceWidth = 360 / n;
+    var normalized = ((rotationDeg % 360) + 360) % 360;
+    var adjusted = (360 - normalized) % 360;
+    return Math.floor(adjusted / sliceWidth) % n;
+  }
+
+  spinBtn.addEventListener("click", function(){
+    var w = getActiveWheel();
+    if (!w || w.entries.length < 2 || spinning) return;
+
+    spinning = true;
+    spinBtn.disabled = true;
+    spinBtn.textContent = "…";
+    entriesText.disabled = true;
+
+    var extraSpins = 5 + Math.floor(Math.random() * 3);
+    var randomOffset = Math.random() * 360;
+    totalRotation += extraSpins * 360 + randomOffset;
+    wheelDisc.style.transform = "rotate(" + totalRotation + "deg)";
+
+    function onDone(){
+      wheelDisc.removeEventListener("transitionend", onDone);
+      var currentWheel = getActiveWheel();
+      var idx = computeWinningIndex(totalRotation, currentWheel.entries.length);
+      pendingWinnerIndex = idx;
+      showWinner(currentWheel.entries[idx]);
+      spinning = false;
+      spinBtn.textContent = "Spin";
+    }
+    wheelDisc.addEventListener("transitionend", onDone);
+  });
+
+  function showWinner(text){
+    winnerName.textContent = text;
+    winnerModal.classList.remove("hidden");
+    spawnPetals();
+  }
+
+  function hideWinner(){
+    winnerModal.classList.add("hidden");
+    pendingWinnerIndex = -1;
+    entriesText.disabled = false;
+    updateHint();
+  }
+
+  continueBtn.addEventListener("click", function(){
+    hideWinner();
+  });
+
+  removeBtn.addEventListener("click", function(){
+    var w = getActiveWheel();
+    if (w && pendingWinnerIndex >= 0 && pendingWinnerIndex < w.entries.length){
+      w.entries.splice(pendingWinnerIndex, 1);
+      saveState();
+    }
+    resetRotation();
+    hideWinner();
+    renderEntriesPanel();
+    renderSidebarCounts();
+    drawWheel();
+    updateHint();
+  });
+
+  winnerModal.addEventListener("click", function(e){
+    if (e.target === winnerModal) hideWinner();
+  });
+
+  function spawnPetals(){
+    var colors = ["#F2B9C4", "#E28A9B", "#DFA94E", "#86AE85"];
+    for (var i = 0; i < 22; i++){
+      (function(){
+        var el = document.createElement("div");
+        el.className = "petal-fall";
+        var size = 8 + Math.random() * 10;
+        el.style.width = size + "px";
+        el.style.height = size * 0.7 + "px";
+        el.style.left = Math.random() * 100 + "vw";
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.setProperty("--spin", (Math.random() > 0.5 ? "" : "-") + Math.floor(Math.random() * 360) + "deg");
+        var duration = 2.6 + Math.random() * 1.8;
+        el.style.animationDuration = duration + "s";
+        el.style.animationDelay = (Math.random() * 0.4) + "s";
+        document.body.appendChild(el);
+        setTimeout(function(){ el.remove(); }, (duration + 0.5) * 1000);
+      })();
+    }
+  }
+
+  // ---------- Render orchestration ----------
+  function renderAll(){
+    renderSidebar();
+    renderStageHeader();
+    renderEntriesPanel();
+    updateHint();
+    resizeCanvas();
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  if (window.ResizeObserver){
+    new ResizeObserver(resizeCanvas).observe(wheelDisc);
+  }
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

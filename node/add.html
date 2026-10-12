@@ -27,15 +27,32 @@
     background-image:
       radial-gradient(circle at 18% 22%, rgba(255,255,255,0.10) 0 2px, transparent 3px),
       radial-gradient(circle at 62% 48%, rgba(0,0,0,0.10) 0 2px, transparent 3px),
+      radial-gradient(circle at 82% 78%, rgba(255,255,255,0.08) 0 1.5px, transparent 3px),
+      radial-gradient(circle at 38% 82%, rgba(0,0,0,0.08) 0 2px, transparent 3px),
       radial-gradient(circle at 50% 35%, var(--cork) 0%, var(--cork-dark) 70%, var(--cork-edge) 130%);
-    background-size:23px 23px,29px 29px,100% 100%;
+    background-size:23px 23px,29px 29px,31px 31px,37px 37px,100% 100%;
     background-attachment:fixed;
     display:flex; flex-direction:column; align-items:center;
     padding:calc(28px + env(safe-area-inset-top)) 18px 40px;
   }
   a { color:var(--thread); }
-  .home { position:fixed; top:14px; left:14px; }
-  .home img { width:48px; filter:drop-shadow(2px 3px 2px rgba(0,0,0,0.4)); }
+  .home {
+    position:fixed; top:16px; left:16px; z-index:60;
+    display:inline-flex; align-items:center; gap:8px; text-decoration:none;
+  }
+  .home img {
+    width:54px; height:auto; filter:drop-shadow(2px 3px 2px rgba(0,0,0,0.4));
+    transition:transform 0.6s ease;
+  }
+  .spin-on-hover:hover { transform:rotate(360deg); }
+  .hover-text {
+    font-family:"Permanent Marker",cursive; color:var(--paper);
+    background:rgba(0,0,0,0.45); padding:2px 8px; border-radius:4px;
+    opacity:0; transform:translateX(-6px);
+    transition:opacity 0.25s ease, transform 0.25s ease; white-space:nowrap;
+  }
+  .home:hover .hover-text { opacity:1; transform:translateX(0); }
+  @media (prefers-reduced-motion: reduce) { .home img { transition:none; } }
   h1 {
     font-family:"Permanent Marker",cursive; font-size:2rem; margin:6px 0 2px;
     color:#1c140c; transform:rotate(-1.4deg);
@@ -85,7 +102,8 @@
 <body>
 
 <a class="home" href="/node/" aria-label="Back to The Node">
-  <img src="../web/knas_liten.png" alt="The Node">
+  <img src="../web/knas_liten.png" alt="The Node" class="spin-on-hover">
+  <span class="hover-text">Take me back!</span>
 </a>
 
 <h1>Pin a Clue</h1>
@@ -107,7 +125,7 @@
          placeholder="https://&hellip;" required>
 
   <label for="category">Pin to</label>
-  <select id="category"><option value="inbox">Inbox</option></select>
+  <select id="category"><option value="inbox">Loose Ends</option></select>
 
   <label for="note">Note <span style="opacity:.6">(optional)</span></label>
   <textarea id="note" placeholder="why is this worth pinning?"></textarea>
@@ -123,7 +141,7 @@
   const ENDPOINT = "https://satellite-proxy.esvela02.workers.dev/add-link";
   const KEY = "node_secret";
   const FALLBACK_CATS = [
-    ["inbox","Inbox"], ["social","Social Media"], ["employers","Prospective Employers"],
+    ["inbox","Loose Ends"], ["social","Social Media"], ["employers","Prospective Employers"],
     ["inspiration","Inspirational Projects"], ["thesis","Thesis / Summer Jobs"]
   ];
 
