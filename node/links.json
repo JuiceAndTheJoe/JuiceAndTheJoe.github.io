@@ -34,7 +34,12 @@
       "title": "Life at Spotify — Careers",
       "description": "Stockholm audio giant. Dream-tier for a media-tech engineer who also makes music.",
       "category": "employers",
-      "tags": ["media", "stockholm", "music", "career"],
+      "tags": [
+        "media",
+        "stockholm",
+        "music",
+        "career"
+      ],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=lifeatspotify.com&sz=64",
       "ogImage": null,
@@ -46,7 +51,10 @@
       "title": "pepepepebrick (Instagram)",
       "description": "Endlessly inspiring brick/build art. The original spark for this whole board.",
       "category": "inspiration",
-      "tags": ["creative", "art"],
+      "tags": [
+        "creative",
+        "art"
+      ],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=instagram.com&sz=64",
       "ogImage": null,
@@ -58,7 +66,11 @@
       "title": "Bartosz Ciechanowski — Interactive explainers",
       "description": "The gold standard for interactive, hand-built explanations. Aspirational craft.",
       "category": "inspiration",
-      "tags": ["web", "creative", "code"],
+      "tags": [
+        "web",
+        "creative",
+        "code"
+      ],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=ciechanowski.me&sz=64",
       "ogImage": null,
@@ -70,7 +82,10 @@
       "title": "Platsbanken — Summer jobs",
       "description": "Sweden's job bank. Filter for summer / part-time engineering gigs.",
       "category": "thesis",
-      "tags": ["career", "thesis"],
+      "tags": [
+        "career",
+        "thesis"
+      ],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=arbetsformedlingen.se&sz=64",
       "ogImage": null,
@@ -82,7 +97,11 @@
       "title": "FOI — Careers, internships & degree projects",
       "description": "Swedish Defence Research Agency. Summer internships and master-thesis (exjobb) projects in defence and security research.",
       "category": "thesis",
-      "tags": ["defense", "research", "thesis"],
+      "tags": [
+        "defense",
+        "research",
+        "thesis"
+      ],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=foi.se&sz=64",
       "ogImage": null,
@@ -94,7 +113,10 @@
       "title": "FMV — Work with us (exjobb & internships)",
       "description": "Swedish Defence Materiel Administration. Master-thesis placements and summer internships across systems and engineering.",
       "category": "thesis",
-      "tags": ["defense", "thesis"],
+      "tags": [
+        "defense",
+        "thesis"
+      ],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=fmv.se&sz=64",
       "ogImage": null,
@@ -106,7 +128,11 @@
       "title": "Saab — Students & Graduates",
       "description": "Thesis work, summer internships and graduate programmes in defence and aerospace tech.",
       "category": "thesis",
-      "tags": ["defense", "tech", "thesis"],
+      "tags": [
+        "defense",
+        "tech",
+        "thesis"
+      ],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=saab.com&sz=64",
       "ogImage": null,
@@ -118,7 +144,11 @@
       "title": "Ericsson — Students & Graduates",
       "description": "Internships and master-thesis opportunities in telecom, 5G and large-scale systems.",
       "category": "thesis",
-      "tags": ["tech", "stockholm", "thesis"],
+      "tags": [
+        "tech",
+        "stockholm",
+        "thesis"
+      ],
       "status": "active",
       "favicon": "https://www.google.com/s2/favicons?domain=ericsson.com&sz=64",
       "ogImage": null,
@@ -159,6 +189,18 @@
       "favicon": "https://www.google.com/s2/favicons?domain=rd.nytimes.com&sz=64",
       "ogImage": "https://images.prismic.io/nytrd-v2/fbfd94c6-9209-48f5-8b47-4c65b11ca8ea_pc3.jpg?auto=compress%2Cformat&rect=0%2C19%2C1600%2C867&w=1200&h=650&fit=max",
       "dateAdded": "2026-06-09T14:36:51.540Z"
+    },
+    {
+      "id": "465ea873-1ee9-4b5b-86ed-90b14df8f2e9",
+      "url": "https://www.gknaerospace.com/se/karriaer/?utm_medium=paid&utm_source=ig&utm_id=52606346579525&utm_content=52606414277125&utm_term=52606346581125&utm_campaign=52606346579525",
+      "title": "Karriär",
+      "description": "",
+      "category": "employers",
+      "tags": [],
+      "status": "inbox",
+      "favicon": "https://www.google.com/s2/favicons?domain=www.gknaerospace.com&sz=64",
+      "ogImage": "https://www.gknaerospace.com/media/aylnnwar/dsc_0498-redigera.jpg?width=1200&amp;height=630&amp;v=1dcfcca4a6a0e10",
+      "dateAdded": "2026-10-28T10:37:49.479Z"
     }
   ]
 }
